@@ -1,0 +1,175 @@
+.olMap {
+  width: 100%; 
+  height: 100%;
+  background-color: silver; 
+  position: relative;
+}
+
+.olMap .osm-load-waiting {
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  position: absolute;
+}
+
+.olMap .osm-load-waiting-div {
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  opacity: 0.2;
+  filter: Alpha(opacity=20);
+}
+
+.olMap .osm-load-waiting-img {
+  background: url("../img/waiting.gif") no-repeat 0 0;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+/* Controls start
+  The number in the ids of OpenLayer elements can vary (e.g OpenLayers_Control_DDBPanZoomBar_28_zoomin). 
+  So use wildcard selectors for elements that have an id starts and end with a given string
+ */
+/* .olMap #OpenLayers_Control_DDBPanZoomBar_28_zoomin { */
+.olMap div[id^="OpenLayers_Control_DDBPanZoomBar_"][id*="_zoomin"] {
+  top: 53px !important;
+  left: 18px !important;
+  z-index: 1 !important;
+}
+
+/*.olMap #OpenLayers_Control_DDBPanZoomBar_28_zoomout {*/
+.olMap div[id^="OpenLayers_Control_DDBPanZoomBar_"][id*="_zoomout"] {
+  top: 200px !important;
+  left: 18px !important;
+  z-index: 1 !important;
+}
+
+/*.olMap #OpenLayers_Control_DDBPanZoomBar_ZoombarOpenLayers_Map_2 {*/
+.olMap div[id^="OpenLayers_Control_DDBPanZoomBar_ZoombarOpenLayers_Map_"]{
+  width: 24px !important;
+  height: 174px !important;
+}
+
+/*.olMap #OpenLayers_Control_DDBPanZoomBar_28_OpenLayers_Map_2 { */
+.olMap div[id^="OpenLayers_Control_DDBPanZoomBar"][id*="_OpenLayers_Map_"]{
+  left: 17px !important;
+}
+
+/*.olMap #OpenLayers_Control_DDBPanZoomBar_28_panup, 
+.olMap #OpenLayers_Control_DDBPanZoomBar_28_panleft, 
+.olMap #OpenLayers_Control_DDBPanZoomBar_28_panright, 
+.olMap #OpenLayers_Control_DDBPanZoomBar_28_pandown {*/
+.olMap div[id^="OpenLayers_Control_DDBPanZoomBar_"][id*="_panup"],
+.olMap div[id^="OpenLayers_Control_DDBPanZoomBar_"][id*="_panleft"],
+.olMap div[id^="OpenLayers_Control_DDBPanZoomBar_"][id*="_panright"],
+.olMap div[id^="OpenLayers_Control_DDBPanZoomBar_"][id*="_pandown"]{
+  display: none !important;
+}
+
+.olMap .olControlZoom {
+  display:none !important;
+}
+
+.olMap .olControlAttribution {
+  bottom: 5px;
+  right: 10px;
+}
+
+.olMap .olControlDDBHome {
+  left: 19px;
+  top: 205px;   
+}
+
+
+.olMap .olControlAttribution {
+    bottom: 8px;
+    color: #56524F;
+    font-size: 11px;
+    right: 5px;
+}
+
+.olMap .olControlAttribution a {
+  background: none !important;
+  padding-left: 0px !important;
+}
+
+
+/* Controls end */
+
+/* Popup start */
+
+.olMap img {
+  margin: 0px !important; 
+}
+
+.olMap #institutionPopup_GroupDiv {
+}
+
+.olMap .olFramedDDBPopupContent {
+  background-color: #FFFFFF;
+}
+
+.olMap .olPopupCloseBox {
+  background: url("../../../images/icons/apdIkonographie.png") no-repeat -30px -475px !important;
+  width: 18px !important;
+  height: 18px !important;
+  right: 35px !important;
+  top: 17px !important;
+}
+
+.olMap .olPopupDDBContent {
+  margin: 0px 4px 4px 4px;
+}
+
+.olMap .olPopupDDBHeader {
+  height: 20px;
+  font-weight: bold;
+}
+
+.olMap .olPopupDDBBody {
+  margin-top: 5px;
+  padding-bottom: 5px;
+}
+
+.olMap .olPopupDDBScroll {
+  max-height: 150px;
+  width: 300px;
+  
+  overflow-x: hidden;
+  overflow-y: auto; 
+  /*
+  overflow: scroll;
+  */
+  -webkit-overflow-scrolling: touch;
+  /*
+  overflow-scrolling: touch;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+  position: static;
+  */
+}
+
+.olMap .olPopupDDBContent ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.olMap .olPopupDDBContent ul li {
+  background: url("../img/list_arrow_plum.png") no-repeat scroll 0 0 !important;
+  padding-left: 17px;
+}
+
+.olMap .olPopupDDBContent li ul li {
+  background: url("../img/list_arrow_grey.png") no-repeat scroll 0 0 !important;
+  padding-left: 17px;
+}
+
+
+.olMap .olControlAttribution a[href^="http"]:not(.no-external-link-icon):not([href^="http://localhost"]):not([href^="http://dev.escidoc.org"]):not([href*="deutsche-digitale-bibliothek.de"]):before {
+  background: none !important;
+}
+/* Popup end */

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ead xmlns="urn:isbn:1-931666-22-9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xsi:schemaLocation="urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd" audience="external">
+   <eadheader countryencoding="iso3166-1" dateencoding="iso8601" langencoding="iso639-2b"
+      repositoryencoding="iso15511" scriptencoding="iso15924">
+      <eadid mainagencycode="ISIL" url="Provider-Website">Identifier der Archivtektonik</eadid>  <!-- {ISIL}_Tektonik.xml -->
+      <filedesc>
+         <titlestmt>
+            <titleproper>Name des Archivs + (Archivtektonik)</titleproper>  <!-- identisch zu //c[@level="collection"]/did/unittitle -->
+         </titlestmt>
+      </filedesc>
+      <profiledesc>
+         <creation>
+            <date normal="2016-11-16">16. November 2016</date>
+         </creation>
+      </profiledesc>
+   </eadheader>
+   <archdesc level="collection" type="Tektonik">
+      <did>
+         <repository label="Bundesland">
+            <!--<corpname role="Übergeordnete Institution">Übergeordnete Institution</corpname>-->
+         </repository>
+      </did>
+      <dsc>
+         <c level="collection" id="Identifier der Architektonik">  <!-- {ISIL}_Tektonik.xml -->
+            <did>
+               <unittitle>Name des Archivs + (Archivtektonik)</unittitle>  <!-- identisch zu /ead/eadheader/filedesc/titlestmt/titleproper -->
+               <repository>
+                  <corpname role="Archivsparte" id="ISIL">Name des Archivs</corpname>
+                  <extref xlink:role="url_archive" xlink:href="http://URL_zur_Website">Name des Archivs</extref>
+                  <address>
+                     <addressline>Adresse: Strasse</addressline>
+                     <addressline>Adresse: Ort</addressline>
+                     <addressline>Adresse: E-Mail</addressline>
+                  </address>
+               </repository>
+            </did>
+            <otherfindaid>
+               <extref xlink:role="url_tektonik"
+                  xlink:href="http://URL_zur_Tektonik">
+                  Tektonik im Angebot des Archivs</extref>
+            </otherfindaid>
+         </c>
+      </dsc>
+   </archdesc>
+</ead>

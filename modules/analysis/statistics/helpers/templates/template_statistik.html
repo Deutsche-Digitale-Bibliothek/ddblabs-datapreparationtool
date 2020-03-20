@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Data Preparation Tool - Metadatenauswertung</title>
+    <link rel="stylesheet" href="static_resources/lib/bulma/bulma.min.css">
+    <link rel="stylesheet" href="static_resources/lib/bulma/bulma-tooltip.min.css">
+    <link rel="stylesheet" href="static_resources/lib/bulma/bulma-divider.min.css">
+    <script defer src="static_resources/lib/fontawesome/all.js"></script>
+    <script src="static_resources/lib/auxiliary.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item">
+            <img src="static_resources/dpt_banner.png" width="247" height="28" alt="Data Preparation Tool neo">
+        </a>
+
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+           data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start">
+
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    Weitere Informationen
+                </a>
+
+                <div class="navbar-dropdown">
+                    <a class="navbar-item"
+                       href="https://pro.deutsche-digitale-bibliothek.de/dokumente-und-links-fuer-archive">
+                        Dokumentation auf DDBpro
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="section">
+    <div class="container">
+        <h1 class="title">Metadatenauswertung</h1>
+        <h2 class="subtitle">
+            Datenqualität & statistische Auswertung der Datenlieferung
+        </h2>
+    </div>
+</section>
+
+
+<div class="container">
+    <div class="is-divider" data-content="Datenqualität"></div>
+    <div class="notification">
+        <p>Ergebnisse, die für die Übernahme in Portale problematisch sein können, werden rot hinterlegt; solche, bei
+            denen eine Verbesserung der Datenqualität möglich, jedoch nicht zwingend notwendig ist, werden hingegen gelb
+            hinterlegt.</p>
+        <br>
+        <p>Weitere Punkte werden in späteren Versionen des Tools ergänzt.</p>
+    </div>
+</div>
+
+<br/>
+
+<article class="message is-success container" data-insert-location="result_status_container">
+    <div class="message-body" data-insert-location="result_status_text">
+        Es wurden keine Probleme gefunden.
+    </div>
+</article>
+
+<div class="container">
+    <div class="dropdown is-hoverable" style="margin-top: 0.5em">
+        <div class="dropdown-trigger">
+            <button class="button is-success" aria-haspopup="true" aria-controls="dropdown-menu2"
+                    data-insert-location="object_without_title_button_color">
+                <!--<span class="icon has-text-success">-->
+                <!--<i class="fas fa-check-square"></i>-->
+                <!--</span>-->
+                <span>Objekte ohne Titel</span>
+                <span class="tag" style="margin-left: 1em" data-insert-location="object_without_title_button_count">0</span>
+                <span class="icon is-small">
+        <i class="fas fa-angle-down" aria-hidden="true"></i>
+      </span>
+            </button>
+        </div>
+        <div class="dropdown-menu" id="dropdown-menu-1" role="menu">
+            <div class="dropdown-content">
+                <div class="dropdown-item">
+                    <p>Identifier der Objekte, welche keinen Titel besitzen: </p>
+                </div>
+                <div class="dropdown-item">
+                    <p data-insert-location="object_without_title_dropdown_list">Keine</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="dropdown is-hoverable" style="margin-top: 0.5em">
+        <div class="dropdown-trigger">
+            <button class="button is-success" aria-haspopup="true" aria-controls="dropdown-menu2"
+                    data-insert-location="object_with_fake_title_button_color">
+                <!--<span class="icon has-text-success">-->
+                <!--<i class="fas fa-check-square"></i>-->
+                <!--</span>-->
+                <span>Objekte mit Platzhaltertitel</span>
+                <span class="tag" style="margin-left: 1em"
+                      data-insert-location="object_with_fake_title_button_count">0</span>
+                <span class="icon is-small">
+        <i class="fas fa-angle-down" aria-hidden="true"></i>
+      </span>
+            </button>
+        </div>
+        <div class="dropdown-menu" id="dropdown-menu-2" role="menu">
+            <div class="dropdown-content">
+                <div class="dropdown-item">
+                    <p>Identifier der Objekte, welche einen Platzhaltertitel (wie "ohne Titel", "unverzeichnet")
+                        besitzen: </p>
+                </div>
+                <div class="dropdown-item">
+                    <p data-insert-location="object_with_fake_title_dropdown_list">Keine</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="dropdown is-hoverable" style="margin-top: 0.5em">
+        <div class="dropdown-trigger">
+            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu2"
+                    data-insert-location="fake_title__button_color">
+                <!--<span class="icon has-text-success">-->
+                <!--<i class="fas fa-check-square"></i>-->
+                <!--</span>-->
+                <span>Durchschnittliche Anzahl Erschließungsfelder pro VZE</span>
+                <span class="tag" style="margin-left: 1em"
+                      data-insert-location="fake_title_button_count">0</span>
+                <span class="icon is-small">
+        <i class="fas fa-angle-down" aria-hidden="true"></i>
+      </span>
+            </button>
+        </div>
+        <div class="dropdown-menu" id="dropdown-menu-3" role="menu">
+            <div class="dropdown-content">
+                <div class="dropdown-item">
+                    <p>Objekte mit den meisten belegten Feldern: </p>
+                </div>
+                <div class="dropdown-item">
+                    <p data-insert-location="fake_title_dropdown_list">Keine</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+<div class="container">
+    <div class="is-divider" data-content="Statistische Analyse (Findbuch)"></div>
+    <div class="notification">
+        <p>Hierarchieebenen</p>
+        <br>
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <tbody>
+            <tr>
+                <th>Anzahl Objekte insgesamt</th>
+                <td data-insert-location="object_count_findbuch_value">0</td>
+            </tr>
+            <tr>
+                <th>Anzahl Objekte mit eigenem DDB-View<span class="icon has-text-info tooltip is-tooltip-multiline"
+                                                             data-tooltip="Dies umfasst diejenigen Objekte, die im Portal eine eigene Objektseite erhalten. Dazu zählen alle Objekte auf Bestands-, Verzeichnungs- und Vorgangsebene. Zusätzlich werden Objekte auf Gliederungs- und Serienebene berücksichtigt, wenn diese eine Kurzbeschreibung (Element 'abstract') besitzen.">
+  <i class="fas fa-info-circle"></i>
+</span></th>
+                <td data-insert-location="object_count_findbuch_view_value">0</td>
+
+            </tr>
+            <tr>
+                <th>Objekte auf Verzeichnungsebene</th>
+                <td data-insert-location="object_count_findbuch_file_value">0</td>
+            </tr>
+            <tr>
+                <th>Objekte auf Teilebene</th>
+                <td data-insert-location="object_count_findbuch_item_value">0</td>
+            </tr>
+            <tr>
+                <th>Gliederungsstufen (Klassifikationsebene)</th>
+                <td data-insert-location="object_count_findbuch_class_value">0</td>
+            </tr>
+            <tr>
+                <th>Gliederungsstufen (Serienebene)</th>
+                <td data-insert-location="object_count_findbuch_series_value">0</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="notification">
+        <p>Binärinhalt</p>
+        <br>
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <tbody>
+            <tr>
+                <th>Anzahl von Digitalisaten</th>
+                <td data-insert-location="binary_count_value">0</td>
+
+            </tr>
+            <tr>
+                <th>Anzahl Objekte mit Digitalisat(en)</th>
+                <td data-insert-location="object_with_binary_count_value">0</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="notification">
+        <p>Medientyp (normalisiert)</p>
+        <br>
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <tbody>
+            <tr>
+                <th>Objekte ohne Medientyp</th>
+                <td data-insert-location="mediatype_none">0</td>
+            </tr>
+            <tr>
+                <th>Objekte mit Medientyp Text</th>
+                <td data-insert-location="mediatype_text">0</td>
+            </tr>
+            <tr>
+                <th>Objekte mit Medientyp Bild</th>
+                <td data-insert-location="mediatype_picture">0</td>
+            </tr>
+            <tr>
+                <th>Objekte mit Medientyp Audio</th>
+                <td data-insert-location="mediatype_audio">0</td>
+            </tr>
+            <tr>
+                <th>Objekte mit Medientyp Volltext</th>
+                <td data-insert-location="mediatype_fulltext">0</td>
+            </tr>
+            <tr>
+                <th>Objekte mit Medientyp Video</th>
+                <td data-insert-location="mediatype_video">0</td>
+            </tr>
+            <tr>
+                <th>Objekte mit Medientyp Sonstiges</th>
+                <td data-insert-location="mediatype_other">0</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="notification">
+        <p>Kontrolliertes/normiertes Vokabular</p>
+        <br>
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <tbody>
+            <tr>
+                <th>Indexbegriff Ort mit hinterlegtem Normdatenidentifier</th>
+                <td data-insert-location="indexentry_geogname_authfile">0</td>
+            </tr>
+            <tr>
+                <th>Indexbegriff Sache mit hinterlegtem Normdatenidentifier</th>
+                <td data-insert-location="indexentry_subject_authfile">0</td>
+            </tr>
+            <tr>
+                <th>Indexbegriff Person mit hinterlegtem Normdatenidentifier</th>
+                <td data-insert-location="indexentry_persname_authfile">0</td>
+            </tr>
+            <tr>
+                <th>Urheber-/(Vor-)Provenienzangabe mit hinterlegtem Normdaten-Identifier</th>
+                <td data-insert-location="origination_authfile">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Urkunden'</th>
+                <td data-insert-location="genreform_urkunden">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Siegel'</th>
+                <td data-insert-location="genreform_siegel">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Amtsbücher + Register und Grundbücher'</th>
+                <td data-insert-location="genreform_amtsbuecher">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Akten'</th>
+                <td data-insert-location="genreform_akten">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Karten und Pläne'</th>
+                <td data-insert-location="genreform_karten">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Plakate und Flugblätter'</th>
+                <td data-insert-location="genreform_plakate">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Drucksachen'</th>
+                <td data-insert-location="genreform_drucksachen">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Bilder'</th>
+                <td data-insert-location="genreform_bilder">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Handschriften'</th>
+                <td data-insert-location="genreform_handschriften">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Audio-Visuelle Medien'</th>
+                <td data-insert-location="genreform_audiovisuelle_medien">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Datenbanken'</th>
+                <td data-insert-location="genreform_datenbanken">0</td>
+            </tr>
+            <tr>
+                <th>Normierter Archivalientyp 'Sonstiges'</th>
+                <td data-insert-location="genreform_other">0</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<br>
+<div class="container">
+    <div class="is-divider" data-content="Statistische Analyse (Tektonik)"></div>
+    <div class="notification">
+        <p>Hierarchieebenen</p>
+        <br>
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <tbody>
+            <tr>
+                <th>Anzahl Objekte mit eigenem DDB-View</th>
+                <td data-insert-location="object_count_tektonik_view_value">0</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

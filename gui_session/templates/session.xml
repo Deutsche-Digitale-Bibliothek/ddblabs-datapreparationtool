@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<session>
+    <gui>
+        <firstrun default="False">True</firstrun>  <!-- erster Start des Tools? -->
+    </gui>
+    <processing>
+        <provider default=""></provider>  <!-- ISIL des zuletzt gesetzten Providers -->
+        
+        <!-- Einstellungen für die Transformation -->
+        <process_binaries default="False">False</process_binaries> <!-- # Anziehen von Binaries: Wenn "True", werden die Binaries heruntergeladen (in data_output/{provider_isil}/{Datum}/findbuch/binaries). DIe Links im XML werden durch relative Pfadangaben ersetzt ("findbuch/bild1.jpg") -->
+
+        <enable_mets_generation default="False">False</enable_mets_generation>  <!-- # Falls "True", wird - bei Vorhandensein von Digitalisaten - pro Verzeichnungseinheit eine METS-Datei generiert, die zur Übergabe an den DFG-Viewer geeignet ist. -->
+        <mets_application_profile default="DFG-Viewer/Archiv v2.3">DFG-Viewer/Archiv v2.3</mets_application_profile>
+        <mets_logo_url default=""></mets_logo_url>
+        <mets_mail_address default=""></mets_mail_address>
+        <mets_url_prefix default="metsmods/"></mets_url_prefix>
+
+        <enrich_rights_info default="True">False</enrich_rights_info>  <!-- Falls "True", werden die Findbuch- und Tektonikdateien mit den in der GUI vergebenen Rechteinformationen angereichert (archdesc/userestrict|userestrict[@type="ead"]|userestrict[@type="dao"]) -->
+
+        <enrich_aggregator_info default="False">False</enrich_aggregator_info>  <!-- # Falls "True", werden die Findbuch- und Tektonikdateien mit der in der GUI vergebenen Aggregatorzuordnung angereichert (corpname[@role="Aggregator"]) -->
+
+        <enable_ddb2017_preprocessing default="False">False</enable_ddb2017_preprocessing>
+
+        <apply_mapping_definition default="False">False</apply_mapping_definition>
+        
+        <!-- Einstellungen für die Analyse -->
+        <enable_tektonik_enrichment default="True">False</enable_tektonik_enrichment>  <!-- Soll die Tektonik um Informationen aus den Findbüchern angereichert werden? -->
+        <enable_metadata_analysis default="True">False</enable_metadata_analysis>  <!-- Sollen die Metadaten einer statistischen Analyse unterzogen werden? -->
+        <enable_metadata_preview default="True">False</enable_metadata_preview>  <!-- Sollen HTML-Vorschauen einzelner Datensätze erstellt werden? -->
+        <preview_testset_ids default=""></preview_testset_ids>  <!-- Hier können gezielt IDs von Datensätzen angegeben werden, für die eine HTML-Vorschau erstellt werden soll (IDs durch " | " getrennt eingeben) -->
+
+        <handle_obsolete_objects default="False">False</handle_obsolete_objects>
+
+    </processing>
+</session>

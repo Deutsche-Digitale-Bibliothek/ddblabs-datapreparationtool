@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mapping_def source="ead2002" target="eadddb" provider="DE-1234">
+  <map_findbuch>
+    <mapping>
+      <element>
+        <source></source>
+        <target></target>
+        <prefix></prefix>
+        <level></level>
+      </element>
+      <attribute> <!-- wiederholbar, falls Ziel-Element mehrere Attribute besitzt -->
+        <source></source>
+        <target></target>
+      </attribute>
+    </mapping>
+  </map_findbuch>
+  <map_tektonik> <!-- Vorhandensein von map_findbuch bzw. map_tektonik bedeutet, dass Mapping für diesen Typ angewandt werden soll -->
+      <mapping>
+        <element>
+        <source></source>
+        <target></target>
+        <prefix></prefix>
+        <level></level>
+      </element>
+      <attribute> <!-- wiederholbar, falls Ziel-Element mehrere Attribute besitzt -->
+        <source></source>
+        <target></target>
+      </attribute>
+      </mapping>
+  </map_tektonik>
+</mapping_def>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aggregator_mapping>
+    <aggregator>
+        <label>kein Aggregator</label>
+        <id/>
+        <ddbid/>
+    </aggregator>
+    <aggregator>
+        <label>Archive in NRW</label>
+        <id>00019824</id>
+        <ddbid>2IMVIKUTVTEKVX6C7CFHG73D4B4GZL5A</ddbid>
+    </aggregator>
+    <aggregator>
+        <label>Ariadne</label>
+        <id>00000751</id>
+        <ddbid>QUSSOOQ7T3T3VRBPPFQB5X7Y3A5K54R6</ddbid>
+    </aggregator>
+</aggregator_mapping>

@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>providerMetadataDialog</class>
+ <widget class="QDialog" name="providerMetadataDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>460</width>
+    <height>570</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>460</width>
+    <height>570</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Archiv-Metadaten bearbeiten</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_software">
+     <property name="text">
+      <string>Softwaremodus:</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>URL zur Website des Archivs:</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="3">
+    <widget class="QDialogButtonBox" name="buttonBox_provider_metadata">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QLabel" name="label_3">
+     <property name="toolTip">
+      <string>Durch Datengeber-Auswahl vorgegeben.</string>
+     </property>
+     <property name="text">
+      <string>ISIL des Archivs:</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1" colspan="2">
+    <widget class="QComboBox" name="comboBox_softwaremode">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>eadddb</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_14">
+     <property name="text">
+      <string>Archivsparte:</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QLabel" name="label_4">
+     <property name="toolTip">
+      <string>Bei der Provider-ID handelt es sich um einen DDB-internen Identifier. Dieser ist optional und muss nicht zwingend angegeben werden.</string>
+     </property>
+     <property name="text">
+      <string>Provider-ID des Archivs:</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>URL zur Tektonik des Archivs:</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QLineEdit" name="lineEdit_provider_id">
+     <property name="toolTip">
+      <string>Bei der Provider-ID handelt es sich um einen DDB-internen Identifier. Dieser ist optional und muss nicht zwingend angegeben werden.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QLineEdit" name="lineEdit_provider_tektonik_url"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Name des Archivs:</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLineEdit" name="lineEdit_provider_name"/>
+   </item>
+   <item row="5" column="2">
+    <widget class="QComboBox" name="comboBox_provider_archivtyp">
+     <item>
+      <property name="text">
+       <string>Staatliche Archive</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Kommunale Archive</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Kirchliche Archive</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Herrschafts- und Familienarchive</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Wirtschaftsarchive</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Archive der Parlamente, politischen Parteien, Stiftung und Verbände</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Medienarchive</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Archive der Hochschulen sowie wissenschaftlicher Institutionen</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Sonstige Archive</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLineEdit" name="lineEdit_provider_isil">
+     <property name="toolTip">
+      <string>Durch Datengeber-Auswahl vorgegeben.</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLineEdit" name="lineEdit_provider_website"/>
+   </item>
+   <item row="6" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>15</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="7" column="0" colspan="3">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Adressdaten</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Straße:</string>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="lineEdit_provider_addressline_strasse">
+        <property name="placeholderText">
+         <string>z.B.: Testgasse 1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Ort:</string>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEdit_provider_addressline_ort">
+        <property name="placeholderText">
+         <string>z.B.: D - 76137 Karlsruhe</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>E-Mail: </string>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lineEdit_provider_addressline_mail">
+        <property name="placeholderText">
+         <string>z.B.: test@archiv.de</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_15">
+        <property name="text">
+         <string>Bundesland:</string>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="comboBox_provider_state">
+        <item>
+         <property name="text">
+          <string>Baden-Württemberg</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Bayern</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Berlin</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Brandenburg</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Bremen</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hamburg</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hessen</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mecklenburg-Vorpommern</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Niedersachsen</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Nordrhein-Westfalen</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Rheinland-Pfalz</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Saarland</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sachsen</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sachsen-Anhalt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Schleswig-Holstein</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Thüringen</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QLabel" name="label_5">
+     <property name="maximumSize">
+      <size>
+       <width>25</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="toolTip">
+      <string>Durch Datengeber-Auswahl vorgegeben.</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="resources/resources.qrc">:/provider-metadata-dialog/info_icon.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QLabel" name="label_7">
+     <property name="maximumSize">
+      <size>
+       <width>25</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Bei der Provider-ID handelt es sich um einen DDB-internen Identifier. Dieser ist optional und muss nicht zwingend angegeben werden.</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="resources/resources.qrc">:/provider-metadata-dialog/info_icon.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>lineEdit_provider_name</tabstop>
+  <tabstop>lineEdit_provider_website</tabstop>
+  <tabstop>lineEdit_provider_isil</tabstop>
+  <tabstop>lineEdit_provider_id</tabstop>
+  <tabstop>lineEdit_provider_tektonik_url</tabstop>
+  <tabstop>comboBox_provider_archivtyp</tabstop>
+  <tabstop>lineEdit_provider_addressline_strasse</tabstop>
+  <tabstop>lineEdit_provider_addressline_ort</tabstop>
+  <tabstop>lineEdit_provider_addressline_mail</tabstop>
+  <tabstop>comboBox_provider_state</tabstop>
+  <tabstop>comboBox_softwaremode</tabstop>
+ </tabstops>
+ <resources>
+  <include location="resources/resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox_provider_metadata</sender>
+   <signal>accepted()</signal>
+   <receiver>providerMetadataDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox_provider_metadata</sender>
+   <signal>rejected()</signal>
+   <receiver>providerMetadataDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

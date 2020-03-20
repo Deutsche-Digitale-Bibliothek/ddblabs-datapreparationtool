@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Data Preparation Tool - Validierung</title>
+    <link rel="stylesheet" href="static_resources/lib/bulma/bulma.min.css">
+    <link rel="stylesheet" href="static_resources/lib/bulma/bulma-tooltip.min.css">
+    <link rel="stylesheet" href="static_resources/lib/bulma/bulma-divider.min.css">
+    <script defer src="static_resources/lib/fontawesome/all.js"></script>
+    <script src="static_resources/lib/auxiliary.js"></script>
+    <script src="static_resources/lib/toggle_element_visibility.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item">
+            <img src="static_resources/dpt_banner.png" width="247" height="28" alt="Data Preparation Tool neo">
+        </a>
+
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+           data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start">
+
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    Weitere Informationen
+                </a>
+
+                <div class="navbar-dropdown">
+                    <a class="navbar-item"
+                       href="https://pro.deutsche-digitale-bibliothek.de/dokumente-und-links-fuer-archive">
+                        Dokumentation auf DDBpro
+                    </a>
+                    <a class="navbar-item"
+                       href="https://wiki.deutsche-digitale-bibliothek.de/pages/viewpage.action?pageId=19010180">
+                        Dokumentation zu EAD(DDB) 1.2 im DDB-Wiki
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="section">
+    <div class="container">
+        <h1 class="title">Validierung</h1>
+        <h2 class="subtitle">
+            Prüfung der Datenstruktur
+        </h2>
+    </div>
+</section>
+
+<div class="container">
+    <div class="dropdown is-hoverable">
+        <div class="dropdown-trigger">
+            <button class="button is-info is-outlined" aria-haspopup="true" aria-controls="dropdown-menu1">
+                <span>Was ist das?</span>
+                <span class="icon is-small">
+        <i class="fas fa-angle-down" aria-hidden="true"></i>
+      </span>
+            </button>
+        </div>
+        <div class="dropdown-menu" id="dropdown-menu-1" role="menu">
+            <div class="dropdown-content">
+                <div class="dropdown-item">
+                    <p>Durch die Validierung werden Ihre Daten auf <strong>strukturelle Probleme im Aufbau der XML-Dateien</strong>
+                        überprüft.</p>
+                </div>
+                <div class="dropdown-item">
+                    <p>Ziel der Validierung ist es, Ihnen einen Überblick zu geben, an welchen Stellen <strong>Anpassungen an
+                        den Daten</strong> notwendig bzw. sinnvoll sind, um die Daten möglichst reibungslos in die Portale laden
+                        zu können.</p>
+                </div>
+                <div class="dropdown-item">
+                    <p>Grundlage für die Überprüfung bildet hierbei die aktuelle Version des <strong>EAD(DDB)</strong>-Metadatenstandards
+                        (momentan <strong>Version 1.2</strong>), es werden jedoch auch ältere EAD(DDB)-Versionen unterstützt.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="dropdown is-hoverable">
+        <button class="button is-light" onclick="toggleMultipleElementVisibility('table')">
+            <span class="icon is-small">
+        <i class="fab fa-elementor" aria-hidden="true"></i>
+      </span>
+            <span>Alle Details anzeigen/ausblenden</span>
+
+        </button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="is-divider" data-content="Zusammenfassung"></div>
+    <article class="message is-success container" data-insert-location="result_status_container">
+        <div class="message-body" data-insert-location="result_status_text">
+            Es sind {} Validierungsmeldungen verfügbar.
+        </div>
+    </article>
+
+
+    <br>
+    <div class="container" data-insert-location="validation_message_append_container">
+        <div class="is-divider" data-content="Validierungsmeldungen"></div>
+        <div class="box" data-insert-location="validation_message_container">
+            <div class="columns">
+                <div class="column is-narrow">
+                    <span class="tag" style="display: none;">Priorität</span>
+                    <button class="button is-small is-info is-outlined"
+                            onclick="toggleElementVisibility('details_view_00001')" data-insert-location="details_view_id">
+    <span class="icon is-small">
+      <i class="fab fa-elementor"></i>
+    </span>
+                        <span>Details</span>
+                    </button>
+                    <a href="" data-insert-location="definition_link">
+                    <button class="button is-small">
+    <span class="icon is-small">
+      <i class="fas fa-search"></i>
+    </span>
+                        <span>Definition</span>
+                    </button>
+                        </a>
+                </div>
+                <div class="column">
+                    <p data-insert-location="validation_message_text"></p>
+                    <br>
+                    <table class="table is-striped is-hoverable is-fullwidth" id="details_view_00001"
+                           style="display: none;" data-insert-location="validation_details_table"></table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

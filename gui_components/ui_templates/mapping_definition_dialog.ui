@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mappingDefinitionDialog</class>
+ <widget class="QDialog" name="mappingDefinitionDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>865</width>
+    <height>685</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Mappingzuordnung bearbeiten</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Quellformat:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="comboBox">
+     <item>
+      <property name="text">
+       <string>EAD2002</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>EAD 3.0</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Excel / csv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>SQL</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label_3">
+     <property name="maximumSize">
+      <size>
+       <width>25</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Das Quellformat bezeichnet den Typ der Eingangsdatei und damit auch die beim Mapping zur Verfügung stehenden Elemente.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Hinweis: Sollten sie dieses Tool von der DDB-Fachstelle Archiv erhalten haben, so ist das korrekte Quell- bzw. Zielformat in der Regel bereits vorausgewählt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="resources/resources.qrc">:/mapping-definition-dialog/info_icon.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>324</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="4">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Zielformat:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="5">
+    <widget class="QComboBox" name="comboBox_2">
+     <item>
+      <property name="text">
+       <string>EAD(DDB)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>LeoBW SimpleXML</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="0" column="6">
+    <widget class="QLabel" name="label_4">
+     <property name="maximumSize">
+      <size>
+       <width>25</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Das Zielformat bestimmt die Form, in der die zugeordneten Quelldaten ausgegeben werden. Analog zum Quellformat wird hierdurch bestimmt, auf welche Zielemente die Feldinhalte überführt werden können.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Hinweis: Sollten sie dieses Tool von der DDB-Fachstelle Archiv erhalten haben, so ist das korrekte Quell- bzw. Zielformat in der Regel bereits vorausgewählt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="resources/resources.qrc">:/mapping-definition-dialog/info_icon.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="7">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Feldzuordnung nach Ebene</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0" colspan="2">
+       <widget class="QTableWidget" name="mappingTableWidget">
+        <column>
+         <property name="text">
+          <string>Element (Quelle)</string>
+         </property>
+         <property name="background">
+          <color>
+           <red>188</red>
+           <green>215</green>
+           <blue>179</blue>
+          </color>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Attribut (Quelle)</string>
+         </property>
+         <property name="background">
+          <color>
+           <red>188</red>
+           <green>215</green>
+           <blue>179</blue>
+          </color>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Ebene</string>
+         </property>
+         <property name="background">
+          <color>
+           <red>249</red>
+           <green>213</green>
+           <blue>178</blue>
+          </color>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Element (Ziel)</string>
+         </property>
+         <property name="background">
+          <color>
+           <red>142</red>
+           <green>169</green>
+           <blue>198</blue>
+          </color>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Attribut (Ziel)</string>
+         </property>
+         <property name="background">
+          <color>
+           <red>142</red>
+           <green>169</green>
+           <blue>198</blue>
+          </color>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Präfix (Ziel)</string>
+         </property>
+         <property name="background">
+          <color>
+           <red>142</red>
+           <green>169</green>
+           <blue>198</blue>
+          </color>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="pushButton_add_row">
+        <property name="text">
+         <string>Zeile hinzufügen</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources/resources.qrc">
+          <normaloff>:/mapping-definition-dialog/library-plus.png</normaloff>:/mapping-definition-dialog/library-plus.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="pushButton_delete_row">
+        <property name="text">
+         <string>Ausgewählte Zeile löschen</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources/resources.qrc">
+          <normaloff>:/mapping-definition-dialog/table-row-remove.png</normaloff>:/mapping-definition-dialog/table-row-remove.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="5" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="resources/resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>mappingDefinitionDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>mappingDefinitionDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

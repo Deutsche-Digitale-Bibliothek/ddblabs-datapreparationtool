@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mets:mets xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mets="http://www.loc.gov/METS/" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:dv="http://dfg-viewer.de/" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/mets/mets.xsd http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd">
+  <mets:dmdSec ID="DMDLOG_1">
+    <mets:mdWrap MDTYPE="MODS">
+      <mets:xmlData>
+        <mods:mods>
+          <mods:recordInfo>
+            <mods:recordIdentifier></mods:recordIdentifier>
+            <mods:descriptionStandard>DFG-Viewer/Archiv v2.3</mods:descriptionStandard>
+          </mods:recordInfo>
+          <mods:location>
+            <mods:physicalLocation></mods:physicalLocation>
+            <mods:shelfLocator></mods:shelfLocator>
+          </mods:location>
+          <mods:titleInfo>
+            <mods:title></mods:title>
+          </mods:titleInfo>
+          <mods:originInfo eventType="production">
+            <mods:dateCreated point="end" encoding="iso8601"></mods:dateCreated>
+          </mods:originInfo>
+          <mods:relatedItem type="host" displayLabel="Gliederung">
+            <mods:titleInfo>
+              <mods:title></mods:title>
+            </mods:titleInfo>
+          </mods:relatedItem>
+        </mods:mods>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:amdSec ID="amd1">
+    <mets:rightsMD ID="rights1">
+      <mets:mdWrap MIMETYPE="text/xml" MDTYPE="OTHER" OTHERMDTYPE="DVRIGHTS">
+        <mets:xmlData>
+          <dv:rights>
+            <dv:owner></dv:owner>
+            <dv:ownerSiteURL></dv:ownerSiteURL>
+            <dv:ownerContact></dv:ownerContact>
+            <dv:ownerLogo></dv:ownerLogo>
+          </dv:rights>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:rightsMD>
+    <mets:digiprovMD ID="digiprov1">
+      <mets:mdWrap MIMETYPE="text/xml" MDTYPE="OTHER" OTHERMDTYPE="DVLINKS">
+        <mets:xmlData>
+          <dv:links>
+            <dv:reference></dv:reference>
+            <dv:presentation></dv:presentation>
+          </dv:links>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:digiprovMD>
+  </mets:amdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="DEFAULT">
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap TYPE="PHYSICAL">
+    <mets:div ID="phys1" TYPE="physSequence">
+    </mets:div>
+  </mets:structMap>
+  <mets:structMap TYPE="LOGICAL">
+    <mets:div ID="log_base" TYPE="act" DMDID="DMDLOG_1" ADMID="amd1" LABEL="" ORDER="1">
+	</mets:div>
+  </mets:structMap>
+  <mets:structLink>
+  </mets:structLink>
+</mets:mets>

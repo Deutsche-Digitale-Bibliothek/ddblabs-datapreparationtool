@@ -1,0 +1,7 @@
+PyQt5
+PyQtWebEngine
+lxml
+requests
+loguru
+validify
+pandas

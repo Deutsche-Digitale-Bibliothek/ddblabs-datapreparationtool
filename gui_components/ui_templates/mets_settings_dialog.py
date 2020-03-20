@@ -1,0 +1,117 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'mets_settings_dialog.ui'
+#
+# Created by: PyQt5 UI code generator 5.9
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_metsSettingsDialog(object):
+    def setupUi(self, metsSettingsDialog):
+        metsSettingsDialog.setObjectName("metsSettingsDialog")
+        metsSettingsDialog.resize(513, 238)
+        metsSettingsDialog.setModal(True)
+        self.gridLayout = QtWidgets.QGridLayout(metsSettingsDialog)
+        self.gridLayout.setObjectName("gridLayout")
+        self.lineEdit_mets_logo_url = QtWidgets.QLineEdit(metsSettingsDialog)
+        self.lineEdit_mets_logo_url.setObjectName("lineEdit_mets_logo_url")
+        self.gridLayout.addWidget(self.lineEdit_mets_logo_url, 1, 1, 1, 1)
+        self.lineEdit_mets_application_profile = QtWidgets.QLineEdit(metsSettingsDialog)
+        self.lineEdit_mets_application_profile.setObjectName("lineEdit_mets_application_profile")
+        self.gridLayout.addWidget(self.lineEdit_mets_application_profile, 0, 1, 1, 1)
+        self.buttonBox_mets_settings = QtWidgets.QDialogButtonBox(metsSettingsDialog)
+        self.buttonBox_mets_settings.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox_mets_settings.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox_mets_settings.setObjectName("buttonBox_mets_settings")
+        self.gridLayout.addWidget(self.buttonBox_mets_settings, 7, 0, 1, 2)
+        self.label_5 = QtWidgets.QLabel(metsSettingsDialog)
+        self.label_5.setScaledContents(True)
+        self.label_5.setWordWrap(True)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout.addWidget(self.label_5, 6, 0, 1, 1)
+        self.label_9 = QtWidgets.QLabel(metsSettingsDialog)
+        self.label_9.setMaximumSize(QtCore.QSize(25, 25))
+        self.label_9.setText("")
+        self.label_9.setPixmap(QtGui.QPixmap(":/mets-settings-dialog/info_icon.png"))
+        self.label_9.setScaledContents(True)
+        self.label_9.setObjectName("label_9")
+        self.gridLayout.addWidget(self.label_9, 0, 2, 1, 1)
+        self.label_8 = QtWidgets.QLabel(metsSettingsDialog)
+        self.label_8.setMaximumSize(QtCore.QSize(25, 25))
+        self.label_8.setText("")
+        self.label_8.setPixmap(QtGui.QPixmap(":/mets-settings-dialog/info_icon.png"))
+        self.label_8.setScaledContents(True)
+        self.label_8.setObjectName("label_8")
+        self.gridLayout.addWidget(self.label_8, 6, 2, 1, 1)
+        self.label_3 = QtWidgets.QLabel(metsSettingsDialog)
+        self.label_3.setScaledContents(True)
+        self.label_3.setWordWrap(True)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout.addWidget(self.label_3, 1, 0, 1, 1)
+        self.lineEdit_mets_url_prefix = QtWidgets.QLineEdit(metsSettingsDialog)
+        self.lineEdit_mets_url_prefix.setObjectName("lineEdit_mets_url_prefix")
+        self.gridLayout.addWidget(self.lineEdit_mets_url_prefix, 6, 1, 1, 1)
+        self.label = QtWidgets.QLabel(metsSettingsDialog)
+        self.label.setScaledContents(True)
+        self.label.setWordWrap(True)
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+        self.label_7 = QtWidgets.QLabel(metsSettingsDialog)
+        self.label_7.setScaledContents(True)
+        self.label_7.setWordWrap(True)
+        self.label_7.setObjectName("label_7")
+        self.gridLayout.addWidget(self.label_7, 3, 0, 1, 1)
+        self.lineEdit_mets_mail_address = QtWidgets.QLineEdit(metsSettingsDialog)
+        self.lineEdit_mets_mail_address.setObjectName("lineEdit_mets_mail_address")
+        self.gridLayout.addWidget(self.lineEdit_mets_mail_address, 3, 1, 1, 1)
+        self.label_4 = QtWidgets.QLabel(metsSettingsDialog)
+        self.label_4.setMaximumSize(QtCore.QSize(25, 25))
+        self.label_4.setText("")
+        self.label_4.setPixmap(QtGui.QPixmap(":/mets-settings-dialog/info_icon.png"))
+        self.label_4.setScaledContents(True)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout.addWidget(self.label_4, 3, 2, 1, 1)
+        self.label_2 = QtWidgets.QLabel(metsSettingsDialog)
+        self.label_2.setMaximumSize(QtCore.QSize(25, 25))
+        self.label_2.setText("")
+        self.label_2.setPixmap(QtGui.QPixmap(":/mets-settings-dialog/info_icon.png"))
+        self.label_2.setScaledContents(True)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 1, 2, 1, 1)
+
+        self.retranslateUi(metsSettingsDialog)
+        self.buttonBox_mets_settings.accepted.connect(metsSettingsDialog.accept)
+        self.buttonBox_mets_settings.rejected.connect(metsSettingsDialog.reject)
+        QtCore.QMetaObject.connectSlotsByName(metsSettingsDialog)
+        metsSettingsDialog.setTabOrder(self.lineEdit_mets_application_profile, self.lineEdit_mets_logo_url)
+        metsSettingsDialog.setTabOrder(self.lineEdit_mets_logo_url, self.lineEdit_mets_mail_address)
+        metsSettingsDialog.setTabOrder(self.lineEdit_mets_mail_address, self.lineEdit_mets_url_prefix)
+
+    def retranslateUi(self, metsSettingsDialog):
+        _translate = QtCore.QCoreApplication.translate
+        metsSettingsDialog.setWindowTitle(_translate("metsSettingsDialog", "Einstellungen zur METS/MODS-Generierung"))
+        self.lineEdit_mets_logo_url.setPlaceholderText(_translate("metsSettingsDialog", "http://www.example.com/logo.png"))
+        self.lineEdit_mets_application_profile.setPlaceholderText(_translate("metsSettingsDialog", "DFG-Viewer/Archiv v2.3"))
+        self.label_5.setText(_translate("metsSettingsDialog", "URL-Präfix:"))
+        self.label_9.setToolTip(_translate("metsSettingsDialog", "Bezeichnungs des Anwendungsprofils."))
+        self.label_8.setToolTip(_translate("metsSettingsDialog", "URL zum Ablageort der METS/MODS-Dateien. Die Dateien müssen durch den Datengeber auf einem Webserver mit stabiler Addressierung abgelegt werden, damit diese in den EAD-Dateien verlinkt werden können."))
+        self.label_3.setText(_translate("metsSettingsDialog", "Logo-URL: "))
+        self.lineEdit_mets_url_prefix.setPlaceholderText(_translate("metsSettingsDialog", "http://www.example.com/xml/mets/"))
+        self.label.setText(_translate("metsSettingsDialog", "Anwendungsprofil:"))
+        self.label_7.setText(_translate("metsSettingsDialog", "Kontakt-Mailadresse:"))
+        self.label_4.setToolTip(_translate("metsSettingsDialog", "E-Mail-Adresse zur Kontaktaufnahme (im DFG-Viewer angezeigt)."))
+        self.label_2.setToolTip(_translate("metsSettingsDialog", "URL zum Logo des Archivs."))
+
+from gui_components.ui_templates import resources_rc
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    metsSettingsDialog = QtWidgets.QDialog()
+    ui = Ui_metsSettingsDialog()
+    ui.setupUi(metsSettingsDialog)
+    metsSettingsDialog.show()
+    sys.exit(app.exec_())
+

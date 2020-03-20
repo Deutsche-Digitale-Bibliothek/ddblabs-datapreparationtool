@@ -1,0 +1,330 @@
+/*
+ * Copyright (C) 2014 FIZ Karlsruhe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+.detailview .navigation-search {
+  margin-top: 30px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #333;
+}
+
+.detailview .search-nav {
+  line-height: 30px;
+}
+
+.detailview a.close {
+  text-transform: none;
+  font-size: 13px;
+  font-weight: normal;
+  color: #333;
+  opacity: 0.67;
+}
+
+.detailview a.close .apd-icon {
+  margin-right: 0;
+}
+
+.detailview a.close:hover {
+  opacity: 1;
+}
+
+.detailview .hierarchy {
+  background: #f9f9f9 url('hrDropShadow.png') center top no-repeat;
+  padding: 1px 20px 10px;
+}
+
+.detailview .hierarchy-container {
+  padding: 1px 20px 0;
+}
+
+.detailview .hierarchy .ruler {
+  border-bottom: none;
+}
+
+.detailview .hierarchy #hierarchy-navigation {
+  border-top: 1px solid transparent;
+  padding-top: 0;
+}
+
+.detailview .hierarchy #hierarchy-navigation.in {
+  border-top: 1px solid #d9d9d9;
+  padding-top: 20px;
+}
+
+.detailview .hierarchy ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.detailview .hierarchy ul ul {
+  margin: 0 0 0 20px;
+  padding: 0;
+  list-style-type: none;
+}
+
+.detailview .hierarchy li {
+  line-height: 20px;
+  padding: 5px 0;
+}
+
+.detailview .hierarchy ul a {
+  padding-left: 15px;
+  background: url('apdSprite.png') -226px -23px no-repeat;
+  color: #4F9C54;
+}
+
+.detailview .hierarchy ul a.collapsed {
+  background-position: -226px 0;
+}
+
+.detailview .logo {
+  text-align: right;
+}
+
+.detailview .sibling-navigation {
+  margin-top: 15px;
+  border-top: 1px solid #d9d9d9;
+  padding: 15px 0;
+  min-height: 30px;
+  position: relative;
+}
+
+.detailview .sibling-navigation form {
+  margin: 0;
+}
+
+.detailview .sibling-navigation .sibling-previous {
+  position: absolute;
+  left: 0;
+  top: 15px;
+}
+
+.detailview .sibling-navigation .sibling-next {
+  position: absolute;
+  right: 0;
+  top: 15px;
+}
+
+.detailview .sibling-navigation .sibling-current {
+  margin: 0 40px;
+}
+
+.detailview .sibling-navigation #siblings-dropdown {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 0;
+}
+
+.detailview .fields {
+  border-top: 1px solid #d9d9d9;
+}
+
+.detailview .fields .row-fluid {
+  border-bottom: 1px solid #d9d9d9;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.detailview .fields .row-fluid [class*="span"] {
+  min-height: 1px;
+}
+
+.detailview .fields .field-label {
+  font-weight: bold;
+  color: #888;
+}
+
+.detailview .fields .field-label .modal {
+  text-align: left;
+  font-weight: normal;
+}
+
+.detailview .page-links {
+  margin: 20px 0;
+}
+
+.detailview .page-links a {
+  display: inline-block;
+  margin: 5px 0;
+  line-height: 20px;
+}
+
+.detailview .search-nav-item {
+  display: inline-block;
+  margin-right: 24px;
+}
+
+.detailview .back-to-list {
+  margin-left: 5px;
+  padding-left: 16px;
+  background: url('apdSprite.png') no-repeat -226px -44px;
+  margin-right: 10px
+}
+
+.detailview .page-links a {
+  color: #4C9952;
+}
+
+.detailview .page-link-popup-anchor:before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  margin-top: 5px;
+  margin-left: -18px;
+  background: url('apdSprite.png') no-repeat -4px -24px;
+  position: absolute;
+}
+
+.detailview .social-media {
+  clear:both;
+}
+
+.detailview .item-nav {
+  line-height: 30px;
+  text-align: right;
+  color: #666;
+}
+
+.detailview .item-nav ul {
+  margin-bottom: 0;
+}
+
+.detailview .object-details {
+  background: #E7EDE0 url('hrDropShadow.png') center top no-repeat;
+  padding: 1px 20px 10px;
+}
+
+.detailview .object-details a:visited {
+  color: #66CDAA;
+}
+
+.detailview .object-details .glossaryTerm:visited {
+  color: inherit;
+}
+
+.detailview .small-loader {
+  background: url("../images/icons/loaderSmall.gif") no-repeat 0 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 9999;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: -5px;
+}
+
+#search-widget .reset-filters {
+  display: block;
+}
+
+/* Mobile Rules */
+
+.item-nav-mob ul {
+  margin-top: 10px;
+}
+
+.item-nav-mob .prev-item a div, .item-nav-mob .next-item a div,
+.item-nav-mob .prev-item .disabled-arrow, .item-nav-mob .next-item .disabled-arrow {
+  width: 40px;
+  height: 25px;
+  margin-left: 14px;
+  background:url("../images/icons/objectViewerCarouselControls.png") no-repeat;
+}
+
+.item-nav-mob .prev-item a div {
+  background-position: 3px -123px;
+}
+
+.item-nav-mob .next-item a div {
+  background-position: 3px -34px;
+}
+
+.item-nav-mob .prev-item .disabled-arrow {
+  background-position: 3px -153px;
+}
+
+.item-nav-mob .next-item .disabled-arrow {
+  background-position: 3px -64px;
+}
+
+.item-nav-mob .prev-item span, .item-nav-mob .next-item span {
+  display: none;
+}
+
+  #hiearchy-navigation-phone {
+    background: #f9f9f9;
+    margin-top: 10px;
+  }
+
+@media (max-width: 767px) {
+  .detailview .navigation-search {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .detailview .back-to-list {
+      padding-left: 5px;
+      background: none;
+  }
+  .item-nav-mob .inline {
+    min-width: 240px
+  }
+  .item-nav-mob .inline li:first-child {
+    padding-left: 0;
+  }
+  .detailview .hierarchy {
+    background: #fff;
+    padding: 0 10px 0 10px;
+  }
+  .detailview .logo {
+    text-align: left;
+    padding: 10px;
+  }
+  .detailview .object-details {
+    background: #E7EDE0;
+    padding: 0 10px 20px 10px;
+  }
+  .detailview .page-links {
+    margin: 10px 0 5px 0;
+  }
+  .detailview .social-media {
+    text-align: center;
+  }
+  .detailview .hierarchy ul:first-child {
+    margin-left: 10px;
+  }
+  .detailview .hierarchy a,
+  .detailview .hierarchy ul a {
+    color: #000000;
+  }
+  .detailview .hierarchy ul a {
+    background: none;
+    padding: 0;
+  }
+  .detailview .hierarchy ul>li:first-child {
+    background: none;
+    padding: 8px 0;
+    border-bottom: 1px solid #efebe8;
+  }
+  .detailview .hierarchy .ruler {
+    border-bottom: 1px solid #efebe8;
+  }
+  .hierarchy .collapsed .apd-icon-tree {
+    background-position: -220px 0;
+  }
+  .hierarchy .apd-icon-tree {
+    background-position: -220px -23px;
+  }
+}

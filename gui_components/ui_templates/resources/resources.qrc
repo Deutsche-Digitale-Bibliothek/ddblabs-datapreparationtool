@@ -1,0 +1,49 @@
+<RCC>
+  <qresource prefix="about-dialog">
+    <file>apd-logo.png</file>
+    <file>list.png</file>
+    <file>ddb-logo.png</file>
+  </qresource>
+  <qresource prefix="mapping-selection-dialog">
+    <file>info_icon.png</file>
+  </qresource>
+  <qresource prefix="oai-input-dialog">
+    <file>info_icon.png</file>
+  </qresource>
+  <qresource prefix="main-window">
+    <file>settings.png</file>
+    <file>institution.png</file>
+    <file>provider_modules.png</file>
+    <file>add_provider.png</file>
+    <file>reload.png</file>
+    <file>analysis_button_icon.png</file>
+    <file>transformation_button_icon.png</file>
+    <file>info_icon.png</file>
+    <file>info_box_bg.png</file>
+  </qresource>
+  <qresource prefix="mets-settings-dialog">
+    <file>info_icon.png</file>
+  </qresource>
+  <qresource prefix="provider-metadata-dialog">
+    <file>info_icon.png</file>
+  </qresource>
+  <qresource prefix="new-provider-dialog">
+    <file>contract-2.png</file>
+  </qresource>
+  <qresource prefix="transformation-status-dialog">
+    <file>ic_info_black_48dp.png</file>
+    <file>transformation_finished.png</file>
+    <file>transformation_in_progress.png</file>
+  </qresource>
+  <qresource prefix="analysis-status-dialog">
+    <file>ic_schedule_black_48dp.png</file>
+    <file>ic_info_black_48dp.png</file>
+    <file>analysis_finished.png</file>
+    <file>analysis_in_progress.png</file>
+  </qresource>
+  <qresource prefix="mapping-definition-dialog">
+    <file>library-plus.png</file>
+    <file>table-row-remove.png</file>
+    <file>info_icon.png</file>
+  </qresource>
+</RCC>

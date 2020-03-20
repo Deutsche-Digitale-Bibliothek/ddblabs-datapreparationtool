@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archiv>
+    <!--Name übergeordnete Organisation-->
+    <Name_ue></Name_ue>
+    <!--URL übergeordnete Organisation-->
+    <URL_ue></URL_ue>
+    <!--Name des Archivs-->
+    <Name></Name>
+    <!--URL des Archivs-->
+    <URL></URL>
+    <!--ISIL des Archivs/der übergeordneten Organisation-->
+    <ISIL></ISIL>
+    <ISIS></ISIS>
+    <!--Link zur Tektonik des Archivs-->
+    <Tektonik></Tektonik>
+    <!--Adresse, Postleitzahl, email des Archivs-->
+    <!--Testgasse 1-->
+    <!--D - 70000 Test-->
+    <!--test@archiv.de-->
+    <addressline_strasse></addressline_strasse>
+    <addressline_ort></addressline_ort>
+    <addressline_mail></addressline_mail>
+    <!--Bundesland - offizielle Bezeichnung der Bundesländer-->
+    <Bundesland></Bundesland>
+    <!--Sparte - EAD(DDB) Vokabular-->
+    <!--"Staatliche Archive"
+"Kommunale Archive"
+"Kirchliche Archive"
+"Herrschafts- und Familienarchive"
+"Archive der Parlamente, politischen Parteien, Stiftungen und Verbände"
+"Medienarchive"
+"Archive der Hochschulen sowie wissenschaftlicher Institutionen"
+"Sonstige"-->
+    <Sparte></Sparte>
+    <!--mögliche Werte für Software: "augias9", "archivis2", "ead2002_its", "faust_v8", "midosa_ead", "eadddb" -->
+    <software></software>
+    <providerspecific_modules></providerspecific_modules>
+    <rights_information>
+        <metadata>
+            <uri></uri>
+            <label></label>
+        </metadata>
+        <binaries>
+            <uri></uri>
+            <label></label>
+        </binaries>
+        <statement></statement>
+    </rights_information>
+    <aggregator_information>
+        <id></id>
+        <label></label>
+        <use_aggregator_logo></use_aggregator_logo>
+        <show_aggregator_logo>False</show_aggregator_logo>
+    </aggregator_information>
+    <mapping_definition></mapping_definition>
+</archiv>

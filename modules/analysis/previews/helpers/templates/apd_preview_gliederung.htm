@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js"><!--<![endif]-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Objekt-Voransicht - Archivportal-D</title>
+    <meta name="page" content="detailview">
+    <meta name="layout" content="main">
+    <link href="static_resources/map.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <link href="https://www.archivportal-d.de/appStatic/images/favicon.ico" rel="shortcut icon">
+    <link href="static_resources/bootstrap.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <link href="static_resources/bootstrap-responsive.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <link href="static_resources/apd.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <link href="static_resources/errors.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <link href="static_resources/modalDialog.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <link href="static_resources/static.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <link href="static_resources/detailView.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <link href="static_resources/binariesViewer.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <link href="static_resources/jquery.css" type="text/css" rel="stylesheet" media="screen, projection">
+    <!--[if lt IE 9]>
+    <script src="/js/vendor/html5shiv-3.6.2/html5shiv.js"></script>
+    <script src="/js/vendor/respond-1.1.0/respond.min.js"></script>
+    <![endif]-->
+    <!--[if lt IE 10]>
+    <script type="text/javascript">var badIE = true;</script>
+    <![endif]-->
+</head>
+<body class="">
+<header class="container hidden-phone">
+    <div class="row-fluid">
+        <div class="span4 index-brand">
+            <h1 class="invisible-but-readable">Website-Kopfzeile</h1>
+            <a href="https://www.archivportal-d.de/?offset=0&amp;rows=20&amp;viewType=list&amp;hitNumber=1" id="brand"
+               class="span4 update-href-js-button">
+                Archivportal-D
+            </a>
+            <a href="http://www.deutsche-digitale-bibliothek.de/" target="_blank">
+                <img src="static_resources/logoDDB_header.jpg" class="ddbLogo"
+                     alt="Logo DDB Deutsche Digitale Bibliothek">
+            </a>
+        </div>
+        <div class="span8 index-menu">
+            <div class="span12">
+                <ul class="nav nav-pills pull-right">
+                    <li class="root dropdownfalse">
+                        <a href="https://www.archivportal-d.de/info/about" class="dropdown-toggle">
+                            Über uns
+                        </a>
+                        <ul class="dropdown-menu inline">
+                            <li class="false">
+                                <a href="https://www.archivportal-d.de/info/neues?query=goldene+bulle&amp;offset=0&amp;rows=20&amp;viewType=list&amp;hitNumber=1&amp;id=BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4">
+                                    Aktuelles
+                                </a>
+                            </li>
+                            <li class="false">
+                                <a href="https://www.archivportal-d.de/info/ddb?query=goldene+bulle&amp;offset=0&amp;rows=20&amp;viewType=list&amp;hitNumber=1&amp;id=BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4">
+                                    Deutsche Digitale Bibliothek
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="root dropdownfalse">
+                        <a href="https://www.archivportal-d.de/struktur">
+                            Archive
+                        </a>
+                    </li>
+                    <li class="root dropdownfalse">
+                        <a href="https://www.archivportal-d.de/info/glossar?query=goldene+bulle&amp;offset=0&amp;rows=20&amp;viewType=list&amp;hitNumber=1&amp;id=BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4">
+                            Glossar
+                        </a>
+                    </li>
+                    <li class="root dropdownfalse">
+                        <!-- Jira APD-565: point always to "info/hilfe" even if the page does not exist -->
+                        <a href="https://www.archivportal-d.de/info/hilfe" class="dropdown-toggle">
+                            Hilfe
+                        </a>
+                        <ul class="dropdown-menu inline">
+                            <li class="false">
+                                <a href="https://www.archivportal-d.de/info/faq?query=goldene+bulle&amp;offset=0&amp;rows=20&amp;viewType=list&amp;hitNumber=1&amp;id=BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4">
+                                    FAQ
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="root dropdown login-field bb false">
+                        <a href="#">
+                            Anmelden
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <div class="span9">
+                    <!-- The Search form on top -->
+                    <div id="header-search-container">
+                        <div id="search-widget" class="">
+                            <div class="row-fluid input-append">
+                                <input placeholder=" Suche in HTML-Voransichten nicht verfügbar." value=""
+                                       class="span10 input-xlarge" name="query" id="query" type="text" disabled>
+                                <a href="#" id="search-objects" class="update-href-js-button">
+                                    <div class="search-button btn btn-primary" title="Suchen">
+                                        <span class="icon-search"></span>
+                                    </div>
+                                </a>
+                            </div>
+                            <a href="#" class="advanced-search-link">Erweiterte Suche</a>
+                            <div class="reset-filters off">
+           <span>
+              Filter zurücksetzen <input name="reset-checkbox" id="reset-checkbox" type="checkbox">
+           </span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- The Search form on top end -->
+                </div>
+                <div class="span3">
+                    <div class="merkliste-field">
+                        <a href="#" class="merkliste">
+                            <i class="apd-icon apd-icon-merkliste"></i>
+                            <div class="merkliste-number">
+                                0
+                            </div>
+                            <div class="merkliste-label">
+                                Objekte in Merkliste
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<div id="main-container" class="container" role="main">
+    <div class="container detailview" data-iid="BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4">
+        <div class="toprow">
+            <div class="hierarchy hidden-phone">
+                <h2 class="ruler">Hierarchie</h2>
+                <div id="hiearchy-navigation" class="collapse in">
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <ul>
+                                <li lxmlAnchor="hierarchy" lxmlValue="0">
+                                    <a class="hierarchy-link">Institution (Archivtektonik)</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="archiv-logo span3" lxmlAnchor="Logo">
+                            <div class="logo">
+                                <img alt="Logo der Institution" src="static_resources/empty_logo.png">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="navigation">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="object-details dont-break-out">
+            <div class="ruler">
+                Objektdetails
+                <div class="hidden-phone ruler-text">
+                </div>
+                <div class="hidden-phone ruler-text">
+                    <a target="_blank" href="#"
+                       title="Objekt beim Datenlieferanten anzeigen" lxmlAnchor="Datengeber-Rücklink">
+                <span>
+                  <span class="apd-icon apd-icon-link-external"></span>
+                  Objekt beim Datenlieferanten anzeigen
+                </span>
+                    </a>
+                </div>
+            </div>
+            <h1 class="object-details-title" lxmlAnchor="Titel">Titel der Gliederungsgruppe</h1>
+            <div class="row-fluid">
+                <div class="span6" style="width: 100%;">
+                    <div class="fields">
+                        <div id="facets">
+                            <div class="row-fluid" lxmlAnchor="Verzeichnungsstufe">
+                                <div class="field-label span4">
+                                    <strong>Verzeichnungsstufe: </strong>
+                                </div>
+                                <div class="value span8">Gliederung</div>
+                            </div>
+                        </div>
+                        <div id="fields">
+                            <div class="row-fluid" lxmlAnchor="Kontext">
+                                <div class="field-label span4">
+                                    <strong>Kontext: </strong>
+                                </div>
+                                <div class="value span8"></div>
+                            </div>
+                            <div class="row-fluid" lxmlAnchor="Beschreibung">
+                                <div class="field-label span4">
+                                    <strong>Beschreibung: </strong>
+                                </div>
+                                <div class="value span8"></div>
+                            </div>
+                            <div class="row-fluid" lxmlAnchor="Online-Beständeübersicht im Angebot des Archivs">
+                                <div class="field-label span4">
+                                    <strong>Online-Beständeübersicht im Angebot des Archivs: </strong>
+                                </div>
+                                <div class="value span8">
+                                    <a href="http://www.landesarchiv-bw.de/plink/?f=1-2604&amp;a=fb">http://www.landesarchiv-bw.de/plink/?f=1-2604&amp;a=fb</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row-fluid" lxmlAnchor="Rechteinformation">
+                            <div class="rights">
+                                <div class="field-label span4"><strong>Rechteinformation: </strong></div>
+                                <div class="value span8 span10">Es gelten die Nutzungsbedingungen des Stadtarchivs
+                                    Musterstadt.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="span6 slide-viewer item-detail" style="display: none;">
+                    <!-- Ausblenden des Binary-Viewers über: style="display: none;" -->
+                    <div class="binary-viewer-container">
+                        <div id="binary-viewer" class="img-binary">
+                            <ul id="previews-list">
+                                <li class="">
+                                    <div class="viewer-icon">
+                                        <a target="_blank" class="show-origin"
+                                           href="http://www.landesarchiv-bw.de/plink/?f=1-1263080"
+                                           title="Click the link to view the object data on the data provider's web site."></a>
+                                    </div>
+                                    <a target="_blank" class="no-previews no-external-link-icon"
+                                       href="http://www.landesarchiv-bw.de/plink/?f=1-1263080"
+                                       title="Click the link to view the object data on the data provider's web site.">
+                                        <img src="static_resources/1_003.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a target="_blank" class="show-origin"
+                                           href="http://www.landesarchiv-bw.de/plink/?f=1-1263080"
+                                           title="Click the link to view the object data on the data provider's web site."></a>
+                                    </div>
+                                    <a target="_blank" class="no-previews no-external-link-icon"
+                                       href="http://www.landesarchiv-bw.de/plink/?f=1-1263080"
+                                       title="Click the link to view the object data on the data provider's web site.">
+                                        <img src="static_resources/11_002.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a class="show-lightbox"
+                                           data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                           data-pos="2"
+                                           href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/2.jpg"></a>
+                                    </div>
+                                    <a class="previews"
+                                       data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                       data-pos="Bild 2 von"
+                                       href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/2.jpg">
+                                        <img src="static_resources/2_002.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a class="show-lightbox"
+                                           data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                           data-pos="3"
+                                           href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/3.jpg"></a>
+                                    </div>
+                                    <a class="previews"
+                                       data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                       data-pos="Bild 3 von"
+                                       href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/3.jpg">
+                                        <img src="static_resources/3_002.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a class="show-lightbox"
+                                           data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                           data-pos="4"
+                                           href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/4.jpg"></a>
+                                    </div>
+                                    <a class="previews"
+                                       data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                       data-pos="Bild 4 von"
+                                       href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/4.jpg">
+                                        <img src="static_resources/4_002.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a class="show-lightbox"
+                                           data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                           data-pos="5"
+                                           href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/5.jpg"></a>
+                                    </div>
+                                    <a class="previews"
+                                       data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                       data-pos="Bild 5 von"
+                                       href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/5.jpg">
+                                        <img src="static_resources/5.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a class="show-lightbox"
+                                           data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                           data-pos="6"
+                                           href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/6.jpg"></a>
+                                    </div>
+                                    <a class="previews"
+                                       data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                       data-pos="Bild 6 von"
+                                       href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/6.jpg">
+                                        <img src="static_resources/6.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a class="show-lightbox"
+                                           data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                           data-pos="7"
+                                           href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/7.jpg"></a>
+                                    </div>
+                                    <a class="previews"
+                                       data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                       data-pos="Bild 7 von"
+                                       href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/7.jpg">
+                                        <img src="static_resources/7.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a class="show-lightbox"
+                                           data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                           data-pos="8"
+                                           href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/8.jpg"></a>
+                                    </div>
+                                    <a class="previews"
+                                       data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                       data-pos="Bild 8 von"
+                                       href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/8.jpg">
+                                        <img src="static_resources/8_002.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a class="show-lightbox"
+                                           data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                           data-pos="9"
+                                           href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/9.jpg"></a>
+                                    </div>
+                                    <a class="previews"
+                                       data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                       data-pos="Bild 9 von"
+                                       href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/9.jpg">
+                                        <img src="static_resources/9_002.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                                <li class="off">
+                                    <div class="viewer-icon">
+                                        <a class="show-lightbox"
+                                           data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                           data-pos="10"
+                                           href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/10.jpg"></a>
+                                    </div>
+                                    <a class="previews"
+                                       data-caption="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."
+                                       data-pos="Bild 10 von"
+                                       href="https://www.archivportal-d.de/binary/BGISQUG3F43FTFNBQ64YUGJGX4KYUQQ4/full/10.jpg">
+                                        <img src="static_resources/10.jpg"
+                                             alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="binary-viewer-error off">
+                                <p class="error-header">Medienwiedergabe nicht möglich</p>
+                                <p>
+                                    Die Mediendatei kann nicht angezeigt werden.
+                                </p>
+                            </div>
+                            <div class="binary-viewer-flash-upgrade off">
+                                <p class="error-header">Please upgrade your Adobe Flash Player to watch this video</p>
+                                <p>
+                                    <a href="http://get.adobe.com/flashplayer/">Download the latest player from
+                                        Adobe</a>
+                                </p>
+                                <p class="error-header">Medienwiedergabe nicht möglich</p>
+                                <p>
+                                    Die Mediendatei kann nicht angezeigt werden.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="binary-title"
+                         title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                        <span>Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                    </div>
+                    <div class="binary-author" title="">
+                        <span></span>
+                    </div>
+                    <div class="binary-rights" title="">
+                        <span></span>
+                    </div>
+                    <div class="tabs fix">
+                        <div role="tablist" class="">
+                            <p class="tab images current-tab show-divider" role="tab">Bilder (11)</p>
+                        </div>
+                        <div class="scroller images " role="tabpanel" style="display: block;">
+                            <div class="caroufredsel_wrapper"
+                                 style="display: block; text-align: start; float: none; position: relative; top: auto; right: auto; bottom: auto; left: 9px; z-index: auto; width: 435px; height: 96px; margin: 0px; overflow: hidden;">
+                                <ul class="gallery-images gallery-tab"
+                                    style="text-align: left; float: none; position: absolute; top: 0px; right: auto; bottom: auto; left: 0px; margin: 0px; width: 3515px; height: 96px;">
+                                    <li>
+                                        <a class="group" href="binaries/1_003.jpg" data-content="binaries/1_003.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/1_002.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/2.jpg" data-content="binaries/2.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/2.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/3.jpg" data-content="binaries/3.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/3.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/4.jpg" data-content="binaries/4.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/4.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/5.jpg" data-content="binaries/5.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/5_002.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/6.jpg" data-content="binaries/6.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/6_002.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/7.jpg" data-content="binaries/7.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/7_002.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/8.jpg" data-content="binaries/8.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/8.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/9.jpg" data-content="binaries/9.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/9.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/10.jpg" data-content="binaries/10.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/10_002.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/11.jpg" data-content="binaries/11.jpg"
+                                           data-type="image" data-author="" data-rights=""
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/11.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            </div>
+                                            <span class="label off">Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <button class="btn-prev disabled" style="display: block;">
+                                Zurück
+                                <span class="opaque"></span>
+                            </button>
+                            <button class="btn-next" style="display: block;">
+                                Weiter
+                                <span class="opaque"></span>
+                            </button>
+                        </div>
+                        <noscript>
+                            <div class="scroller images" role="tabpanel">
+                                <ul class="gallery-images">
+                                    <li>
+                                        <a class="group" href="binaries/2.jpg"
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/2.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."/>
+                                            </div>
+                                            <span class="label off">
+                    Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.
+                  </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/3.jpg"
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/3.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."/>
+                                            </div>
+                                            <span class="label off">
+                    Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.
+                  </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/4.jpg"
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/4.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."/>
+                                            </div>
+                                            <span class="label off">
+                    Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.
+                  </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/5.jpg"
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/5.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."/>
+                                            </div>
+                                            <span class="label off">
+                    Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.
+                  </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/6.jpg"
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/6.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."/>
+                                            </div>
+                                            <span class="label off">
+                    Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.
+                  </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/7.jpg"
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/7.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."/>
+                                            </div>
+                                            <span class="label off">
+                    Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.
+                  </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/8.jpg"
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/8.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."/>
+                                            </div>
+                                            <span class="label off">
+                    Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.
+                  </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/9.jpg"
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/9.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."/>
+                                            </div>
+                                            <span class="label off">
+                    Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.
+                  </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="group" href="binaries/10.jpg"
+                                           title="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.">
+                                            <div class=" thumbnail image">
+                                                <img src="binaries/10.jpg"
+                                                     alt="Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle."/>
+                                            </div>
+                                            <span class="label off">
+                    Kaiser Karl publiziert die dreiundzwanzig ersten Kapitel der Goldenen Bulle.
+                  </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </noscript>
+                        <div role="tablist" class="off">
+                            <p class="tab videos show-divider" role="tab">Videos (0)</p>
+                        </div>
+                        <div class="scroller videos off" role="tabpanel">
+                            <ul class="gallery-videos gallery-tab">
+                            </ul>
+                            <button class="btn-prev disabled" style="display: block;">
+                                Zurück
+                                <span class="opaque"></span>
+                            </button>
+                            <button class="btn-next" style="display: block;">
+                                Weiter
+                                <span class="opaque"></span>
+                            </button>
+                            <p class="gallery-pagination" data-pag="0"></p>
+                        </div>
+                        <noscript>
+                            <div class="scroller videos" role="tabpanel">
+                                <ul class="gallery-videos">
+                                </ul>
+                            </div>
+                        </noscript>
+                        <div role="tablist" class="off">
+                            <p class="tab audios off show-divider" role="tab">Audios (0)</p>
+                        </div>
+                        <div class="scroller audios off" role="tabpanel">
+                            <ul class="gallery-audios gallery-tab">
+                            </ul>
+                            <button class="btn-prev disabled" style="display: block;">
+                                Zurück
+                                <span class="opaque"></span>
+                            </button>
+                            <button class="btn-next" style="display: block;">
+                                Weiter
+                                <span class="opaque"></span>
+                            </button>
+                            <p class="gallery-pagination" data-pag="0"></p>
+                        </div>
+                        <noscript>
+                            <div class="scroller audios" role="tabpanel">
+                                <ul class="gallery-audios">
+                                </ul>
+                            </div>
+                        </noscript>
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="page-links">
+                    <a class="page-link" href="#" title="Dieses Objekt in der Deutschen Digitalen Bibliothek anzeigen">
+                        <span class="apd-icon apd-icon-dfg-viewer"></span>
+                        <span>Dieses Objekt in der Deutschen Digitalen Bibliothek anzeigen</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="container hidden-phone">
+    <div class="row">
+        <h1 class="invisible-but-readable">
+            Website-Fußzeile
+        </h1>
+        <div class="span9 legal">
+            <ul>
+                <li>Copyright © 2017 Archivportal-D</li>
+                <li>
+                    <a href="https://www.archivportal-d.de/info/nutzungsbedingungen">
+                        Nutzungsbedingungen
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.archivportal-d.de/info/datenschutz">
+                        Datenschutzerklärung
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.archivportal-d.de/info/impressum">
+                        Impressum
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.archivportal-d.de/info/sitemap">
+                        Sitemap
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.archivportal-d.de/info/kontakt">
+                        Kontakt
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="span1 fr">
+            <div class="fr">
+                <div class="social-icons">
+                    <a class="twitter-icon" href="https://twitter.com/archivportal/" target="_blank">Twitter</a>
+                </div>
+            </div>
+        </div>
+        <div class="span1 fr">
+            <a href="http://www.dfg.de/" class="fr" target="_blank">
+                <img class="dfgLogo" src="static_resources/logoDFG.jpg" alt="Logo DFG Deutsche Forschungsgemeinschaft">
+            </a>
+        </div>
+    </div>
+    <div class="row spaced">
+        <div class="span3 language-switch">
+            <ul>
+                <li class="br">
+                    <a href="#" class="active">
+                        <i class="apd-icon apd-icon-german-flag"></i>
+                        Deutsch
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="active">
+                        <i class="apd-icon apd-icon-english-flag"></i>
+                        English
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span12">
+            <div class="build">
+                1.4.8 / 5.1.3
+            </div>
+        </div>
+    </div>
+</footer>
+<div id="globalJsVariables" class="off" data-js-context-path="" data-js-language="de" data-js-longitude=""
+     data-js-latitude="" data-js-institutions-list-hash="" data-js-glossarurl="/info/glossar"
+     data-js-glossarjsondbfile="/js/glossar.json" data-js-loggedin="false">
+</div>
+<script type="text/javascript" defer="defer" async="" src="static_resources/piwik.js"></script>
+<script type="text/javascript" src="static_resources/messages.js"></script>
+<script src="static_resources/typedarray.js" type="text/javascript"></script>
+<script src="static_resources/jquery_003.js" type="text/javascript"></script>
+<script src="static_resources/jquery_007.js" type="text/javascript"></script>
+<script src="static_resources/bootstrap.js" type="text/javascript"></script>
+<script src="static_resources/jquery_005.js" type="text/javascript"></script>
+<script src="static_resources/largeCookie.js" type="text/javascript"></script>
+<script src="static_resources/jquery-queryParser.js" type="text/javascript"></script>
+<script src="static_resources/commonGlobalVariables.js" type="text/javascript"></script>
+<script src="static_resources/globalVariables.js" type="text/javascript"></script>
+<script src="static_resources/globalFunctions.js" type="text/javascript"></script>
+<script src="static_resources/globalScripts.js" type="text/javascript"></script>
+<script src="static_resources/navbarManager.js" type="text/javascript"></script>
+<script src="static_resources/persistentLinksModalDialog.js" type="text/javascript"></script>
+<script src="static_resources/tooltip.js" type="text/javascript"></script>
+<script src="static_resources/urlHelper.js" type="text/javascript"></script>
+<script src="static_resources/urlManager.js" type="text/javascript"></script>
+<script src="static_resources/stateManager.js" type="text/javascript"></script>
+<script src="static_resources/searchCookie.js" type="text/javascript"></script>
+<script src="static_resources/objectSearch.js" type="text/javascript"></script>
+<script src="static_resources/facetHelper.js" type="text/javascript"></script>
+<script src="static_resources/jquery.js" type="text/javascript"></script>
+<script src="static_resources/jquery_004.js" type="text/javascript"></script>
+<script src="static_resources/jquery_002.js" type="text/javascript"></script>
+<script src="static_resources/jspdf_004.js" type="text/javascript"></script>
+<script src="static_resources/FileSaver.js" type="text/javascript"></script>
+<script src="static_resources/Blob.js" type="text/javascript"></script>
+<script src="static_resources/BlobBuilder.js" type="text/javascript"></script>
+<script src="static_resources/adler32cs.js" type="text/javascript"></script>
+<script src="static_resources/deflate.js" type="text/javascript"></script>
+<script src="static_resources/jspdf.js" type="text/javascript"></script>
+<script src="static_resources/jspdf_003.js" type="text/javascript"></script>
+<script src="static_resources/jspdf_005.js" type="text/javascript"></script>
+<script src="static_resources/jspdf_006.js" type="text/javascript"></script>
+<script src="static_resources/jspdf_002.js" type="text/javascript"></script>
+<script src="static_resources/jspdf_007.js" type="text/javascript"></script>
+<script src="static_resources/filterWidgetController.js" type="text/javascript"></script>
+<script src="static_resources/proj4.js" type="text/javascript"></script>
+<script src="static_resources/OpenLayers.js" type="text/javascript"></script>
+<script src="static_resources/projections.js" type="text/javascript"></script>
+<script src="static_resources/map.js" type="text/javascript"></script>
+<script src="static_resources/institutionsMapAdapter.js" type="text/javascript"></script>
+<script src="static_resources/jwplayer.js" type="text/javascript"></script>
+<script src="static_resources/jquery_006.js" type="text/javascript"></script>
+<script src="static_resources/jquery_008.js" type="text/javascript"></script>
+<script src="static_resources/binariesViewer.js" type="text/javascript"></script>
+<script src="static_resources/detailView.js" type="text/javascript"></script>
+<script src="static_resources/favoriteFunctions.js" type="text/javascript"></script>
+<script>
+        if (typeof jwplayer !== 'undefined') {
+          jwplayer.key="AUCPxuikvGKUo7iy5PHSNvulij4OHNPvp+v47g==";
+        }
+
+</script>
+</body>
+</html>

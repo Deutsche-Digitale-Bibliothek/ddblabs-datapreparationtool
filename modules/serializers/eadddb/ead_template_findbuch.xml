@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ead xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:isbn:1-931666-22-9" xsi:schemaLocation="urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd" audience="external">
+   <eadheader countryencoding="iso3166-1" dateencoding="iso8601" langencoding="iso639-2b" repositoryencoding="iso15511" scriptencoding="iso15924">
+      <eadid mainagencycode="" url=""></eadid>
+      <filedesc>
+         <titlestmt>
+            <titleproper></titleproper>
+         </titlestmt>
+      </filedesc>
+      <profiledesc>
+         <creation>
+            <date normal=""></date>
+         </creation>
+      </profiledesc>
+   </eadheader>
+   <archdesc level="collection" type="Findbuch">
+      <did>
+         <unitid></unitid>
+         <repository>
+            <corpname role="" id=""></corpname>
+            <address/>
+            <extref xlink:role="url_archive" xlink:href="">Name des
+					Archivs</extref>
+         </repository>
+      </did>
+      <!--<otherfindaid>-->
+         <!--<extref xlink:role="url_findbuch" xlink:href=""> Findbuch im-->
+                <!--Angebot des Archivs </extref>-->
+      <!--</otherfindaid>-->
+      <dsc>
+         
+      </dsc>
+   </archdesc>
+</ead>
