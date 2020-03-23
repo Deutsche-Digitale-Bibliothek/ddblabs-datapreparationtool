@@ -116,116 +116,121 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False):
     # Aufruf des allg. Software-Skripts
 
     ext = [".xml", ".XML"]
-    input_file_count = len(os.listdir('.'))
-    input_file_i = 1
-    for input_file in os.listdir('.'):
-        if input_file.endswith(tuple(ext)) and input_file != "provider.xml":
-            if handle_thread_actions.load_from_xml("stop_thread", root_path) is True:
-                break
+    input_files = []
+    for input_file_candidate in os.listdir("."):
+        if input_file_candidate.endswith(tuple(ext)) and input_file_candidate != "provider.xml":
+            input_files.append(input_file_candidate)
+    input_files_count = len(input_files)
 
+    for input_file_i, input_file in enumerate(input_files):
+        if handle_thread_actions.load_from_xml("stop_thread", root_path) is True:
+            break
+
+        transformation_progress = int((input_file_i / input_files_count) * 100)
+
+        try:
+            xml_findbuch_in = etree.parse(input_file)
+        except etree.XMLSyntaxError as e:
+            logger.warning("Verarbeitung der XML-Datei übersprungen (Fehler beim Parsen): {}".format(e))
+            error_status = 1
+            write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+            continue
+
+        # Bestimmen von input_type (Findbuch oder Tektonik). Kann kein Wert ermittelt werden, so erfolgt ein Fallback auf den Standardwert "findbuch"
+        archdesc_type = xml_findbuch_in.findall('//{urn:isbn:1-931666-22-9}archdesc[@level="collection"]')
+        if len(archdesc_type) == 1:
+            if "type" in archdesc_type[0].attrib:
+                input_type = archdesc_type[0].attrib["type"].lower()
+
+        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Softwaremodul für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
+
+        provider_args = [xml_findbuch_in, input_path, input_file, output_path, provider_isil, provider_id, provider_name, provider_software, provider_archivtyp, provider_state, provider_addressline_strasse, provider_addressline_ort, provider_addressline_mail, provider_website, provider_tektonik_url, input_type, mdb_override]  # Übergabe der Parameter an die Software-Skripte
+
+        try:
+            if provider_software == "eadddb":
+                xml_findbuch_in = eadddb.parse_xml_content(*provider_args)
+
+        except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
+            traceback_string = traceback.format_exc()
+            logger.warning("Softwareskript konnte für die Datei {} nicht angewandt werden; Fehlermeldung: {}.\n {}".format(input_file, e, traceback_string))
+            error_status = 1
+            write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+
+        # Anwenden der Mapping-Definiton:
+        mapping_definition_args = [xml_findbuch_in, input_type, input_file,
+                                error_status]  # Parameter zur Übergabe an die Mapping-Definition
+        administrative_data = {"provider_isil": provider_isil, "provider_id": provider_id, "provider_name": provider_name, "provider_archivtyp": provider_archivtyp, "provider_state": provider_state, "provider_addressline_strasse": provider_addressline_strasse, "provider_addressline_ort": provider_addressline_ort, "provider_addressline_mail": provider_addressline_mail, "provider_website": provider_website, "provider_tektonik_url": provider_tektonik_url}
+        if apply_mapping_definition:
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anwenden der Mapping-Definition für {}: {} (Datei {}/{})".format(
+                input_type, input_file, input_file_i, input_files_count), error_status=error_status)
             try:
-                xml_findbuch_in = etree.parse(input_file)
-            except etree.XMLSyntaxError as e:
-                logger.warning("Verarbeitung der XML-Datei übersprungen (Fehler beim Parsen): {}".format(e))
-                error_status = 1
-                write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
-                continue
-
-            # Bestimmen von input_type (Findbuch oder Tektonik). Kann kein Wert ermittelt werden, so erfolgt ein Fallback auf den Standardwert "findbuch"
-            archdesc_type = xml_findbuch_in.findall('//{urn:isbn:1-931666-22-9}archdesc[@level="collection"]')
-            if len(archdesc_type) == 1:
-                if "type" in archdesc_type[0].attrib:
-                    input_type = archdesc_type[0].attrib["type"].lower()
-
-            write_processing_status(root_path=root_path, processing_step=10, status_message="Verarbeite Softwaremodul für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_file_count), error_status=error_status)
-
-            provider_args = [xml_findbuch_in, input_path, input_file, output_path, provider_isil, provider_id, provider_name, provider_software, provider_archivtyp, provider_state, provider_addressline_strasse, provider_addressline_ort, provider_addressline_mail, provider_website, provider_tektonik_url, input_type, mdb_override]  # Übergabe der Parameter an die Software-Skripte
-
-            try:
-                if provider_software == "eadddb":
-                    xml_findbuch_in = eadddb.parse_xml_content(*provider_args)
-
+                xml_findbuch_in = mapping_definition.apply_mapping(session_data, administrative_data, *mapping_definition_args)
             except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
                 traceback_string = traceback.format_exc()
-                logger.warning("Softwareskript konnte für die Datei {} nicht angewandt werden; Fehlermeldung: {}.\n {}".format(input_file, e, traceback_string))
+                logger.warning("Anwenden der Mapping-Definition für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
                 error_status = 1
                 write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
 
-            # Anwenden der Mapping-Definiton:
-            mapping_definition_args = [xml_findbuch_in, input_type, input_file,
-                                    error_status]  # Parameter zur Übergabe an die Mapping-Definition
-            administrative_data = {"provider_isil": provider_isil, "provider_id": provider_id, "provider_name": provider_name, "provider_archivtyp": provider_archivtyp, "provider_state": provider_state, "provider_addressline_strasse": provider_addressline_strasse, "provider_addressline_ort": provider_addressline_ort, "provider_addressline_mail": provider_addressline_mail, "provider_website": provider_website, "provider_tektonik_url": provider_tektonik_url}
-            if apply_mapping_definition:
-                write_processing_status(root_path=root_path, processing_step=20, status_message="Anwenden der Mapping-Definition für {}: {} (Datei {}/{})".format(
-                    input_type, input_file, input_file_i, input_file_count), error_status=error_status)
-                try:
-                    xml_findbuch_in = mapping_definition.apply_mapping(session_data, administrative_data, *mapping_definition_args)
-                except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
-                    traceback_string = traceback.format_exc()
-                    logger.warning("Anwenden der Mapping-Definition für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
-                    error_status = 1
-                    write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+
+        # Aufruf providerspezifischer Skripte:
+        provider_module_args = [root_path, xml_findbuch_in, input_type, input_file,
+                                error_status]  # Parameter zur Übergabe an die providerspezifischen Anpassungen
+        if is_gui_session is True:
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite providerspezifische Anpassungen für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
+            xml_findbuch_in, error_status = handle_provider_scripts.parse_xml_content(*provider_module_args)
+
+        # Anziehen der Binaries (falls "fetch_and_link_binaries = True" in transformation_p1)
+        if process_binaries:
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Lade Binaries für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
+            xml_findbuch_in = fetch_and_link_binaries.parse_xml_content(xml_findbuch_in, input_file, output_path,
+                                                                        input_type, input_path)
+
+        # Generierung von METS-Dateien (falls "enable_mets_generation = True" in transformation_p1)
+        if enable_mets_generation:
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Generiere METS-Dateien für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
+            xml_findbuch_in = create_mets_files.parse_xml_content(xml_findbuch_in, input_file, output_path,
+                                                                  input_type, input_path, session_data)
+
+        # Anreicherung der Rechte- und Lizenzinformation
+        if enrich_rights_info:
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Rechteinformation für {}: {} (Datei {}/{})".format(input_type, input_file,input_file_i, input_files_count), error_status=error_status)
+            try:
+                xml_findbuch_in = handle_provider_rights.parse_xml_content(xml_findbuch_in, input_file, input_type)
+            except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
+                traceback_string = traceback.format_exc()
+                logger.warning("Anreichern der Rechteinformation für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
+                error_status = 1
+                write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+
+        # Anreicherung der Aggregator-Zuordnung
+        if enrich_aggregator_info:
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Aggregatorinformation für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
+            try:
+                xml_findbuch_in = handle_provider_aggregator_mapping.parse_xml_content(xml_findbuch_in, input_file, input_type)
+            except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
+                traceback_string = traceback.format_exc()
+                logger.warning(
+                    "Anreichern der Aggregator-Zuordnung für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
+                error_status = 1
+                write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
 
 
-            # Aufruf providerspezifischer Skripte:
-            provider_module_args = [root_path, xml_findbuch_in, input_type, input_file,
-                                    error_status]  # Parameter zur Übergabe an die providerspezifischen Anpassungen
-            if is_gui_session is True:
-                write_processing_status(root_path=root_path, processing_step=30, status_message="Verarbeite providerspezifische Anpassungen für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_file_count), error_status=error_status)
-                xml_findbuch_in, error_status = handle_provider_scripts.parse_xml_content(*provider_module_args)
-
-            # Anziehen der Binaries (falls "fetch_and_link_binaries = True" in transformation_p1)
-            if process_binaries:
-                write_processing_status(root_path=root_path, processing_step=60, status_message="Lade Binaries für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_file_count), error_status=error_status)
-                xml_findbuch_in = fetch_and_link_binaries.parse_xml_content(xml_findbuch_in, input_file, output_path,
-                                                                            input_type, input_path)
-
-            # Generierung von METS-Dateien (falls "enable_mets_generation = True" in transformation_p1)
-            if enable_mets_generation:
-                write_processing_status(root_path=root_path, processing_step=80, status_message="Generiere METS-Dateien für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_file_count), error_status=error_status)
-                xml_findbuch_in = create_mets_files.parse_xml_content(xml_findbuch_in, input_file, output_path,
-                                                                      input_type, input_path, session_data)
-
-            # Anreicherung der Rechte- und Lizenzinformation
-            if enrich_rights_info:
-                write_processing_status(root_path=root_path, processing_step=90, status_message="Anreichern der Rechteinformation für {}: {} (Datei {}/{})".format(input_type, input_file,input_file_i, input_file_count), error_status=error_status)
-                try:
-                    xml_findbuch_in = handle_provider_rights.parse_xml_content(xml_findbuch_in, input_file, input_type)
-                except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
-                    traceback_string = traceback.format_exc()
-                    logger.warning("Anreichern der Rechteinformation für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
-                    error_status = 1
-                    write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
-
-            # Anreicherung der Aggregator-Zuordnung
-            if enrich_aggregator_info:
-                write_processing_status(root_path=root_path, processing_step=92, status_message="Anreichern der Aggregatorinformation für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_file_count), error_status=error_status)
-                try:
-                    xml_findbuch_in = handle_provider_aggregator_mapping.parse_xml_content(xml_findbuch_in, input_file, input_type)
-                except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
-                    traceback_string = traceback.format_exc()
-                    logger.warning(
-                        "Anreichern der Aggregator-Zuordnung für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
-                    error_status = 1
-                    write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+        # Vorprozessierung für die DDB2017-Transformation
+        if enable_ddb2017_preprocessing:
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="DDB2017-Vorprozessierung für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
+            try:
+                xml_findbuch_in = ddb2017_preprocessing.parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil)
+            except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
+                traceback_string = traceback.format_exc()
+                logger.warning("DDB2017-Vorprozessierung für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
+                error_status = 1
+                write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
 
 
-            # Vorprozessierung für die DDB2017-Transformation
-            if enable_ddb2017_preprocessing:
-                write_processing_status(root_path=root_path, processing_step=95, status_message="DDB2017-Vorprozessierung für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_file_count), error_status=error_status)
-                try:
-                    xml_findbuch_in = ddb2017_preprocessing.parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil)
-                except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
-                    traceback_string = traceback.format_exc()
-                    logger.warning("DDB2017-Vorprozessierung für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
-                    error_status = 1
-                    write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+        serialize_xml_result(xml_findbuch_in, input_file, output_path, input_type, mdb_override)
 
-
-            serialize_xml_result(xml_findbuch_in, input_file, output_path, input_type, mdb_override)
-
-            input_file_i += 1
-            os.chdir('data_input/' + input_folder_name)  # Zurücksetzen des CWD (current working directory) für das Einlesen der nächsten Datei
+        input_file_i += 1
+        os.chdir('data_input/' + input_folder_name)  # Zurücksetzen des CWD (current working directory) für das Einlesen der nächsten Datei
 
     write_processing_status(root_path=root_path, processing_step=100, status_message="Transformation abgeschlossen.", error_status=error_status)
     os.chdir("../..")

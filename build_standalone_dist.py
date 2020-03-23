@@ -10,6 +10,7 @@ from loguru import logger
 timer_start = datetime.datetime.now()
 
 # Variablen für den Build-Prozess (64 bit Python-Umgebung):
+include_providerspecific_modules = False
 qt_lib_path = "C:\\Users\\OGoetze\\venv\\build\\ddbmappings_build\\Lib\\site-packages\\PyQt5\\Qt\\bin"
 msvc_path = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\x64"
 icon_path = "gui_components/ui_templates/resources/datapreparationtool.ico"
@@ -30,7 +31,7 @@ if os.path.isdir("build"):
     rmtree("build")
 
 # Ausführen des PyInstaller-Skripts als Subprozess:
-execute_string = 'pyinstaller --clean --onefile -p "{}" -p "{}" --name "datapreparationtool" --noconsole --icon "{}" main_gui.py'.format(qt_lib_path, msvc_path, icon_path)
+execute_string = 'pyinstaller --clean --onefile -p "{}" -p "{}" --name "datapreparationtool" --icon "{}" main_gui.py'.format(qt_lib_path, msvc_path, icon_path)
 logger.info("Führe PyInstaller-Script aus: {execute_string}", execute_string=execute_string)
 subprocess.call(execute_string)
 
@@ -45,6 +46,7 @@ os.makedirs("dist/modules/ead2mets")
 os.makedirs("dist/modules/common/provider_metadata")
 os.makedirs("dist/modules/analysis/enrichment")
 os.makedirs("dist/modules/serializers/eadddb")
+os.makedirs("dist/modules/provider_specific")
 
 logger.info("Kopieren der gui_session Daten ...")
 copyfile("gui_session/templates/processing_status.xml", "dist/gui_session/templates/processing_status.xml")
@@ -57,7 +59,16 @@ copytree("gui_components/ui_templates/resources/html", "dist/gui_components/ui_t
 copyfile("gui_components/ui_templates/resources/list.png", "dist/gui_components/ui_templates/resources/list.png")
 
 logger.info("Kopieren der providerspezifischen Anpassungen, inkl. modules/provider_specific/aggregator_mapping.xml ...")
-copytree("modules/provider_specific", "dist/modules/provider_specific")
+if include_providerspecific_modules:
+    copytree("modules/provider_specific", "dist/modules/provider_specific")
+    os.remove("dist/modules/provider_specific/handle_provider_aggregator_mapping.py")
+    os.remove("dist/modules/provider_specific/handle_provider_rights.py")
+    os.remove("dist/modules/provider_specific/handle_provider_scripts.py")
+    if os.path.isdir("dist/modules/provider_specific/__pycache__"):
+        rmtree("dist/modules/provider_specific/__pycache__")
+else:
+    copyfile("modules/provider_specific/aggregator_mapping.xml",
+             "dist/modules/provider_specific/aggregator_mapping.xml")
 
 logger.info("Kopieren des Templates zur METS/MODS-Generierung ...")
 copyfile("modules/ead2mets/mets_template.xml", "dist/modules/ead2mets/mets_template.xml")

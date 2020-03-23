@@ -49,13 +49,15 @@ def merge_repeatable_elements(source_value_multiple, compare_with_existing_eleme
             for existing_element in element_exists_in_target_doc:
                 existing_element_p = existing_element.findall("{urn:isbn:1-931666-22-9}p")
                 existing_element_text = None
-                if len(existing_element_p) == 0 and (len(existing_element.text) > 0 or len(existing_element) > 0):  # abstract (ohne p-Subelement) berücksichtigen
+                existing_element_text_compare_value = get_compare_value(existing_element)
+
+                if len(existing_element_p) == 0 and existing_element_text_compare_value != "":  # abstract (ohne p-Subelement) berücksichtigen
                     existing_element_text = existing_element
                 if len(existing_element_p) > 0:
                     if get_compare_value(value[1]) == get_compare_value(existing_element_p[0]):
                         target_possible_duplicate = True
                 if existing_element_text is not None:
-                    if get_compare_value(value[1]) == get_compare_value(existing_element_text):
+                    if get_compare_value(value[1]) == existing_element_text_compare_value:
                         target_possible_duplicate = True
 
         if not target_possible_duplicate:

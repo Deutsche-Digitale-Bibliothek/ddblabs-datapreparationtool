@@ -535,7 +535,10 @@ class MappingLibraryMainGui(Ui_MainWindow):
                 self.validationStatusDialog_ui.frame_validation_error.setVisible(True)
 
             self.statusbar.showMessage("Validierung abgeschlossen.")
-            self.enable_processing_controls()
+            if len(self.comboBox_provider.currentText()) == 0:
+                self.enable_processing_controls(is_first_launch=True)
+            else:
+                self.enable_processing_controls()
 
             self.validationStatusDialog_ui.stackedWidget.setCurrentIndex(1)
 
@@ -859,22 +862,12 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.comboBox_provider.clear()
         self.comboBox_provider.addItems(self.provider_list)
 
-        # Wenn noch keine Datengeber vorhanden sind: Einstellungs-TabWidget, Buttons für Transformation und Analyse, Menüpunkte "Tools" und "Validierung" sowie "Datei" -> "Dateien per OAI-PMH laden ..." deaktivieren
+        # Wenn noch keine Datengeber vorhanden sind, Funktionen zur Prozessierung deaktivieren.
         if len(self.comboBox_provider.currentText()) == 0:
-            self.tabWidget.setEnabled(False)
-            self.pushButton_startTransformation.setEnabled(False)
-            self.pushButton_startAnalyse.setEnabled(False)
-            self.menuTools.setEnabled(False)
-            self.menuValidierung.setEnabled(False)
-            self.action_fetch_from_oai.setEnabled(False)
+            self.disable_processing_controls(is_first_launch=True)
             self.stackedWidget.setCurrentIndex(1)
         else:
-            self.tabWidget.setEnabled(True)
-            self.pushButton_startTransformation.setEnabled(True)
-            self.pushButton_startAnalyse.setEnabled(True)
-            self.menuTools.setEnabled(True)
-            self.menuValidierung.setEnabled(True)
-            self.action_fetch_from_oai.setEnabled(True)
+            self.enable_processing_controls()
             self.stackedWidget.setCurrentIndex(0)
 
     def set_provider_from_list(self, current_index):
@@ -1294,23 +1287,27 @@ class MappingLibraryMainGui(Ui_MainWindow):
     def open_in_browser(target_url):
         webbrowser.open(target_url)
 
-    def disable_processing_controls(self):
+    def disable_processing_controls(self, is_first_launch=False):
         """GUI-Elemente zur Steuerung von Prozessierungen deaktivieren, während bereits eine Prozessierung läuft."""
         self.tabWidget.setEnabled(False)
         self.pushButton_startTransformation.setEnabled(False)
         self.pushButton_startAnalyse.setEnabled(False)
         self.menuTools.setEnabled(False)
-        self.menuValidierung.setEnabled(False)
+        if not is_first_launch:
+            self.menuValidierung.setEnabled(False)
         self.action_fetch_from_oai.setEnabled(False)
 
-    def enable_processing_controls(self):
+    def enable_processing_controls(self, is_first_launch=False):
         """GUI-Elemente zur Steuerung von Prozessierungen aktivieren, nachdem eine Prozessierung abgeschlossen wurde."""
-        self.tabWidget.setEnabled(True)
-        self.pushButton_startTransformation.setEnabled(True)
-        self.pushButton_startAnalyse.setEnabled(True)
-        self.menuTools.setEnabled(True)
-        self.menuValidierung.setEnabled(True)
-        self.action_fetch_from_oai.setEnabled(True)
+        if not is_first_launch:
+            self.tabWidget.setEnabled(True)
+            self.pushButton_startTransformation.setEnabled(True)
+            self.pushButton_startAnalyse.setEnabled(True)
+            self.menuTools.setEnabled(True)
+            self.action_fetch_from_oai.setEnabled(True)
+            self.menuValidierung.setEnabled(True)
+        else:
+            self.menuValidierung.setEnabled(True)
 
     def exit_application(self):
         handle_session_data.save_to_xml(self.session_data)  # Speichern der Sitzungsdaten beim Beenden
