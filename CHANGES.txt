@@ -1,0 +1,13 @@
+-------------------------------------------------------------------------------------
+Data Preparation Tool Changes Log   (siehe für spezifische Änderungen: https://github.com/Deutsche-Digitale-Bibliothek/ddblabs-datapreparationtool/commits/master)
+-------------------------------------------------------------------------------------
+
+Release-Übersicht:
+
+3.0.1, 23.03.2020:
+     Bugfix: Validierung direkt nach erstem Start zugänglich gemacht.
+     Bugfix: Fehler in der Tektonik-Anreicherung behoben.
+     Verbesserung: Im Transformations-Statusfenster wird nun der Gesamt-Fortschritt angezeigt.
+
+3.0.0, 20.03.2020:
+     Erstes öffentliches Release.
