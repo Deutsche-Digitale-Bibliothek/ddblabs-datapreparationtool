@@ -1103,7 +1103,7 @@ def compile_validation_rules() -> dict:
         {"text_values": [],
          "attribute_def": [],
          "reference_elements": [
-             {"element_name": "{urn:isbn:1-931666-22-9}c", "attribute_def": [], "preceding_elements": 1}]})
+             {"element_name": "{urn:isbn:1-931666-22-9}c", "attribute_def": [{"attribute_name": "level", "allowed_values": ["class", "series", "file"]}], "preceding_elements": 1}]})
 
     rulesets_did.append(ruleset)
     validation_rules["{urn:isbn:1-931666-22-9}did"] = rulesets_did
