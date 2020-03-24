@@ -4,6 +4,9 @@ Data Preparation Tool Changes Log   (siehe für spezifische Änderungen: https:/
 
 Release-Übersicht:
 
+3.0.2, 24.03.2020:
+     Bugfix: Regeln für Tektonik-Validierung korrigiert (/ead/archdesc/dsc/c/did/repository: Element wird nicht erwartet, obwohl in Tektonik erlaubt.)
+
 3.0.1, 23.03.2020:
      Bugfix: Validierung direkt nach erstem Start zugänglich gemacht.
      Bugfix: Fehler in der Tektonik-Anreicherung behoben.
