@@ -37,8 +37,12 @@ def get_records(provider_input_path, oai_url, oai_metadata_prefix, oai_set_spec,
     if oai_metadata_prefix is None:
         oai_metadata_prefix = "ead"
     oai_resumption_token = None
-    http_headers = {'user-agent': 'datapreparationtool/2.0', 'from': 'archiv@deutsche-digitale-bibliothek.de'}
-    oai_parameters = {'verb': oai_verb, 'metadataPrefix': oai_metadata_prefix.rstrip(), 'set': oai_set_spec.rstrip(), 'from': oai_from_date}
+    http_headers = {'user-agent': 'ddb-datapreparationtool/3.0', 'from': 'archiv@deutsche-digitale-bibliothek.de'}
+    oai_parameters = {'verb': oai_verb, 'metadataPrefix': oai_metadata_prefix.rstrip()}
+    if oai_set_spec is not None:
+        oai_parameters["set"] = oai_set_spec.rstrip()
+    if oai_from_date is not None:
+        oai_parameters["from"] = oai_from_date.rstrip()
     record_count = 0
     resumable = True
 
@@ -47,7 +51,7 @@ def get_records(provider_input_path, oai_url, oai_metadata_prefix, oai_set_spec,
             oai_parameters["resumptionToken"] = oai_resumption_token
             oai_request = requests.get(oai_url, params=oai_parameters, headers=http_headers)
             if record_count == 0:
-                logger.info("OAI-Server HTTP-Headers: {}".format(oai_request.headers))
+                logger.debug("OAI-Server HTTP-Headers: {}".format(oai_request.headers))
                 logger.info("OAI-Server Status: {}".format(oai_request.status_code))
             oai_root_element = etree.fromstring(oai_request.content)
             oai_metadata_tree = etree.ElementTree(oai_root_element)
@@ -113,7 +117,7 @@ def get_sets(oai_url):
         oai_request = requests.get(oai_url, params=oai_parameters)
 
 
-        logger.info("OAI-Server HTTP-Headers: {}".format(oai_request.headers))
+        logger.debug("OAI-Server HTTP-Headers: {}".format(oai_request.headers))
         logger.info("OAI-Server Status: {}".format(oai_request.status_code))
 
         oai_root_element = etree.fromstring(oai_request.content)
@@ -141,13 +145,13 @@ def get_sets(oai_url):
 def get_single_record(provider_input_path, oai_url, oai_metadata_prefix, oai_verb, oai_identifier):
     if oai_metadata_prefix is None:
         oai_metadata_prefix = "ead"
-    http_headers = {'user-agent': 'datapreparationtool/2.0', 'from': 'archiv@deutsche-digitale-bibliothek.de'}
+    http_headers = {'user-agent': 'ddb-datapreparationtool/3.0', 'from': 'archiv@deutsche-digitale-bibliothek.de'}
     oai_parameters = {'verb': oai_verb, 'metadataPrefix': oai_metadata_prefix, 'identifier': oai_identifier.rstrip()}
 
     try:
         oai_request = requests.get(oai_url, params=oai_parameters, headers=http_headers)
 
-        logger.info("OAI-Server HTTP-Headers: {}".format(oai_request.headers))
+        logger.debug("OAI-Server HTTP-Headers: {}".format(oai_request.headers))
         logger.info("OAI-Server Status: {}".format(oai_request.status_code))
 
         oai_root_element = etree.fromstring(oai_request.content)

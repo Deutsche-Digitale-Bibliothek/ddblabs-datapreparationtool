@@ -32,7 +32,13 @@ def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, inpu
                     remote_binary_filepath = base_url_binaries + str(remote_binary_filename)
                 else:
                     remote_binary_filepath = str(remote_binary_filename)
-                res_binary = requests.get(remote_binary_filepath)
+
+                try:
+                    res_binary = requests.get(remote_binary_filepath)
+                except (requests.exceptions.InvalidURL, requests.exceptions.InvalidSchema, requests.exceptions.MissingSchema) as exc:
+                    logger.error("Fehlerhafte Binary-URL, Objekt wird übersprungen: {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}".format(remote_binary_filepath, input_file, object_id, exc))
+                    continue
+
                 try:
                     res_binary.raise_for_status()
                 except requests.HTTPError as exc:

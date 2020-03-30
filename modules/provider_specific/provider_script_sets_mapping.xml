@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provider_script_sets>
+    <provider id="DE-101e">
+        <set id="65396229-a362-4d3a-871f-5d90c07c9a3e">
+            <name>Konvertierung von MARC21 zu EAD</name>
+            <description>Skript zur Konvertierung von MARC21-Ausgangsdateien in einzelne EAD(DDB)-Dateien.
+            Dabei werden mehrere Findbuch-Dateien erstellt.
+            Die Tektonik wird über die Fake-Tektonik-Generierung der DPT-Analyse erstellt.</description>
+            <modules>['DE-101e,map_marc21_to_eadddb.py']</modules>
+        </set>
+        <set id="9ea52002-0416-43ac-8583-262a2a1da37d">
+            <name>Nachprozessierung der erzeugten EAD(DDB)-Dateien</name>
+            <description>- Bestandstitel der Archivaliensignatur voranstellen
+            - MARC-Steuerzeichen entfernen
+
+            Im Zuge dessen kann auch die DDB2017-Vorprozessierung und Rechteanreicherung mit ausgeführt werden.</description>
+            <modules>['DE-101e,prepend_collection_title_to_unitid.py', 'DE-101e,remove_marc_control_characters.py']</modules>
+        </set>
+    </provider>
+</provider_script_sets>

@@ -28,6 +28,10 @@ from modules.common.provider_metadata.handle_provider_metadata import write_prov
 from modules.common.provider_metadata.handle_provider_metadata import load_provider_aggregator_info
 from modules.common.provider_metadata.handle_provider_metadata import load_provider_mapping_definition
 from modules.common.provider_metadata.handle_provider_metadata import write_provider_mapping_definition
+from modules.common.provider_metadata.handle_provider_script_sets import get_provider_sets
+from modules.common.provider_metadata.handle_provider_script_sets import read_provider_set
+from modules.common.provider_metadata.handle_provider_script_sets import save_provider_set
+from modules.common.provider_metadata.handle_provider_script_sets import delete_provider_set
 from modules.connectors import mapping_definition
 from modules.common import get_analysis_path
 from gui_components import get_module_metadata
@@ -39,6 +43,7 @@ from gui_components.ui_templates.about_dialog import Ui_aboutDialog
 from gui_components.ui_templates.html_info_dialog import Ui_htmlInfoDialog
 from gui_components.ui_templates.provider_metadata_dialog import Ui_providerMetadataDialog
 from gui_components.ui_templates.provider_scripts_dialog import Ui_providerScriptsDialog
+from gui_components.ui_templates.provider_scripts_save_dialog import Ui_providerScriptsSaveDialog
 from gui_components.ui_templates.new_provider_dialog import Ui_newProviderDialog
 from gui_components.ui_templates.mets_settings_dialog import Ui_metsSettingsDialog
 from gui_components.ui_templates.preview_testset_dialog import Ui_previewTestsetDialog
@@ -130,6 +135,8 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.root_path = os.path.abspath(".")
         self.processing_status_path = os.path.abspath("gui_session/processing_status.xml")
         self.currentWebViewUrl = "about:blank"
+        self.provider_script_sets = []
+        self.provider_script_set_assignment = {}
 
         # Synchronisierung der Sitzungsvariablen mit der UI:
         self.checkBox_binaries.setChecked(handle_session_data.synchronize_with_gui(self.session_data["process_binaries"]))
@@ -185,6 +192,10 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.providerScriptsDialog = QtWidgets.QDialog()
         self.providerScriptsDialog_ui = Ui_providerScriptsDialog()
         self.providerScriptsDialog_ui.setupUi(self.providerScriptsDialog)
+
+        self.providerScriptSaveDialog = QtWidgets.QDialog()
+        self.providerScriptSaveDialog_ui = Ui_providerScriptsSaveDialog()
+        self.providerScriptSaveDialog_ui.setupUi(self.providerScriptSaveDialog)
 
         self.newProviderDialog = QtWidgets.QDialog()
         self.newProviderDialog_ui = Ui_newProviderDialog()
@@ -305,6 +316,13 @@ class MappingLibraryMainGui(Ui_MainWindow):
 
         # Menüpunkte im Dialog "Providerspezifische Anpassungen":
         self.providerScriptsDialog_ui.buttonBox_providerspecific_modules.accepted.connect(self.save_provider_modules)
+        self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.currentIndexChanged.connect(self.update_provider_script_set_description)
+        self.providerScriptsDialog_ui.pushButton_apply_definition.clicked.connect(self.apply_provider_script_set)
+        self.providerScriptsDialog_ui.pushButton_delete_definition.clicked.connect(self.delete_provider_script_set)
+        self.providerScriptsDialog_ui.pushButton_save_definition.clicked.connect(lambda: self.providerScriptSaveDialog.show())
+
+        # Menüpunkte im Dialog "Providerspezifische Anpassungen" --> "Neue Zuordnung speichern":
+        self.providerScriptSaveDialog_ui.buttonBox_save_providerscript_set.accepted.connect(self.create_provider_script_set)
 
         # Menüpunkte im Dialog "Einstellungen zur METS/MODS-Generierung":
         self.metsSettingsDialog_ui.buttonBox_mets_settings.accepted.connect(self.save_mets_settings)
@@ -684,7 +702,6 @@ class MappingLibraryMainGui(Ui_MainWindow):
             self.handle_util_result("DDB-ID-Generierung", "./utils/ddb_id_lists")
 
     def bootstrap_validation(self):
-        # TODO: Ermitteln der Input-Files
         input_file_list = []
         for i in range(self.validationDialog_ui.listWidget_validation_files.count()):
             input_file_list.append(self.validationDialog_ui.listWidget_validation_files.item(i).text())
@@ -1017,6 +1034,9 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.providerScriptsDialog_ui.treeWidget.setAlternatingRowColors(True)
         self.providerScriptsDialog_ui.treeWidget.clear()
 
+        self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.clear()
+        self.sync_provider_script_sets()
+
         module_metadata = get_module_metadata.fetch_providerspecific_modules()
 
         for provider_dict in module_metadata:  # Befüllen des Tree-View mit den bestehenden Provider-Skripten (ermittelt durch Modul gui_components.get_module_metadata
@@ -1059,7 +1079,7 @@ class MappingLibraryMainGui(Ui_MainWindow):
         elif not provider_script_match:
             return False
 
-    def save_provider_modules(self):
+    def save_provider_modules(self, return_as_list=False):
         module_tree_root = self.providerScriptsDialog_ui.treeWidget.invisibleRootItem()
         module_list = []
         for index in range(module_tree_root.childCount()):
@@ -1073,12 +1093,104 @@ class MappingLibraryMainGui(Ui_MainWindow):
                         single_module = "{},{}".format(providerscript_isil, provider_module_name)
                         module_list.append(single_module)
 
-        provider_data_input_path = "./data_input/{}".format(self.session_data["provider"].replace("-", "_"))
-        os.chdir(provider_data_input_path)
-        write_provider_modules(module_list)
+        if return_as_list:
+            return module_list
+        else:
+            provider_data_input_path = "./data_input/{}".format(self.session_data["provider"].replace("-", "_"))
+            os.chdir(provider_data_input_path)
+            write_provider_modules(module_list)
 
-        os.chdir("../..")
+            os.chdir("../..")
 
+    def sync_provider_script_sets(self):
+        """Synchronisieren der Providerskript-Sets.
+
+        Aufruf beim Öffnen des Providerskript-Dialogs, um das Dropdown 'comboBox_select_saved_providerscript_definition' zu befüllen.
+        Gleichzeitig wird die globale Variable self.provider_script_set_assignment mit der Zuordnung von der Position im Dropdown und der ID befüllt, damit die Zuordnung etwa beim Löschen und Anwenden eindeutig möglich ist.
+        """
+        self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.clear()
+        self.provider_script_sets = get_provider_sets(provider_id=self.session_data["provider"])
+        self.provider_script_set_assignment.clear()
+
+        for item_i, item in enumerate(self.provider_script_sets):
+            # self.provider_script_set_assignment mit Zuordnung befüllen
+            self.provider_script_set_assignment[item_i] = item["id"]
+            self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.addItem(item["name"])
+
+        self.update_provider_script_set_description()
+
+    def update_provider_script_set_description(self):
+        """Aktualisieren der Providerskript-Beschreibung im GUI-Element 'textView_providerscript_set_description'.
+
+        Aufruf bei Änderung der Dropdown-Auswahl ('comboBox_select_saved_providerscript_definition') (Methode currentIndexChanged).
+        """
+        self.providerScriptsDialog_ui.textView_providerscript_set_description.setPlainText("")
+        combobox_index = self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.currentIndex()
+        logger.debug("Verfügbare Providerskript-Sets für den aktuellen Provider: {}".format(self.provider_script_set_assignment))
+        logger.debug("Aktuelle Auswahl im Providerskript-Set-Dropdown: {}".format(combobox_index))
+        if combobox_index >= 0:
+            current_selection_id = self.provider_script_set_assignment[combobox_index]
+
+            for provider_script_set in self.provider_script_sets:
+                if provider_script_set["id"] == current_selection_id:
+                    set_description = provider_script_set["description"]
+                    self.providerScriptsDialog_ui.textView_providerscript_set_description.setPlainText(set_description)
+
+                    break
+
+    def apply_provider_script_set(self):
+        """Anwenden des Providerskript-Sets.
+
+        Das im Dropdown 'comboBox_select_saved_providerscript_definition' ausgewählte Set wird bei Aufruf dieser Funktion auf den TreeView angewandt.
+        """
+        combobox_index = self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.currentIndex()
+        if combobox_index >= 0:
+            current_selection_id = self.provider_script_set_assignment[combobox_index]
+            provider_script_set_modules = read_provider_set(provider_set_id=current_selection_id)
+
+            root_item = self.providerScriptsDialog_ui.treeWidget.invisibleRootItem()
+            parent_item_count = root_item.childCount()
+            for parent_item_i in range(parent_item_count):
+                parent_item = root_item.child(parent_item_i)
+                parent_item_string = parent_item.text(0)
+
+                child_item_count = parent_item.childCount()
+                for child_item_i in range(child_item_count):
+                    child_item = parent_item.child(child_item_i)
+                    child_item_string = child_item.text(0)
+                    child_item.setCheckState(0, QtCore.Qt.Unchecked)
+
+                    for single_module in provider_script_set_modules:
+                        if single_module["ISIL"] == parent_item_string and single_module["Modulname"] == child_item_string:
+                            child_item.setCheckState(0, QtCore.Qt.Checked)
+
+    def create_provider_script_set(self):
+        """Schreiben des Providerskript-Sets, welches im providerscriptSaveDialog angelegt wurde.
+
+        Übergeben wird die Auswahl aus der TreeView.
+        """
+        set_name = self.providerScriptSaveDialog_ui.lineEdit_providerscript_set_name.text()
+        set_description = self.providerScriptSaveDialog_ui.plainTextEdit_providerscript_set_description.toPlainText()
+        module_list = self.save_provider_modules(return_as_list=True)
+        save_provider_set(provider_id=self.session_data["provider"], module_list=module_list, set_name=set_name, set_description=set_description)
+
+        self.sync_provider_script_sets()
+
+    def delete_provider_script_set(self):
+        """Löschen des aktuell im GUI-Element 'comboBox_select_saved_providerscript_definition' ausgewählten Providerskript-Sets.
+
+        Hierfür muss die ID des Providerskript-Sets vorgehalten und übergeben werden.
+        """
+        combobox_index = self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.currentIndex()
+
+        if combobox_index >= 0:
+            current_selection_id = self.provider_script_set_assignment[combobox_index]
+
+            for provider_script_set in self.provider_script_sets:
+                if provider_script_set["id"] == current_selection_id:
+                    delete_provider_set(provider_set_id=current_selection_id)
+
+            self.sync_provider_script_sets()
 
     def open_mapping_selection_dialog(self):
         provider_data_input_path = "./data_input/{}".format(self.session_data["provider"].replace("-", "_"))

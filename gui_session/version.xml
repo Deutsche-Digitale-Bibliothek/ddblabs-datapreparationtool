@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mapping-library-version>
-    <version-number>3.0.2</version-number>
+    <version-number>3.1.0</version-number>
     <branch>stable</branch>
-    <revision>929aa28c</revision>  <!-- Commit-Revision im Git-Repository -->
+    <revision>4dbb651f</revision>  <!-- Commit-Revision im Git-Repository -->
 </mapping-library-version>

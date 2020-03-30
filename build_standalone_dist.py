@@ -69,6 +69,7 @@ if include_providerspecific_modules:
 else:
     copyfile("modules/provider_specific/aggregator_mapping.xml",
              "dist/modules/provider_specific/aggregator_mapping.xml")
+    copyfile("modules/provider_specific/provider_script_sets_mapping.xml", "dist/modules/provider_specific/provider_script_sets_mapping.xml")
 
 logger.info("Kopieren des Templates zur METS/MODS-Generierung ...")
 copyfile("modules/ead2mets/mets_template.xml", "dist/modules/ead2mets/mets_template.xml")
