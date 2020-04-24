@@ -4,10 +4,15 @@ Data Preparation Tool Changes Log   (siehe für spezifische Änderungen: https:/
 
 Release-Übersicht:
 
+3.2.0, 24.04.2020:
+     Neues Feature: Binary-Mimetype-Anreicherung.
+     Verbesserung: Überarbeitung der Voransichten-Generierung und Entfernung von obsoletem APD-Frontend-Code.
+     Sonstiges: CSS-Komponenten für Bulma und FontAwesome auf neueste Version aktualisiert.
+
 3.1.0, 30.03.2020:
-     Neues Feature: Gruppierung providerspezifischer Anpassungen in Sets
-     Verbesserung: Umgang mit nicht validen URLs beim Laden von Binaries
-     Bugfix: GetRecords ohne Set-Parameter im OAI-Harvester korrigiert
+     Neues Feature: Gruppierung providerspezifischer Anpassungen in Sets.
+     Verbesserung: Umgang mit nicht validen URLs beim Laden von Binaries.
+     Bugfix: GetRecords ohne Set-Parameter im OAI-Harvester korrigiert.
 
 3.0.2, 24.03.2020:
      Bugfix: Regeln für Tektonik-Validierung korrigiert (/ead/archdesc/dsc/c/did/repository: Element wird nicht erwartet, obwohl in Tektonik erlaubt.)
