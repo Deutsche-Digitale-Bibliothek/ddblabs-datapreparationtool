@@ -1,41 +1,31 @@
 from lxml import etree
 
-def parse_xml_content(html_template_in, kontext, preview_data):
-    hierarchy_root_element = html_template_in.xpath("//li[@lxmlanchor='hierarchy']")
+def parse_xml_content(html_template_in, kontext: list, preview_data: dict):
+    """Aus Liste der Hierarchieebenen li-HTML-Elemente generieren, in das HTML-Template einfügen und Titel sowie Ebene der Hierarchieebene als Text setzen.
+
+    Das HTMl-Template wird dann an das aufrufende Skript (./create_html_files.py) zurückgegeben.
+    """
+    hierarchy_root_element = html_template_in.xpath("//nav/ul[@data-insert-location='hierarchy']")
     hierarchy_root_element = hierarchy_root_element[0]
 
     # Obersten Hierarchieknoten mit Institutionsnamen befüllen:
     if preview_data["Institution"] is not None:
-        hierarchy_root_a_element = hierarchy_root_element.xpath("a")
-        hierarchy_root_a_element[0].text = preview_data["Institution"] + " (Archivtektonik)"
+        hierarchy_entry_li_element = etree.SubElement(hierarchy_root_element, "li")
+        hierarchy_entry_li_a_element = etree.SubElement(hierarchy_entry_li_element, "a")
+        hierarchy_entry_li_a_element.text = preview_data["Institution"] + " (Archivtektonik)"
 
     for hierarchy_node in reversed(kontext):
-        # oberstes li-Element des Eintrags erzeugen und einhängen
-        hierarchy_entry_li_element = etree.Element("li")
-        hierarchy_root_element.addnext(hierarchy_entry_li_element)
-
-        # untergeordnetes ul-Element erzeugen und einhängen:
-        hierarchy_entry_ul_element = etree.SubElement(hierarchy_entry_li_element, "ul")
-
-        # inneres li-Element erzeugen und einhängen:
-        hierarchy_entry_inner_li_element = etree.SubElement(hierarchy_entry_ul_element, "li")
-
-        # a-Element erzeugen und einhängen:
-        hierarchy_entry_a_element = etree.SubElement(hierarchy_entry_inner_li_element, "a")
-        hierarchy_entry_a_element.attrib["class"] = "hierarchy-link"
-
-        # Titel und Ebene der Hierarchieebene:
+        hierarchy_entry_li_element = etree.SubElement(hierarchy_root_element, "li")
+        hierarchy_entry_li_a_element = etree.SubElement(hierarchy_entry_li_element, "a")
         if hierarchy_node[0] is not None:
-            hierarchy_entry_a_element.text = "{} ({})".format(hierarchy_node[1], get_level_label(hierarchy_node[0]))  # Titel: hierarchy_node[1]; Ebene: hierarchy_node[0]
+            hierarchy_entry_li_a_element.text = "{} ({})".format(hierarchy_node[1], get_level_label(hierarchy_node[0]))  # Titel: hierarchy_node[1]; Ebene: hierarchy_node[0]
         else:
-            hierarchy_entry_a_element.text = "{}".format(hierarchy_node[1])  # falls Ebene nicht definiert, nur den Titel für die Anzeige verwenden.
-
-        # Einhängepunkt für die nächste Ebene definieren:
-        hierarchy_root_element = hierarchy_entry_inner_li_element
+            hierarchy_entry_li_a_element.text = hierarchy_entry_li_a_element.text = "{}".format(hierarchy_node[1])  # falls Ebene nicht definiert, nur den Titel für die Anzeige verwenden.
 
     return html_template_in
 
-def get_level_label(ead_level):
+def get_level_label(ead_level: str) -> str:
+    """level-Attribut aus EAD in literalen Wert übersetzen und zurückgeben."""
     if ead_level == "collection":
         return "Bestand"
     elif ead_level == "class":

@@ -28,6 +28,41 @@ def map_to_abstract(head, p, c_element, did_element):
     append_element = did_element
     append_element.append(abstract_element)
 
+def map_binary_mimetype(binary_path: str, object_id: str, input_file: str):
+    binary_ext_mapping = {}
+    binary_ext_mapping["image/jpeg"] = ["jpg", "jpeg"]
+    binary_ext_mapping["application/pdf"] = ["pdf"]
+    binary_ext_mapping["audio/mpeg"] = ["mp3"]
+    binary_ext_mapping["video/mp4"] = ["mp4"]
+
+    if binary_path is not None:
+        if binary_path != "":
+            binary_filename = binary_path.split("/")[-1]
+            binary_extension = binary_filename.split(".")[-1].lower()
+            recommended_genreform = None
+
+            if binary_extension in tuple(binary_ext_mapping["image/jpeg"]):
+                mimetype = "image/jpeg"
+            elif binary_extension in tuple(binary_ext_mapping["application/pdf"]):
+                mimetype = "application/pdf"
+                recommended_genreform = "TEXT"
+            elif binary_extension in tuple(binary_ext_mapping["audio/mpeg"]):
+                mimetype = "audio/mpeg"
+                recommended_genreform = "AUDIO"
+            elif binary_extension in tuple(binary_ext_mapping["video/mp4"]):
+                mimetype = "video/mp4"
+                recommended_genreform = "VIDEO"
+            else:
+                mimetype = "image/jpeg"
+                recommended_genreform = None
+                logger.warning("Binary-Mimetype-Anreicherung: der Mimetype konnte für den Pfad {} nicht eindeutig an der Dateiendung ermittelt werden. Es wird der Default-Mimetype 'image/jpeg' übergeben. (Objekt-ID {}, Datei {})".format(binary_path, object_id, input_file))
+
+            return mimetype, recommended_genreform
+
+    else:
+        logger.warning("Binary-Mimetype-Anreicherung: Die Pfadangabe des Objekts {} in Datei {} ist leer.".format(object_id, input_file))
+        return None, None
+
 def remove_empty_elements(parent_element, sub_element_name, log_messages):
     mandatory_subelements = ["{urn:isbn:1-931666-22-9}p", "{urn:isbn:1-931666-22-9}indexentry", "{urn:isbn:1-931666-22-9}persname", "{urn:isbn:1-931666-22-9}geogname", "{urn:isbn:1-931666-22-9}subject"]
 
@@ -265,10 +300,12 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil):
             element.attrib["id"] = class_id
 
 
-    # Medientypanreicherung: Wenn Bildverknüpfung (c/daogrp/daoloc[@xlink:href]) vorhanden, jedoch keine Medientypauszeichnung (c/daogrp/daodesc/list/item/genreform), einen standardmäßigen Medientyp setzen.
+    # 1. Medientypanreicherung: Wenn Bildverknüpfung (c/daogrp/daoloc[@xlink:href]) vorhanden, jedoch keine Medientypauszeichnung (c/daogrp/daodesc/list/item/genreform), einen standardmäßigen Medientyp setzen.
+    # 2. Anreicherung des Binary-Mimetypes
     daogrp_elements = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c/{urn:isbn:1-931666-22-9}daogrp")
     for daogrp_element in daogrp_elements:
         url_exists = False
+        url_value = None
         mediatype_exists = False
         mediatype_values = ["TEXT", "AUDIO", "BILD", "VOLLTEXT", "VIDEO"]
         mediatype_default = "BILD"
@@ -278,11 +315,18 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil):
         if "id" in c_parent.attrib:
             c_parent_id = c_parent.attrib["id"]
 
-        daoloc_element = daogrp_element.find("{urn:isbn:1-931666-22-9}daoloc")
+        daoloc_element = daogrp_element.find("{urn:isbn:1-931666-22-9}daoloc[@{http://www.w3.org/1999/xlink}role='image_full']")
         if daoloc_element is not None:
             if "{http://www.w3.org/1999/xlink}href" in daoloc_element.attrib:
                 if daoloc_element.attrib["{http://www.w3.org/1999/xlink}href"] != "":
                     url_exists = True
+                    url_value = daoloc_element.attrib["{http://www.w3.org/1999/xlink}href"]
+
+        binary_mimetype, recommended_genreform = map_binary_mimetype(url_value, c_parent_id, input_file)
+        if binary_mimetype is not None:
+            daoloc_element.attrib["localtype"] = binary_mimetype
+        if recommended_genreform is not None:
+            mediatype_default = recommended_genreform
 
         genreform_element = daogrp_element.find("{urn:isbn:1-931666-22-9}daodesc/{urn:isbn:1-931666-22-9}list/{urn:isbn:1-931666-22-9}item/{urn:isbn:1-931666-22-9}genreform")
         if genreform_element is not None:

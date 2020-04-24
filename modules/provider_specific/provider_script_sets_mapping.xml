@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <provider_script_sets>
     <provider id="DE-101e">
         <set id="65396229-a362-4d3a-871f-5d90c07c9a3e">
@@ -17,4 +17,10 @@
             <modules>['DE-101e,prepend_collection_title_to_unitid.py', 'DE-101e,remove_marc_control_characters.py']</modules>
         </set>
     </provider>
-</provider_script_sets>
+<provider id="DE-2786"><set id="c11de3df-e1f8-49f3-baa1-b945215ef3f4"><name>1. Connector-Vorprozessierung</name><description>Vor dem Anwenden der Mappingdefinition das Skript DE_2786/prepare_for_connector.py anwenden.</description><modules>['DE-2786,prepare_for_connector.py']</modules></set><set id="1505848b-11ad-49a9-8db0-96ce0b93e0ef"><name>2. Mappingdefinition anwenden</name><description>Alle providerspezifischen Skripte deaktiviert.
+Mappingdefinition, Rechteanreicherung und DDB-2017-Vorprozessierung anwenden.</description><modules>[]</modules></set></provider><provider id="DE-2503"><set id="e5a1d26e-b640-42ef-823e-968d2c573b85"><name>Providerspezifische Anpassungen für Stadtarchiv Wedel</name><description>- Bereinigung evtl. schon vorgenommener DDB2017-Vorprozessierung
+- Entfernen leerer Elemente
+- Entfernen interner Scopecontent-Inhalte
+- Auf Bestandsebene: Bestandssignatur dem Bestandstitel voranstellen</description><modules>['DDB-2017,remove_ddbmapping_metadata.py', 'DE-2503,remove_empty_elements.py', 'DE-2503,remove_internal_scopecontent.py', 'DE-D271,prepend_holding_to_unitid_bestand.py']</modules></set><set id="39041171-a5c7-411f-b087-5d70beea9ad5"><name>Manuelle Anreicherung einzelner Binaries</name><description>Binaries manuell verknüpfen über fortlaufende Nummer.</description><modules>['DE-2503,link_single_binary.py']</modules></set></provider><provider id="DE-1965"><set id="61301e5e-22e6-4946-a8f3-42a86ac2a362"><name>Konvertierung des Faust-Tektonik-XML zu EA(DDB) Tektonik</name><description>- Archivtektonik.xml und Bestände.xml in data_input ablegen.
+- Transformieren mit dieser Anpassung
+- Anschließend Datei Archivtektonik.xml aus Output-Verzeichnis in Input-Verzeichnis kopieren und diese mit EAD-Connector, DDB2017-Vorprozessierung und Rechteanreicherung prozessieren.</description><modules>['DE-1965,faustxml_to_tektonik.py']</modules></set></provider></provider_script_sets>

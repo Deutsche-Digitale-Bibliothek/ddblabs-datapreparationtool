@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Data Preparation Tool - Voransichten</title>
+    <link rel="stylesheet" href="static_resources/lib/bulma/bulma.min.css">
+    <link rel="stylesheet" href="static_resources/lib/bulma/bulma-tooltip.min.css">
+    <link rel="stylesheet" href="static_resources/lib/bulma/bulma-divider.min.css">
+    <script defer src="static_resources/lib/fontawesome/all.js"></script>
+    <script src="static_resources/lib/auxiliary.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item">
+            <img src="static_resources/dpt_banner.png" width="247" height="28" alt="Data Preparation Tool neo">
+        </a>
+
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+           data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start">
+
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    Weitere Informationen
+                </a>
+
+                <div class="navbar-dropdown">
+                    <a class="navbar-item"
+                       href="https://pro.deutsche-digitale-bibliothek.de/dokumente-und-links-fuer-archive">
+                        Dokumentation auf DDBpro
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="section">
+    <div class="container">
+        <h1 class="title">Voransichten</h1>
+    </div>
+</section>
+<br>
+
+<article class="message is-info container" data-insert-location="binary_status_container">
+        <div class="message-body" data-insert-location="result_status_text">
+            Mit diesem Objekt sind {} Digitalisate verknüpft.
+        </div>
+    </article>
+
+<br>
+<div class="container">
+    <div class="notification">
+        <p>Hierarchie</p>
+
+        <nav class="breadcrumb is-small" aria-label="breadcrumbs">
+  <ul data-insert-location="hierarchy">
+  </ul>
+</nav>
+
+    </div>
+    <div class="notification">
+        <p>Objektdetails</p>
+        <br>
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <tbody data-insert-location="object_details">
+<!--            <tr>-->
+<!--                <th>Label</th>-->
+<!--                <td>Wert</td>-->
+<!--            </tr>-->
+
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
