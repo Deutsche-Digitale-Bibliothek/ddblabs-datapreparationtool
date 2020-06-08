@@ -1,4 +1,4 @@
-![Data Preparation Tool](https://github.com/olivergoetze/datapreparationtool/raw/master/dpt_screenshot.png "Data Preparation Tool")
+![Data Preparation Tool](https://github.com/Deutsche-Digitale-Bibliothek/ddblabs-datapreparationtool/raw/master/dpt_screenshot.png "Data Preparation Tool")
 
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/validify) 
 
