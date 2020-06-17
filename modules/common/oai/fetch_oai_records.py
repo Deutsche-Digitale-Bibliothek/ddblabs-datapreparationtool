@@ -75,7 +75,7 @@ def get_records(provider_input_path, oai_url, oai_metadata_prefix, oai_set_spec,
                     continue
 
                 output_file = "oai_" + record_identifier + ".xml"
-                output_file = normalize_filename.process_filenames(output_file)
+                output_file = normalize_filename.process_filenames(output_file, restrict_length=False)
                 xml_output = open(provider_input_path + output_file, 'wb')
                 target_record_metadata_tree.write(xml_output, encoding='utf-8', xml_declaration=True, pretty_print=True)
                 xml_output.close()
@@ -176,7 +176,7 @@ def get_single_record(provider_input_path, oai_url, oai_metadata_prefix, oai_ver
                 continue
 
             output_file = "oai_" + record_identifier + ".xml"
-            output_file = normalize_filename.process_filenames(output_file)
+            output_file = normalize_filename.process_filenames(output_file, restrict_length=False)
             xml_output = open(provider_input_path + output_file, 'wb')
             target_record_metadata_tree.write(xml_output, encoding='utf-8', xml_declaration=True, pretty_print=True)
             xml_output.close()

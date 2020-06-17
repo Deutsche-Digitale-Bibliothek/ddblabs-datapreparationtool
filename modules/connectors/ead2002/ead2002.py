@@ -5,6 +5,7 @@ import validify
 
 from modules.serializers.eadddb import map2eadddb
 from modules.serializers.leobw_simplexml import map2leobw_simplexml
+from modules.serializers.iiif_json import map2iiif_json
 from modules.common.helpers import process_subelements
 from modules.common.helpers import replace_subelements
 from modules.common.helpers import get_context
@@ -965,8 +966,8 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
         else:
             object_metadata["holding_unittitle"] = object_metadata["unittitle"]
 
-        # Nur für LeoBW-Serializer: Übergeordnete Hierarchiestufen ermitteln
-        if serializer == "leobw_simplexml":
+        # Nur für Serializer LeoBW und IIIF-Json: Übergeordnete Hierarchiestufen ermitteln
+        if serializer == "leobw_simplexml" or serializer == "iiif_json":
             hierarchy_tree = get_context.parse_xml_content(source_object, return_as_list=True)
             object_metadata["hierarchy_tree"] = hierarchy_tree
 
@@ -1037,6 +1038,8 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 xml_result = map2leobw_simplexml.serialize_metadata(session_data, object_id, object_level, object_type,
                                                            object_parent_id, object_metadata, object_rights,
                                                            object_binaries, administrative_data, xml_base=None)
+            elif serializer == "iiif_json":
+                xml_result = map2iiif_json.serialize_metadata(session_data, object_id, object_level, object_type, object_parent_id, object_metadata, object_rights, object_binaries, administrative_data, xml_base=None)
 
         else:
             # Nachem erstes Objekt übergeben wurde: Für alle weiteren Objekte als xml_base das vom Serializer zurückgegebene XML übergeben, damit weitere Objekte zum bestehenden XML-Dokument hinzugefügt werden.
@@ -1046,6 +1049,8 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 xml_result = map2leobw_simplexml.serialize_metadata(session_data, object_id, object_level, object_type,
                                                            object_parent_id, object_metadata, object_rights,
                                                            object_binaries, administrative_data, xml_base=xml_result)
+            elif serializer == "iiif_json":
+                xml_result = map2iiif_json.serialize_metadata(session_data, object_id, object_level, object_type, object_parent_id, object_metadata, object_rights, object_binaries, administrative_data, xml_base=xml_result)
 
 
     if xml_result is not None:

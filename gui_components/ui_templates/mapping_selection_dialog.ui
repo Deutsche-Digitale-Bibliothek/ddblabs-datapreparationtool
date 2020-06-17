@@ -31,6 +31,11 @@
        <string>ead_leobw</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>ead_iiif-json</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item row="0" column="1">

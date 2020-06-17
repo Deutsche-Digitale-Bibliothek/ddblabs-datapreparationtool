@@ -22,6 +22,7 @@ class Ui_mappingSelectionDialog(object):
         self.comboBox_mapping_selection.setItemText(0, "")
         self.comboBox_mapping_selection.addItem("")
         self.comboBox_mapping_selection.addItem("")
+        self.comboBox_mapping_selection.addItem("")
         self.gridLayout.addWidget(self.comboBox_mapping_selection, 0, 0, 1, 1)
         self.label = QtWidgets.QLabel(mappingSelectionDialog)
         self.label.setMaximumSize(QtCore.QSize(25, 25))
@@ -46,6 +47,7 @@ class Ui_mappingSelectionDialog(object):
         mappingSelectionDialog.setWindowTitle(_translate("mappingSelectionDialog", "Mapping-Definition auswählen"))
         self.comboBox_mapping_selection.setItemText(1, _translate("mappingSelectionDialog", "ead2002_eadddb"))
         self.comboBox_mapping_selection.setItemText(2, _translate("mappingSelectionDialog", "ead_leobw"))
+        self.comboBox_mapping_selection.setItemText(3, _translate("mappingSelectionDialog", "ead_iiif-json"))
         self.label.setToolTip(_translate("mappingSelectionDialog", "An dieser Stelle können vorgefertigte Mappings gewählt werden. Für Excel-Mappings kann die Funktion \"Mapping-Definition bearbeiten\" verwendet werden."))
 
 from gui_components.ui_templates import resources_rc

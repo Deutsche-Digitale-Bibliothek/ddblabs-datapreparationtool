@@ -31,7 +31,7 @@ if os.path.isdir("build"):
     rmtree("build")
 
 # Ausführen des PyInstaller-Skripts als Subprozess:
-execute_string = 'pyinstaller --clean --onefile -p "{}" -p "{}" --name "datapreparationtool" --noconsole --icon "{}" main_gui.py'.format(qt_lib_path, msvc_path, icon_path)
+execute_string = 'pyinstaller --clean --onefile -p "{}" -p "{}" --name "datapreparationtool" --icon "{}" main_gui.py'.format(qt_lib_path, msvc_path, icon_path)
 logger.info("Führe PyInstaller-Script aus: {execute_string}", execute_string=execute_string)
 subprocess.call(execute_string)
 

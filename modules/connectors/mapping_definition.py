@@ -14,6 +14,7 @@ def apply_mapping(session_data, administrative_data, xml_findbuch_in, input_type
 
     mapping_def = handle_provider_metadata.load_provider_mapping_definition()
     provider_rights = handle_provider_metadata.load_provider_rights()
+    result_format = "xml"
 
     if mapping_def is not None:  # Connector nur dann aufrufen, wenn Mapping für Provider existiert.
         # Übergabe an Connector (nachdem dieser bestimmt wurde)
@@ -22,8 +23,11 @@ def apply_mapping(session_data, administrative_data, xml_findbuch_in, input_type
             xml_findbuch_in = ead2002.parse_xml_content(*mapping_args, administrative_data, provider_rights, serializer="eadddb")
         elif mapping_def == "ead_leobw":
             xml_findbuch_in = ead2002.parse_xml_content(*mapping_args, administrative_data, provider_rights, serializer="leobw_simplexml")
+        elif mapping_def == "ead_iiif-json":
+            xml_findbuch_in = ead2002.parse_xml_content(*mapping_args, administrative_data, provider_rights, serializer="iiif_json")
+            result_format = "json_multiple"
 
-    return xml_findbuch_in
+    return xml_findbuch_in, result_format
 
 
 

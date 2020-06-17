@@ -1,9 +1,10 @@
 from modules.common.helpers import normalize_space
 
-def get_compare_value(compare_element):
+def get_compare_value(compare_element, strip_whitespace=True):
 
     # normalize-space auf das Element anwenden, damit Whitespace nicht berücksichtigt wird
-    normalize_space.parse_xml_content(compare_element)
+    if strip_whitespace:
+        normalize_space.parse_xml_content(compare_element)
 
     if compare_element.text is not None:
         compare_string = compare_element.text

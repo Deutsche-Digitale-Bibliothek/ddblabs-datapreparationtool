@@ -38,6 +38,9 @@ def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, inpu
                 except (requests.exceptions.InvalidURL, requests.exceptions.InvalidSchema, requests.exceptions.MissingSchema) as exc:
                     logger.error("Fehlerhafte Binary-URL, Objekt wird übersprungen: {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}".format(remote_binary_filepath, input_file, object_id, exc))
                     continue
+                except requests.ConnectionError as exc:
+                    logger.error('Fehler beim Download des Binaries (ConnectionError), Objekt wird übersprungen: {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
+                    continue
 
                 try:
                     res_binary.raise_for_status()

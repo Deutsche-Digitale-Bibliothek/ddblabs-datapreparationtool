@@ -23,4 +23,69 @@ Mappingdefinition, Rechteanreicherung und DDB-2017-Vorprozessierung anwenden.</d
 - Entfernen interner Scopecontent-Inhalte
 - Auf Bestandsebene: Bestandssignatur dem Bestandstitel voranstellen</description><modules>['DDB-2017,remove_ddbmapping_metadata.py', 'DE-2503,remove_empty_elements.py', 'DE-2503,remove_internal_scopecontent.py', 'DE-D271,prepend_holding_to_unitid_bestand.py']</modules></set><set id="39041171-a5c7-411f-b087-5d70beea9ad5"><name>Manuelle Anreicherung einzelner Binaries</name><description>Binaries manuell verknüpfen über fortlaufende Nummer.</description><modules>['DE-2503,link_single_binary.py']</modules></set></provider><provider id="DE-1965"><set id="61301e5e-22e6-4946-a8f3-42a86ac2a362"><name>Konvertierung des Faust-Tektonik-XML zu EA(DDB) Tektonik</name><description>- Archivtektonik.xml und Bestände.xml in data_input ablegen.
 - Transformieren mit dieser Anpassung
-- Anschließend Datei Archivtektonik.xml aus Output-Verzeichnis in Input-Verzeichnis kopieren und diese mit EAD-Connector, DDB2017-Vorprozessierung und Rechteanreicherung prozessieren.</description><modules>['DE-1965,faustxml_to_tektonik.py']</modules></set></provider></provider_script_sets>
+- Anschließend Datei Archivtektonik.xml aus Output-Verzeichnis in Input-Verzeichnis kopieren und diese mit EAD-Connector, DDB2017-Vorprozessierung und Rechteanreicherung prozessieren.</description><modules>['DE-1965,faustxml_to_tektonik.py']</modules></set></provider><provider id="DE-Mh40"><set id="9010372f-f5c6-4028-92fe-147305869c7c"><name>Anpassungen Stadtarchiv Mannheim</name><description/><modules>['DE-2367,add_linebreaks.py', 'DE-Mh40,fix_eadid.py', 'DE-Mh40,get_dfgviewer_link_from_scope.py', 'DE-Mh40,remove_scopeid.py']</modules></set></provider><provider id="DE-2091"><set id="2c352179-ba3f-46e6-b804-9f545d31685f"><name>1. Transformieren des OAI-Harvests (ARIADNE)</name><description>ARIADNE-Arbeitsschritte:
+0. OAI-Harvest (ARIADNE): Tabelle mit Links von Ariadne in Excel-Datei kopieren, Excel-Datei in Provider-Input-Ordner speichern, Dummy-EAD in Provider-Input-Ordner anlegen, mit Anpassung "Ariadne-&gt;fetch_from_oai.py" transformieren, um Harvest durchzuführen.
+1. Transformation des OAI-Harvests (ARIADNE): mit Anpassung "Ariadne-&gt;map_eadid_to_collevtion_id.py", "Ariadne-&gt;remove_accessrestrict.py" und "DE-1958-&gt;add_empty_unittitle.py" transformieren. Aggregator-Anreicherung "Ariadne" mit Logo, DDB2017-Vorprozessierung und Tektonikanreicherung, ggf. Rechteanreicherung durchführen.
+2. Tektonik sortieren (ARIADNE): Fake-Tektonik in input-Ordner kopieren und mit "Ariadne-&gt;sort_tektonik_files_by_unitid.py" transformieren.</description><modules>['Ariadne,map_eadid_to_collection_id.py', 'Ariadne,remove_accessrestrict.py', 'DE-1958,add_empty_unittitle.py']</modules></set><set id="69664b85-01c9-4f3f-958e-e38f926a6dfb"><name>2. Tektonik nach unitid sortieren (Ariadne)</name><description>ARIADNE-Arbeitsschritte:
+0. OAI-Harvest (ARIADNE): Tabelle mit Links von Ariadne in Excel-Datei kopieren, Excel-Datei in Provider-Input-Ordner speichern, Dummy-EAD in Provider-Input-Ordner anlegen, mit Anpassung "Ariadne-&gt;fetch_from_oai.py" transformieren, um Harvest durchzuführen.
+1. Transformation des OAI-Harvests (ARIADNE): mit Anpassung "Ariadne-&gt;map_eadid_to_collevtion_id.py", "Ariadne-&gt;remove_accessrestrict.py" und "DE-1958-&gt;add_empty_unittitle.py" transformieren. Aggregator-Anreicherung "Ariadne" mit Logo, DDB2017-Vorprozessierung und Tektonikanreicherung, ggf. Rechteanreicherung durchführen.
+2. Tektonik sortieren (ARIADNE): Transformierte Findbücher in Unterordner sichern. Fake-Tektonik in input-Ordner kopieren und mit "Ariadne-&gt;sort_tektonik_files_by_unitid.py" transformieren.</description><modules>['Ariadne,sort_tektonik_files_by_unitid.py']</modules></set></provider><provider id="DE-2349"><set id="a44859d7-3481-471c-b98b-daf6cb08752d"><name>1. Filtern der zu verarbeitenden Bestände</name><description>Export aus Access als XML-Datei:
+- M_Objekte1.xml
+- M_Bestaende.xml
+- M_SysGruppen.xml
+-&gt; Suffix dem Dateinamen anfügen: ...07.08.xml
+-&gt; in Input-Ordner legen.
+
+Providerspezifische Anpassung anwenden:
+- DE-2349/filter_m_objekte.py</description><modules>['DE-2349,filter_m_objekte.py']</modules></set><set id="80ad5a3c-d63e-4afb-9ee8-9392c1d430d1"><name>2. Connector-Vorprozessierung</name><description>Dateien aus Output-Ordner zurück in den Input-Ordner kopieren.
+
+Providerspezifische Anpassung anwenden:
+DE-2349/prepare_for_connector.py</description><modules>['DE-2349,prepare_for_connector.py']</modules></set><set id="e3004012-5bd8-4093-87db-311e4045f3d0"><name>3. Mappingdefinition anwenden</name><description>Datei "M_Objekte1.xml" aus Output-Ordner in den Input-Ordner kopieren.
+Andere Dateien im Input-Ordner entfernen.
+
+Alle providerspezifische Anpassungen deaktivieren.
+Mappingdefinition "ead2002_eadddb2" anwenden.</description><modules>[]</modules></set><set id="56b65270-6c08-4cd5-8e94-9f4278628f5f"><name>4. Sortierung der Findbuch-classes</name><description>Datei "M_Objekte1.xml" aus Output-Ordner in den Input-Ordner kopieren.
+Andere Dateien im Input-Ordner entfernen.
+
+Providerspezifische Anpassung anwenden:
+- DE-2349/sort_findbuch_classes.py</description><modules>['DE-2349,sort_findbuch_classes.py']</modules></set><set id="5b0e1e83-a71e-4fe9-8fce-35e45375f4f7"><name>5. Doppelten abstract-Type entfernen</name><description>Datei "M_Objekte1.xml" aus Output-Ordner in den Input-Ordner kopieren.
+Andere Dateien im Input-Ordner entfernen.
+
+Providerspezifische Anpassung anwenden:
+- DE-105/remove_duplicate_abstract_type.py</description><modules>['DE-105,remove_duplicate_abstract_type.py']</modules></set><set id="c1b7f4bb-3b71-4ef7-9e64-a1f8afaf7056"><name>6. Mit bestehenden Daten zusammenführen</name><description>Datei "M_Objekte1.xml" aus Output-Ordner in den Input-Ordner kopieren.
+Bestand 6 aus vorheriger Lieferung mit in den Input-Ordner kopieren
+
+DDB2017-Vorprozessierung und Rechteanreicherung anwenden.
+Providerspezifische Anpassung anwenden:
+- DDB-2017/remove_ddbmapping_metadata.py
+
+Fake-Tektonik generieren.
+Fake-Tektonik mit Vorprozessierung/Rechteanreicherung verarbeiten.</description><modules>[]</modules></set><set id="62eb8285-035b-41ba-84c8-64439b819fde"><name>7. Link zum Findbuch-PDF manuell in Tektonik ergänzen</name><description>Für Bestand 07.08 den Link zum Findbuch-PDF von Hand ergänzen:
+
+&lt;otherfindaid&gt;
+                  &lt;extref xlink:role="url_bestand" xlink:href="https://www.hfbk-dresden.de/fileadmin/user_upload/Downloads/Hochschule/Einrichtungen/Archiv-Anatomiesammlung-Kustodie/HfBK_DD_AR_07.08_Nachlass_Kurt_Wehlte_Findbuch.pdf"&gt;&lt;/extref&gt;
+               &lt;/otherfindaid&gt;</description><modules>[]</modules></set></provider><provider id="DE-2344"><set id="13b64bdd-538d-40e1-bf3d-9d8ddf06ce71"><name>DE-2344 Schritt 1</name><description>Bearbeitung von DE-2344:
+
+Nach jedem Schritt bearbeitete Daten wieder ins Inpu-Verzeichnis kopieren.
+
+Schritt 1:
+DE-2344\prepare_for_connector
+
+Schritt 2:
+"Mappingdefiniton anwenden"
+
+Schritt 3:
+DE-2344\field_mapping und link_findbuch_tektonik
+Gleichzeitig übliche Vorprozessierung durchführen (Rechteangaben, DDB 2017)</description><modules>['DE-2344,prepare_for_connector.py']</modules></set><set id="05adb2c5-5ca9-499a-bcd0-bd6b08567cdb"><name>DE-2344 Schritt 3</name><description>Bearbeitung von DE-2344:
+
+Nach jedem Schritt bearbeitete Daten wieder ins Inpu-Verzeichnis kopieren.
+
+Schritt 1:
+DE-2344\prepare_for_connector
+
+Schritt 2:
+"Mappingdefiniton anwenden"
+
+Schritt 3:
+DE-2344\field_mapping und link_findbuch_tektonik
+Gleichzeitig übliche Vorprozessierung durchführen (Rechteangaben, DDB 2017)</description><modules>['DE-2344,field_mapping.py', 'DE-2344,link_findbuch_tektonik.py']</modules></set></provider></provider_script_sets>
