@@ -4,6 +4,14 @@ Data Preparation Tool Changes Log   (siehe für spezifische Änderungen: https:/
 
 Release-Übersicht:
 
+3.2.1, 17.06.2020:
+     Neues Feature: Experimentelles Mapping von EAD zu IIIF Presentation Manifest.
+     Verbesserung: Fehlerbehandlung beim Anziehen von Binaries.
+     Bugfix: Fehlerhafte Dateinamensnormalisierung (Umlaute, Kürzung des Dateinamens) korrigiert.
+     Bugfix: Erkennung von Findbuch- und Tektonikdatei korrigiert.
+     Sonstiges: Windows-Build startet nun standardmäßig mit Konsolenfenster.
+     Sonstiges: Python-Libraries für Windows-Build auf neueste Version (PyQt 5.15, lxml 4.5.1) aktualisiert.
+
 3.2.0, 24.04.2020:
      Neues Feature: Binary-Mimetype-Anreicherung.
      Verbesserung: Überarbeitung der Voransichten-Generierung und Entfernung von obsoletem APD-Frontend-Code.
