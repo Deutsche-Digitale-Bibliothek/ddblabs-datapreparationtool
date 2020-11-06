@@ -4,6 +4,14 @@ Data Preparation Tool Changes Log   (siehe für spezifische Änderungen: https:/
 
 Release-Übersicht:
 
+3.3.0, 06.11.2020:
+     Neues Feature: Cloud-Prozessierung durch Anbindung an die Open-Source Workflow-Engine Prefect Core umgesetzt. (momentan zur DDB-internen Verwendung)
+     Verbesserung: Allgemeine Verbesserungen an Vorprozessierung und Workflow-Engine
+     Verbesserung: Performance-Optimierung für tief geschachtelte XML-Dateien
+     Bugfix: Korrekturen am generischen EAD-Mapping
+     Sonstiges: Ergänzung des Aggregator-Mappings
+     Sonstiges: Python-Libraries für Windows-Build auf neueste Version (Python 3.8.6, PyQt 5.15.1, lxml 4.6.1) aktualisiert.
+
 3.2.1, 17.06.2020:
      Neues Feature: Experimentelles Mapping von EAD zu IIIF Presentation Manifest.
      Verbesserung: Fehlerbehandlung beim Anziehen von Binaries.
