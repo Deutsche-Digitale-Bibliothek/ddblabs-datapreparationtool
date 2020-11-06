@@ -416,6 +416,7 @@
      <string>Datei</string>
     </property>
     <addaction name="action_fetch_from_oai"/>
+    <addaction name="action_submit_cloud_transformation_job"/>
     <addaction name="separator"/>
     <addaction name="actionData_Preparation_Tool_beenden"/>
    </widget>
@@ -458,6 +459,9 @@
     <addaction name="menuHeaderMappingSettings"/>
     <addaction name="menuSelectMappingDefinition"/>
     <addaction name="menuMappingDefinition"/>
+    <addaction name="separator"/>
+    <addaction name="menuHeaderCloudProcessing"/>
+    <addaction name="menuConfigureCloudProcessing"/>
    </widget>
    <widget class="QMenu" name="menuValidierung">
     <property name="title">
@@ -547,7 +551,7 @@
   </action>
   <action name="actionLoadStandards">
    <property name="text">
-    <string>Standardeinstellungen laden ...</string>
+    <string>Standardeinstellungen laden</string>
    </property>
   </action>
   <action name="menuInfoIntroscreen">
@@ -669,8 +673,41 @@
    </property>
   </action>
   <action name="menuOpenValidationDialog">
+   <property name="icon">
+    <iconset resource="resources/resources.qrc">
+     <normaloff>:/main-window/analysis_button_icon.png</normaloff>:/main-window/analysis_button_icon.png</iconset>
+   </property>
    <property name="text">
     <string>Validierung öffnen ...</string>
+   </property>
+  </action>
+  <action name="action_submit_cloud_transformation_job">
+   <property name="icon">
+    <iconset resource="resources/resources.qrc">
+     <normaloff>:/main-window/transformation_button_icon.png</normaloff>:/main-window/transformation_button_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Transformation in Cloud ausführen</string>
+   </property>
+  </action>
+  <action name="menuHeaderCloudProcessing">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources/resources.qrc">
+     <normaloff>:/main-window/transformation_button_icon.png</normaloff>:/main-window/transformation_button_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cloud-Prozessierung:</string>
+   </property>
+  </action>
+  <action name="menuConfigureCloudProcessing">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Cloud-Konfiguration bearbeiten ...</string>
    </property>
   </action>
  </widget>

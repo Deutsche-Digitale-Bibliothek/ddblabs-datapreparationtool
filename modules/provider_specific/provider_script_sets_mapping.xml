@@ -17,13 +17,14 @@
             <modules>['DE-101e,prepend_collection_title_to_unitid.py', 'DE-101e,remove_marc_control_characters.py']</modules>
         </set>
     </provider>
-<provider id="DE-2786"><set id="c11de3df-e1f8-49f3-baa1-b945215ef3f4"><name>1. Connector-Vorprozessierung</name><description>Vor dem Anwenden der Mappingdefinition das Skript DE_2786/prepare_for_connector.py anwenden.</description><modules>['DE-2786,prepare_for_connector.py']</modules></set><set id="1505848b-11ad-49a9-8db0-96ce0b93e0ef"><name>2. Mappingdefinition anwenden</name><description>Alle providerspezifischen Skripte deaktiviert.
+<provider id="DE-2786"><set id="c11de3df-e1f8-49f3-baa1-b945215ef3f4"><name>1. Connector-Vorprozessierung</name><description>Vor dem Anwenden der Mappingdefinition das Skript DE_2786/prepare_for_connector.py anwenden.</description><modules>['DE-2786,prepare_for_connector.py']</modules></set><set id="f1bb12d3-61f0-462e-8c41-7f77f0331400"><name>2. Findbuch sortieren</name><description>Sortierskript DE-2786/sort_findbuch_classes.py anwenden.
+Ggf. neue Bestände in Tektonik einfügen.</description><modules>['DE-2786,sort_findbuch_classes.py']</modules></set><set id="1505848b-11ad-49a9-8db0-96ce0b93e0ef"><name>3. Mappingdefinition anwenden</name><description>Alle providerspezifischen Skripte deaktiviert.
 Mappingdefinition, Rechteanreicherung und DDB-2017-Vorprozessierung anwenden.</description><modules>[]</modules></set></provider><provider id="DE-2503"><set id="e5a1d26e-b640-42ef-823e-968d2c573b85"><name>Providerspezifische Anpassungen für Stadtarchiv Wedel</name><description>- Bereinigung evtl. schon vorgenommener DDB2017-Vorprozessierung
 - Entfernen leerer Elemente
 - Entfernen interner Scopecontent-Inhalte
 - Auf Bestandsebene: Bestandssignatur dem Bestandstitel voranstellen</description><modules>['DDB-2017,remove_ddbmapping_metadata.py', 'DE-2503,remove_empty_elements.py', 'DE-2503,remove_internal_scopecontent.py', 'DE-D271,prepend_holding_to_unitid_bestand.py']</modules></set><set id="39041171-a5c7-411f-b087-5d70beea9ad5"><name>Manuelle Anreicherung einzelner Binaries</name><description>Binaries manuell verknüpfen über fortlaufende Nummer.</description><modules>['DE-2503,link_single_binary.py']</modules></set></provider><provider id="DE-1965"><set id="61301e5e-22e6-4946-a8f3-42a86ac2a362"><name>Konvertierung des Faust-Tektonik-XML zu EA(DDB) Tektonik</name><description>- Archivtektonik.xml und Bestände.xml in data_input ablegen.
 - Transformieren mit dieser Anpassung
-- Anschließend Datei Archivtektonik.xml aus Output-Verzeichnis in Input-Verzeichnis kopieren und diese mit EAD-Connector, DDB2017-Vorprozessierung und Rechteanreicherung prozessieren.</description><modules>['DE-1965,faustxml_to_tektonik.py']</modules></set></provider><provider id="DE-Mh40"><set id="9010372f-f5c6-4028-92fe-147305869c7c"><name>Anpassungen Stadtarchiv Mannheim</name><description/><modules>['DE-2367,add_linebreaks.py', 'DE-Mh40,fix_eadid.py', 'DE-Mh40,get_dfgviewer_link_from_scope.py', 'DE-Mh40,remove_scopeid.py']</modules></set></provider><provider id="DE-2091"><set id="2c352179-ba3f-46e6-b804-9f545d31685f"><name>1. Transformieren des OAI-Harvests (ARIADNE)</name><description>ARIADNE-Arbeitsschritte:
+- Anschließend Datei Archivtektonik.xml aus Output-Verzeichnis in Input-Verzeichnis kopieren und diese mit EAD-Connector, DDB2017-Vorprozessierung und Rechteanreicherung prozessieren.</description><modules>['DE-1965,faustxml_to_tektonik.py']</modules></set></provider><provider id="DE-Mh40"><set id="9010372f-f5c6-4028-92fe-147305869c7c"><name>Anpassungen Stadtarchiv Mannheim</name><description/><modules>['DE-2367,add_linebreaks.py', 'DE-Mh40,fix_eadid.py', 'DE-Mh40,get_dfgviewer_link_from_scope.py', 'DE-Mh40,remove_scopeid.py', 'DE-Mh40,map_origination_to_scopecontent.py']</modules></set></provider><provider id="DE-2091"><set id="2c352179-ba3f-46e6-b804-9f545d31685f"><name>1. Transformieren des OAI-Harvests (ARIADNE)</name><description>ARIADNE-Arbeitsschritte:
 0. OAI-Harvest (ARIADNE): Tabelle mit Links von Ariadne in Excel-Datei kopieren, Excel-Datei in Provider-Input-Ordner speichern, Dummy-EAD in Provider-Input-Ordner anlegen, mit Anpassung "Ariadne-&gt;fetch_from_oai.py" transformieren, um Harvest durchzuführen.
 1. Transformation des OAI-Harvests (ARIADNE): mit Anpassung "Ariadne-&gt;map_eadid_to_collevtion_id.py", "Ariadne-&gt;remove_accessrestrict.py" und "DE-1958-&gt;add_empty_unittitle.py" transformieren. Aggregator-Anreicherung "Ariadne" mit Logo, DDB2017-Vorprozessierung und Tektonikanreicherung, ggf. Rechteanreicherung durchführen.
 2. Tektonik sortieren (ARIADNE): Fake-Tektonik in input-Ordner kopieren und mit "Ariadne-&gt;sort_tektonik_files_by_unitid.py" transformieren.</description><modules>['Ariadne,map_eadid_to_collection_id.py', 'Ariadne,remove_accessrestrict.py', 'DE-1958,add_empty_unittitle.py']</modules></set><set id="69664b85-01c9-4f3f-958e-e38f926a6dfb"><name>2. Tektonik nach unitid sortieren (Ariadne)</name><description>ARIADNE-Arbeitsschritte:
@@ -88,4 +89,36 @@ Schritt 2:
 
 Schritt 3:
 DE-2344\field_mapping und link_findbuch_tektonik
-Gleichzeitig übliche Vorprozessierung durchführen (Rechteangaben, DDB 2017)</description><modules>['DE-2344,field_mapping.py', 'DE-2344,link_findbuch_tektonik.py']</modules></set></provider></provider_script_sets>
+Gleichzeitig übliche Vorprozessierung durchführen (Rechteangaben, DDB 2017)</description><modules>['DE-2344,field_mapping.py', 'DE-2344,link_findbuch_tektonik.py']</modules></set></provider><provider id="DE-2202"><set id="1b747f2d-e515-4bf9-80ec-75e14e2145c0"><name>1. Zu prozessierende Bestände herausfiltern</name><description>M_Objekte1.xml, M_Objekte2.xml und M_Bestaende.xml in data_input ablegen.
+Providerspezfische Anpassung anwenden: DE-2202/filter_m_objekte.py
+
+Extrahierte Bestände mit zugehörigen VEs werden im data_input-Ordner ausgegeben.</description><modules>['DE-2202,filter_m_objekte.py']</modules></set><set id="ec6154a7-15f9-4c34-b30d-670c5e8811ed"><name>2. EAD-Dateien für den Connector erzeugen.</name><description>M_Objekte1.xml und M_Objekte2.xml aus data_input-Ordner entfernen.
+M_Bestaende.xml, M_SysGruppen.xml, M_Bilder.xml und EAD_Export_Tektonik.XML in data_input-Ordner ablegen.
+
+Providerspezifische Anpassung anwenden: DE-2202/prepare_for_connector.py</description><modules>['DE-2202,prepare_for_connector.py']</modules></set><set id="b2a0ec89-96f2-4da3-bf10-1e4aceb31de6"><name>3. Mapping-Definition, Provider-Anpassungen und Vorprozessierung anwenden</name><description>Dateien aus data_output in data_input verschieben.
+M_Objekte2_-, M_Bestaende-, M_SysGruppen und M_Bilder-Dateien entfernen.
+
+Rechte-, Lizenzanreicherung
+DDB2017-Vorprozessierung
+Mapping-Definition "EAD2002" anwenden
+
+Providerspezifische Anpassungen anwenden:
+- DE-2163/sort_findbuch_classes.py
+- DE-2202/link_findbuch_tektonik.py
+- DE-2202/postprocess_cleanup_findbuch.py
+- DE-2202/postprocess_cleanup_tektonik.py
+- DE-2202/prepend_holding_to_unitid_bestand.py</description><modules>['DE-2163,sort_findbuch_classes.py', 'DE-2202,link_findbuch_tektonik.py', 'DE-2202,postprocess_cleanup_findbuch.py', 'DE-2202,postprocess_cleanup_tektonik.py', 'DE-2202,prepend_holding_to_unitid_bestand.py']</modules></set><set id="f4405f09-e9e1-48ff-8c87-bb25a78b4d89"><name>4. Provider-Anpassung und Tektonik-Anreicherung</name><description>Provider-Anpassung DE-2088/prepend_holding_to_unitid.py anwenden.
+
+Analyse und Tektonik-Anreicherung
+Bei nicht verknüpften Findbüchern manuell in Tektonik einfügen oder (wenn leere Bestandshülsen) entfernen.</description><modules>['DE-2088,prepend_holding_to_unitid.py']</modules></set></provider><provider id="DE-2230"><set id="aa1803fa-9295-4628-b2db-716dd1635827"><name>1. Tektonik-Hierarchie aus Findbüchern entfernen.</name><description>Skript DE_2230/remove_tektonik_hierarchy_from_findbuch.py auf Findbuch-Dateien anwenden.
+Dateien aus Output in Input zurückkopieren.</description><modules>['DE-2230,remove_tektonik_hierarchy_from_findbuch.py']</modules></set><set id="9d796e62-9b79-4555-a37e-547d2ee0df61"><name>2. Mappingdefinition anwenden, weitere Provider-Anpassungen</name><description>Tektonik-Datei händisch korrgieren:
+In archdesc/did ein unittitle-Element erzeugen mit Wert "Stadtarchiv Nürnberg (Archivtektonik)"
+
+Mappingdefinition anwenden.
+Gleichzeitig providerspezifische Anpassungen anwenden: 
+- DE-2230/fix_duplicate_tektonik_class.py
+- DE-2230/fix_mapping.py</description><modules>['DE-2230,fix_duplicate_tektonik_class.py', 'DE-2230,fix_mapping.py']</modules></set><set id="a7dcc40d-2589-4db1-9610-80aef302cb52"><name>Vorprozessierung, Rechteanreicherung und Analyse.</name><description>- Provider-Anpassungen: DE-2230/link_findbuch_tektonik.py; DE-MUS-037814/add_empty_unittitle.py
+- DDB2017-Vorprozessierung und Rechteanreicherung anhaken
+- Abschließend Analyse mit Tektonikanreicherung</description><modules>['DE-2230,link_findbuch_tektonik.py', 'DE-MUS-037814,add_empty_unittitle.py']</modules></set></provider><provider id="DE-2205"><set id="98a21fc2-1f21-420c-89c0-04bb2f9db9c6"><name>DE-2205 Hauptprozessierung Archiv der Akademie der Künste</name><description>1. split_abteilungen_to_findbuch
+2. fix_daoloc_role
+3. Hauptprozessierung</description><modules>['DE-2205,add_linebreaks.py', 'DE-2205,class_scopecontent_to_abstract.py', 'DE-2205,fix_tektonik_levels.py', 'DE-2205,remove_restricted_objects.py', 'DE-2205,remove_tektonik_collection_scopecontent.py', 'DE-2205,remove_unitid_from_collection.py', 'DE-2205,remove_userestrict.py', 'DE-2205,remove_wrong_unitid.py', 'DE-2205,tektonik_hierarchy_type_adk.py']</modules></set></provider></provider_script_sets>

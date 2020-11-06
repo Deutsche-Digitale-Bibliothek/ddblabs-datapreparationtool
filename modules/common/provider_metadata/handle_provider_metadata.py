@@ -4,6 +4,19 @@ import os
 import ast
 from shutil import copyfile
 
+def serialize_provider_xml(provider_xml, path_prefix=None):
+    """Serialisierung der provider.xml-Datei des aktuellen Providers.
+
+    Die Variable path_prefix kann gesetzt werden, wenn die Methode außerhalb des data_input/ISIL-Ordners aufgerufen wird.
+    Bei Aufruf vom root_path aus, wird etwa der Wert path_prefix="{root_path}/data_input/ISIL" übergeben. (etwa in der Methode handle_provider_metadata.write_cloud_session_settings())
+    """
+    provider_xml_path = "provider.xml"
+    if path_prefix is not None:
+        provider_xml_path = "{}/provider.xml".format(path_prefix)
+    with open(provider_xml_path, 'wb') as provider_xml_output:
+        provider_xml.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
+
+
 def create_provider_template(input_folder_name):
     # Falls noch nicht vorhanden, soll bei der ersten Transformation eines providers eine leere provider.xml erstellt werden. Die Felder enthalten keinen Text, damit bei Nicht-Befüllung die Werte aus dem Python-Code verwendet werden.
 
@@ -67,9 +80,7 @@ def get_provider_metadata(provider_isil):
     provider_software_input = provider_software_source[0].text
 
     # Ausgabe der modifizierten provider.xml (momentan wird nur die ISIL ergänzt):
-    provider_xml_output = open('provider.xml', 'wb')
-    provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-    provider_xml_output.close()
+    serialize_provider_xml(provider_xml_in)
 
     # Übergabe an das Hauptskript:
     return provider_name_input, provider_website_input, provider_id_input, provider_tektonik_url_input, provider_addressline_strasse_input, provider_addressline_ort_input, provider_addressline_mail_input, provider_state_input, provider_archivtyp_input, provider_software_input
@@ -113,9 +124,7 @@ def write_provider_metadata(gui_provider_name, gui_provider_website, gui_provide
     provider_software_source[0].text = gui_provider_software
 
     # Ausgabe der modifizierten provider.xml:
-    provider_xml_output = open('provider.xml', 'wb')
-    provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-    provider_xml_output.close()
+    serialize_provider_xml(provider_xml_in)
 
 
 def write_provider_modules(module_list):
@@ -126,9 +135,7 @@ def write_provider_modules(module_list):
     providerspecific_modules_source[0].text = str(module_list)
 
     # Ausgabe der modifizierten provider.xml:
-    provider_xml_output = open('provider.xml', 'wb')
-    provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-    provider_xml_output.close()
+    serialize_provider_xml(provider_xml_in)
 
 
 def load_provider_modules():
@@ -143,9 +150,7 @@ def load_provider_modules():
         add_element = etree.SubElement(archiv_element[0], "providerspecific_modules")
 
         # Ausgabe der modifizierten provider.xml:
-        provider_xml_output = open('provider.xml', 'wb')
-        provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-        provider_xml_output.close()
+        serialize_provider_xml(provider_xml_in)
 
     else:
         providerspecific_modules_string = providerspecific_modules_source[0].text
@@ -174,9 +179,7 @@ def write_provider_rights(rights_information):
 
 
     # Ausgabe der modifizierten provider.xml:
-    provider_xml_output = open('provider.xml', 'wb')
-    provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-    provider_xml_output.close()
+    serialize_provider_xml(provider_xml_in)
 
 
 def load_provider_rights():
@@ -200,9 +203,7 @@ def load_provider_rights():
         rights_information_statement_element = etree.SubElement(rights_information_element, "statement")
 
         # Ausgabe der modifizierten provider.xml:
-        provider_xml_output = open('provider.xml', 'wb')
-        provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-        provider_xml_output.close()
+        serialize_provider_xml(provider_xml_in)
 
     else:
         rights_information["rights_metadata_uri"] = rights_information_source[0].find("metadata/uri").text
@@ -232,9 +233,7 @@ def write_provider_aggregator_info(aggregator_information):
         aggregator_information_source.find("show_aggregator_logo").text = str(aggregator_information["show_aggregator_logo"])
 
     # Ausgabe der modifizierten provider.xml:
-    provider_xml_output = open('provider.xml', 'wb')
-    provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-    provider_xml_output.close()
+    serialize_provider_xml(provider_xml_in)
 
 def load_provider_aggregator_info():
     # Verwendet zum Auslesen des Elements "aggregator_information" aus der provider.xml des Datengebers
@@ -251,9 +250,7 @@ def load_provider_aggregator_info():
         etree.SubElement(aggregator_information_element, "show_aggregator_logo")
 
         # Ausgabe der modifizierten provider.xml:
-        provider_xml_output = open('provider.xml', 'wb')
-        provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-        provider_xml_output.close()
+        serialize_provider_xml(provider_xml_in)
 
     else:
         aggregator_information["aggregator_id"] = aggregator_information_source[0].find("id").text
@@ -282,9 +279,7 @@ def write_provider_mapping_definition(mapping_definition):
     mapping_definition_source.text = mapping_definition
 
     # Ausgabe der modifizierten provider.xml:
-    provider_xml_output = open('provider.xml', 'wb')
-    provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-    provider_xml_output.close()
+    serialize_provider_xml(provider_xml_in)
 
 
 def load_provider_mapping_definition():
@@ -298,11 +293,50 @@ def load_provider_mapping_definition():
         mapping_definition_element = etree.SubElement(archiv_element[0], "mapping_definition")
 
         # Ausgabe der modifizierten provider.xml:
-        provider_xml_output = open('provider.xml', 'wb')
-        provider_xml_in.write(provider_xml_output, encoding='utf-8', xml_declaration=True)
-        provider_xml_output.close()
+        serialize_provider_xml(provider_xml_in)
 
     else:
         mapping_definition = mapping_definition_source[0].text
 
     return mapping_definition
+
+
+def write_cloud_session_settings(session_data, transformation_job_source_path):
+    """Schreiben der konfigurierten Transformationseinstellungen in das Element 'cloud_session'.
+
+    Diese Einstellungen werden normalerweise in gui_session/session.xml hinterlegt.
+    Für die Prozessierung in Prefect werden diese in der provider.xml-Datei mitgeliefert.
+    """
+    provider_xml_in = etree.parse("{}/provider.xml".format(transformation_job_source_path))
+
+    cloud_session_element = provider_xml_in.find("//cloud_session")
+    if cloud_session_element is None:
+        archiv_element = provider_xml_in.xpath("/archiv")
+        cloud_session_element = etree.SubElement(archiv_element[0], "cloud_session")
+
+        etree.SubElement(cloud_session_element, "provider")
+        etree.SubElement(cloud_session_element, "process_binaries")
+        etree.SubElement(cloud_session_element, "enable_mets_generation")
+        etree.SubElement(cloud_session_element, "mets_application_profile")
+        etree.SubElement(cloud_session_element, "mets_logo_url")
+        etree.SubElement(cloud_session_element, "mets_mail_address")
+        etree.SubElement(cloud_session_element, "mets_url_prefix")
+        etree.SubElement(cloud_session_element, "enrich_rights_info")
+        etree.SubElement(cloud_session_element, "enable_ddb2017_preprocessing")
+        etree.SubElement(cloud_session_element, "enrich_aggregator_info")
+        etree.SubElement(cloud_session_element, "apply_mapping_definition")
+
+    cloud_session_element.find("provider").text = session_data["provider"]
+    cloud_session_element.find("process_binaries").text = session_data["process_binaries"]
+    cloud_session_element.find("enable_mets_generation").text = session_data["enable_mets_generation"]
+    cloud_session_element.find("mets_application_profile").text = session_data["mets_application_profile"]
+    cloud_session_element.find("mets_logo_url").text = session_data["mets_logo_url"]
+    cloud_session_element.find("mets_mail_address").text = session_data["mets_mail_address"]
+    cloud_session_element.find("mets_url_prefix").text = session_data["mets_url_prefix"]
+    cloud_session_element.find("enrich_rights_info").text = session_data["enrich_rights_info"]
+    cloud_session_element.find("enable_ddb2017_preprocessing").text = session_data["enable_ddb2017_preprocessing"]
+    cloud_session_element.find("enrich_aggregator_info").text = session_data["enrich_aggregator_info"]
+    cloud_session_element.find("apply_mapping_definition").text = session_data["apply_mapping_definition"]
+
+    # Ausgabe der modifizierten provider.xml:
+    serialize_provider_xml(provider_xml_in, path_prefix=transformation_job_source_path)

@@ -1,5 +1,6 @@
 import requests, os
 from loguru import logger
+from modules.common.helpers.requests_helpers import get_retry_session
 
 def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, input_path):
 

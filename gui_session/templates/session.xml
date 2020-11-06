@@ -32,4 +32,10 @@
         <handle_obsolete_objects default="False">False</handle_obsolete_objects>
 
     </processing>
+    <cloud_processing>
+        <ftp_url default=""/>
+        <ftp_user default=""/>
+        <ftp_pwd default=""/>
+        <ftp_target_path default="/Fachstelle_Archiv/datapreparationcloud">/Fachstelle_Archiv/datapreparationcloud</ftp_target_path>
+    </cloud_processing>
 </session>

@@ -4,7 +4,7 @@ import os
 from modules.connectors.ead2002 import ead2002
 from modules.common.provider_metadata import handle_provider_metadata
 
-def apply_mapping(session_data, administrative_data, xml_findbuch_in, input_type, input_file, error_status):
+def apply_mapping(session_data, administrative_data, xml_findbuch_in, input_type, input_file, error_status, propagate_logging):
 
     # Übernahme der Mapping-Angaben aus der xml-Datei im data_input-Verzeichnis (wiederum befüllt durch Mapping-GUI)
 
@@ -18,7 +18,7 @@ def apply_mapping(session_data, administrative_data, xml_findbuch_in, input_type
 
     if mapping_def is not None:  # Connector nur dann aufrufen, wenn Mapping für Provider existiert.
         # Übergabe an Connector (nachdem dieser bestimmt wurde)
-        mapping_args = [session_data, xml_findbuch_in, input_type, input_file, error_status]
+        mapping_args = [session_data, xml_findbuch_in, input_type, input_file, error_status, propagate_logging]
         if mapping_def == "ead2002_eadddb":
             xml_findbuch_in = ead2002.parse_xml_content(*mapping_args, administrative_data, provider_rights, serializer="eadddb")
         elif mapping_def == "ead_leobw":

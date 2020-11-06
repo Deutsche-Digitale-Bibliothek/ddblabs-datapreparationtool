@@ -4,6 +4,11 @@ import os
 from shutil import copyfile
 from loguru import logger
 
+def serialize_session_xml(input_xml, output_file):
+    with open(output_file, 'wb') as xml_output:
+        input_xml.write(xml_output, encoding='utf-8', xml_declaration=True)
+
+
 def load_from_xml():
     # Laden der Session-Daten aus gui_session/session.xml. Die aus der XML-Datei extrahierten Parameter werden dem aufrufenden Skript (main_gui.py) zurückgegeben.
 
@@ -79,6 +84,22 @@ def load_from_xml():
     # Processing -- Obsolete Objekte
     findlist = session_input.findall("//processing/handle_obsolete_objects")
     session_data["handle_obsolete_objects"] = findlist[0].text
+
+    # Cloud-Processing -- FTP-URL
+    findlist = session_input.findall("//cloud_processing/ftp_url")
+    session_data["cloud_processing_ftp_url"] = findlist[0].text
+
+    # Cloud-Processing -- FTP-User
+    findlist = session_input.findall("//cloud_processing/ftp_user")
+    session_data["cloud_processing_ftp_user"] = findlist[0].text
+
+    # Cloud-Processing -- FTP-Passwort
+    findlist = session_input.findall("//cloud_processing/ftp_pwd")
+    session_data["cloud_processing_ftp_pwd"] = findlist[0].text
+
+    # Cloud-Processing -- FTP-Zielverzeichnis
+    findlist = session_input.findall("//cloud_processing/ftp_target_path")
+    session_data["cloud_processing_ftp_target_path"] = findlist[0].text
 
     return session_data
 
@@ -156,9 +177,24 @@ def save_to_xml(session_data):
     findlist = session_input.findall("//processing/handle_obsolete_objects")
     findlist[0].text = session_data["handle_obsolete_objects"]
 
-    session_output = open(session_file, 'wb')
-    session_input.write(session_output, encoding='utf-8', xml_declaration=True)
-    session_output.close()
+    # Cloud-Processing -- FTP-URL
+    findlist = session_input.findall("//cloud_processing/ftp_url")
+    findlist[0].text = session_data["cloud_processing_ftp_url"]
+
+    # Cloud-Processing -- FTP-User
+    findlist = session_input.findall("//cloud_processing/ftp_user")
+    findlist[0].text = session_data["cloud_processing_ftp_user"]
+
+    # Cloud-Processing -- FTP-Passwort
+    findlist = session_input.findall("//cloud_processing/ftp_pwd")
+    findlist[0].text = session_data["cloud_processing_ftp_pwd"]
+
+    # Cloud-Processing -- FTP-Zielverzeichnis
+    findlist = session_input.findall("//cloud_processing/ftp_target_path")
+    findlist[0].text = session_data["cloud_processing_ftp_target_path"]
+
+    serialize_session_xml(session_input, session_file)
+
 
 def synchronize_with_gui(bool_string):
     # Synchronisieren der geladenen Session-Daten mit den Einstellungen in der GUI. Der Boolean-Wert "True" bzw. "False" ist in der XML-Datei als String hinterlegt und wird an dieser Stelle in einen Boolean-Datentyp umgewandelt, damit die Weiterverarbeitung in den Prozesssteuerungsmodulen korrekt funktioniert.
@@ -255,30 +291,46 @@ def load_defaults():
     findlist = session_input.findall("//processing/handle_obsolete_objects")
     session_data["handle_obsolete_objects"] = findlist[0].attrib["default"]
 
+    # Cloud-Processing -- FTP-URL
+    findlist = session_input.findall("//cloud_processing/ftp_url")
+    session_data["cloud_processing_ftp_url"] = findlist[0].attrib["default"]
+
+    # Cloud-Processing -- FTP-User
+    findlist = session_input.findall("//cloud_processing/ftp_user")
+    session_data["cloud_processing_ftp_user"] = findlist[0].attrib["default"]
+
+    # Cloud-Processing -- FTP-Passwort
+    findlist = session_input.findall("//cloud_processing/ftp_pwd")
+    session_data["cloud_processing_ftp_pwd"] = findlist[0].attrib["default"]
+
+    # Cloud-Processing -- FTP-Zielverzeichnis
+    findlist = session_input.findall("//cloud_processing/ftp_target_path")
+    session_data["cloud_processing_ftp_target_path"] = findlist[0].attrib["default"]
+
     return session_data
 
-def prepare_first_run():
+def prepare_first_run(root_path="."):
     """Vorbereitungen, die nach dem ersten Auschecken des Repositories ausgeführt werden müssen.
 
     Prüfen, ob der Pfad "./data_input" existiert; falls nicht, soll dieser erstellt werden.
     Prüfen, ob ./gui_session/processing_status.xml, session.xml und thread_actions.xml existieren; falls nicht, diese aus gui_session/templates kopieren.
     """
 
-    if not os.path.isdir("./data_input"):
+    if not os.path.isdir("{}/data_input".format(root_path)):
         logger.debug("data_input-Ordner wurde angelegt")
-        os.mkdir("data_input")
+        os.makedirs("{}/data_input".format(root_path))
 
-    if not os.path.isfile("./gui_session/processing_status.xml"):
+    if not os.path.isfile("{}/gui_session/processing_status.xml".format(root_path)):
         logger.debug("Session-Datei vorbereitet: gui_session/processing_status.xml")
-        copyfile("./gui_session/templates/processing_status.xml", "./gui_session/processing_status.xml")
+        copyfile("{}/gui_session/templates/processing_status.xml".format(root_path), "{}/gui_session/processing_status.xml".format(root_path))
 
-    if not os.path.isfile("./gui_session/session.xml"):
+    if not os.path.isfile("{}/gui_session/session.xml".format(root_path)):
         logger.debug("Session-Datei vorbereitet: gui_session/session.xml")
-        copyfile("./gui_session/templates/session.xml", "./gui_session/session.xml")
+        copyfile("{}/gui_session/templates/session.xml".format(root_path), "{}/gui_session/session.xml".format(root_path))
 
-    if not os.path.isfile("./gui_session/thread_actions.xml"):
+    if not os.path.isfile("{}/gui_session/thread_actions.xml".format(root_path)):
         logger.debug("Session-Datei vorbereitet: gui_session/thread_actions.xml")
-        copyfile("./gui_session/templates/thread_actions.xml", "./gui_session/thread_actions.xml")
+        copyfile("{}/gui_session/templates/thread_actions.xml".format(root_path), "{}/gui_session/thread_actions.xml".format(root_path))
 
 def get_processing_status():
     # Status von Prozessierungen, die in separaten Threads laufen, ermitteln (transformation_p1, transformation_p2)
@@ -320,8 +372,4 @@ def write_processing_status(root_path, processing_step=None, status_message=None
         findlist = status_input.findall("//error_status")
         findlist[0].text = str(error_status)
 
-    status_output = open(status_file, 'wb')
-    status_input.write(status_output, encoding='utf-8', xml_declaration=True)
-    status_output.close()
-
-
+    serialize_session_xml(status_input, status_file)

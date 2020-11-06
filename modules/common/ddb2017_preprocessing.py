@@ -109,6 +109,13 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil):
 
     log_messages = []
 
+    # für DDB2017-Mapping aufbereitete Metadatenelemente (abstract/@type beginnt mit "ddbmapping_") entfernen, damit keine doppelte Anreicherung erfolgt.
+    ddbmapping_elements = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}abstract[@type]")
+    for ddbmapping_element in ddbmapping_elements:
+        if ddbmapping_element.attrib["type"].startswith("ddbmapping_"):
+            ddbmapping_element.getparent().remove(ddbmapping_element)
+
+
     # normalize-space auf Titel (und ggf. weitere, auch strukturierte, Strings) anwenden
     findlist = xml_findbuch_in.findall(
         "//{urn:isbn:1-931666-22-9}c/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}unittitle") + xml_findbuch_in.findall(
@@ -219,10 +226,13 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil):
             odd_head_element = odd_element.find("{urn:isbn:1-931666-22-9}head")
             odd_p_element = odd_element.find("{urn:isbn:1-931666-22-9}p")
             if odd_head_element is not None:
-                if not odd_head_element.text.startswith("ddbmapping_"):
-                    odd_head = odd_head_element.text
+                if odd_head_element.text is not None:
+                    if not odd_head_element.text.startswith("ddbmapping_"):
+                        odd_head = odd_head_element.text
+                    else:
+                        continue
                 else:
-                    continue
+                    odd_head = None
             else:
                 odd_head = None
             odd_string = process_subelements.parse_xml_content(odd_p_element, odd_head, input_file)
@@ -324,7 +334,9 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil):
 
         binary_mimetype, recommended_genreform = map_binary_mimetype(url_value, c_parent_id, input_file)
         if binary_mimetype is not None:
-            daoloc_element.attrib["localtype"] = binary_mimetype
+            if "localtype" not in daoloc_element.attrib:
+                # binary_mimetype nur schreiben, wenn noch nicht vorhanden.
+                daoloc_element.attrib["localtype"] = binary_mimetype
         if recommended_genreform is not None:
             mediatype_default = recommended_genreform
 

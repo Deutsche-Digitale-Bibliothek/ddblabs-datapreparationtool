@@ -104,31 +104,26 @@ def map_object_level(level_value, id_value):
 
     return mapped_level
 
-def serialize_metadata(session_data, object_id, object_level, object_type, object_parent_id, object_metadata, object_rights, object_binaries,administrative_data, xml_base):
-
+def get_xml_base(xml_base, object_type):
     if xml_base is None:
         if object_type == "findbuch" or object_type == "bestandsfindbuch":
             xml_base = etree.parse("../../modules/serializers/eadddb/ead_template_findbuch.xml")
         elif object_type == "tektonik":
             xml_base = etree.parse("../../modules/serializers/eadddb/ead_template_tektonik.xml")
 
-    # object_id: Identifier des Objekts
-    # object_level: Ebene des Objekts (Repository/Archivdatensatz, Bestandsdatensatz, Klassifikation, Serie, Verzeichnungseinheit, Vorgang)
-    # object_type: findbuch | tektonik
-    # object_parent_id: Identifier des Parent-Objekts, zur hierarchischen Verknüpfung
-    # object_rights: aus DPT übernehmen oder aus Source-Daten (z.B. EAD3, EAD2002 (?))
-    # object_binaries: [{"image_full"="", "external_viewer"="", "mets"="", "mediatype"="", "subtitle"=""}]
+    return xml_base
 
-    # 1. Gruppierungselement erstellen
+def create_group_element(object_id, object_level):
+    # Gruppierungselement erstellen
     new_group_element = etree.Element("{urn:isbn:1-931666-22-9}c")
     new_group_element.attrib["id"] = object_id
-    new_group_did_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}did")
-
-
-    # Übergabe Findbuch/Tektonik
     # Übergabe Hierarchiestufe Zwischenformat (object_level)
     new_group_element.attrib["level"] = map_object_level(object_level, object_id)
-    # Übergabe der Parent-ID
+    new_group_did_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}did")
+
+    return new_group_element, new_group_did_element
+
+def append_node_to_hierarchy(xml_base, object_level, object_id, object_parent_id, new_group_element):
     if object_level == "collection":  # Parent-Element für Bestand vorbelegen, da dieser keine ursprüngliche Parent-ID besitzt
         parent_group_element = xml_base.findall("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}dsc")
     else:
@@ -137,14 +132,14 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
     if len(parent_group_element) == 1:
         parent_group_element[0].append(new_group_element)
     elif len(parent_group_element) == 0:
-        logger.warning("Objekt mit ID {} konnte nicht eingehängt werden: Parent-ID {} nicht gefunden.".format(object_id, object_parent_id))
+        logger.warning("Objekt mit ID {} konnte nicht eingehängt werden: Parent-ID {} nicht gefunden.".format(object_id,
+                                                                                                              object_parent_id))
     elif len(parent_group_element) > 1:
-        logger.warning("Objekt mit ID {} konnte nicht eingehängt werden: Parent-ID {} ist nicht eindeutig.".format(object_id, object_parent_id))
+        logger.warning(
+            "Objekt mit ID {} konnte nicht eingehängt werden: Parent-ID {} ist nicht eindeutig.".format(object_id,
+                                                                                                        object_parent_id))
 
-    insert_administrative_metadata(object_level, xml_base, administrative_data, object_id, object_type, object_metadata, new_group_element)
-
-    # Erstellung und Befüllung der EAD(DDB)-Zielfelder
-
+def map_metadata_fields(object_metadata, object_binaries, new_group_element, new_group_did_element, object_id, object_level, xml_base, object_type, administrative_data):
     # 1.1 Metadatenfelder
 
     # unittitle
@@ -218,7 +213,7 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
 
     # physdesc/dimensions
     if "dimensions" in object_metadata:
-        if not ("genreform" or "extent")in object_metadata:
+        if not ("genreform" or "extent") in object_metadata:
             new_physdesc_element = etree.SubElement(new_group_did_element, "{urn:isbn:1-931666-22-9}physdesc")
         new_physdesc_dimensions_element = etree.SubElement(new_physdesc_element, "{urn:isbn:1-931666-22-9}dimensions")
         new_physdesc_dimensions_element.text = object_metadata["dimensions"]
@@ -262,22 +257,27 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
         else:
             new_otherfindaid_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}otherfindaid")
         new_otherfindaid_extref_element = etree.SubElement(new_otherfindaid_element, "{urn:isbn:1-931666-22-9}extref")
-        new_otherfindaid_extref_element.attrib["{http://www.w3.org/1999/xlink}role"] = object_metadata["otherfindaid"]["role"]
-        new_otherfindaid_extref_element.attrib["{http://www.w3.org/1999/xlink}href"] = object_metadata["otherfindaid"]["href"]
+        new_otherfindaid_extref_element.attrib["{http://www.w3.org/1999/xlink}role"] = object_metadata["otherfindaid"][
+            "role"]
+        new_otherfindaid_extref_element.attrib["{http://www.w3.org/1999/xlink}href"] = object_metadata["otherfindaid"][
+            "href"]
     # Für den Tektonik-Bestandsdatensatz auf Provider-Metadaten zurückgreifen
     elif "otherfindaid" not in object_metadata and object_type == "tektonik":
         if object_level == "collection" and administrative_data["provider_tektonik_url"] is not None:
             new_otherfindaid_element = etree.Element("{urn:isbn:1-931666-22-9}otherfindaid")
-            new_otherfindaid_extref_element = etree.SubElement(new_otherfindaid_element, "{urn:isbn:1-931666-22-9}extref")
+            new_otherfindaid_extref_element = etree.SubElement(new_otherfindaid_element,
+                                                               "{urn:isbn:1-931666-22-9}extref")
             new_otherfindaid_extref_element.attrib["{http://www.w3.org/1999/xlink}role"] = "url_tektonik"
-            new_otherfindaid_extref_element.attrib["{http://www.w3.org/1999/xlink}href"] = administrative_data["provider_tektonik_url"]
+            new_otherfindaid_extref_element.attrib["{http://www.w3.org/1999/xlink}href"] = administrative_data[
+                "provider_tektonik_url"]
             new_group_did_element.addnext(new_otherfindaid_element)
 
     # accessrestrict
     if "accessrestrict" in object_metadata:
         for accessrestrict_item in object_metadata["accessrestrict"]:
             new_accessrestrict_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}accessrestrict")
-            new_accessrestrict_head_element = etree.SubElement(new_accessrestrict_element, "{urn:isbn:1-931666-22-9}head")
+            new_accessrestrict_head_element = etree.SubElement(new_accessrestrict_element,
+                                                               "{urn:isbn:1-931666-22-9}head")
             new_accessrestrict_head_element.text = accessrestrict_item["head"]
             if type(accessrestrict_item["p"]) is etree._Element:
                 new_accessrestrict_p_element = accessrestrict_item["p"]
@@ -338,7 +338,8 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
         for scopecontent_item in object_metadata["scopecontent"]:
             new_scopecontent_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}scopecontent")
             if "head" in scopecontent_item:
-                new_scopecontent_head_element = etree.SubElement(new_scopecontent_element, "{urn:isbn:1-931666-22-9}head")
+                new_scopecontent_head_element = etree.SubElement(new_scopecontent_element,
+                                                                 "{urn:isbn:1-931666-22-9}head")
                 new_scopecontent_head_element.text = scopecontent_item["head"]
             if type(scopecontent_item["p"]) is etree._Element:
                 new_scopecontent_p_element = scopecontent_item["p"]
@@ -351,12 +352,11 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
     if "relatedmaterial" in object_metadata:
         for relatedmaterial_item in object_metadata["relatedmaterial"]:
             new_relatedmaterial_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}relatedmaterial")
-            new_relatedmaterial_head_element = etree.SubElement(new_relatedmaterial_element, "{urn:isbn:1-931666-22-9}head")
+            new_relatedmaterial_head_element = etree.SubElement(new_relatedmaterial_element,
+                                                                "{urn:isbn:1-931666-22-9}head")
             new_relatedmaterial_p_element = etree.SubElement(new_relatedmaterial_element, "{urn:isbn:1-931666-22-9}p")
             new_relatedmaterial_head_element.text = relatedmaterial_item["head"]
             new_relatedmaterial_p_element.text = relatedmaterial_item["p"]
-
-
 
     # 1.2 Binaries
     if len(object_binaries) > 0:
@@ -364,15 +364,19 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
         for object_binary in object_binaries:
             new_daogrp_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}daogrp")
             new_daogrp_daodesc_element = etree.SubElement(new_daogrp_element, "{urn:isbn:1-931666-22-9}daodesc")
-            new_daogrp_daodesc_list_element = etree.SubElement(new_daogrp_daodesc_element, "{urn:isbn:1-931666-22-9}list")
-            new_daogrp_daodesc_list_item_element = etree.SubElement(new_daogrp_daodesc_list_element, "{urn:isbn:1-931666-22-9}item")
+            new_daogrp_daodesc_list_element = etree.SubElement(new_daogrp_daodesc_element,
+                                                               "{urn:isbn:1-931666-22-9}list")
+            new_daogrp_daodesc_list_item_element = etree.SubElement(new_daogrp_daodesc_list_element,
+                                                                    "{urn:isbn:1-931666-22-9}item")
 
             # Subtitle und Mediatype für Digitalisat
             if "subtitle" in object_binary:
-                new_daogrp_daodesc_list_item_name_element = etree.SubElement(new_daogrp_daodesc_list_item_element, "{urn:isbn:1-931666-22-9}name")
+                new_daogrp_daodesc_list_item_name_element = etree.SubElement(new_daogrp_daodesc_list_item_element,
+                                                                             "{urn:isbn:1-931666-22-9}name")
                 new_daogrp_daodesc_list_item_name_element.text = object_binary["subtitle"]
             if "mediatype" in object_binary:
-                new_daogrp_daodesc_list_item_genreform_element = etree.SubElement(new_daogrp_daodesc_list_item_element, "{urn:isbn:1-931666-22-9}genreform")
+                new_daogrp_daodesc_list_item_genreform_element = etree.SubElement(new_daogrp_daodesc_list_item_element,
+                                                                                  "{urn:isbn:1-931666-22-9}genreform")
                 new_daogrp_daodesc_list_item_genreform_element.text = object_binary["mediatype"]
 
             # URI für Digitalisat
@@ -382,10 +386,11 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
                 new_daogrp_daoloc_element.attrib["{http://www.w3.org/1999/xlink}href"] = object_binary["image_full"]
 
             # Externer Viewer für Digitalisat
-            if "external_viewer" in object_binary:
+            if "externer_viewer" in object_binary:
                 new_daogrp_daoloc_element = etree.SubElement(new_daogrp_element, "{urn:isbn:1-931666-22-9}daoloc")
                 new_daogrp_daoloc_element.attrib["{http://www.w3.org/1999/xlink}role"] = "externer_viewer"
-                new_daogrp_daoloc_element.attrib["{http://www.w3.org/1999/xlink}href"] = object_binary["external_viewer"]
+                new_daogrp_daoloc_element.attrib["{http://www.w3.org/1999/xlink}href"] = object_binary[
+                    "externer_viewer"]
 
             # METS-Datei für Digitalisat
             if "mets" in object_binary:
@@ -393,6 +398,30 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
                 new_daogrp_daoloc_element.attrib["{http://www.w3.org/1999/xlink}role"] = "METS"
                 new_daogrp_daoloc_element.attrib["{http://www.w3.org/1999/xlink}href"] = object_binary[
                     "mets"]
+
+
+def serialize_metadata(session_data, object_id, object_level, object_type, object_parent_id, object_metadata, object_rights, object_binaries,administrative_data, xml_base):
+
+    xml_base = get_xml_base(xml_base, object_type)
+
+    # object_id: Identifier des Objekts
+    # object_level: Ebene des Objekts (Repository/Archivdatensatz, Bestandsdatensatz, Klassifikation, Serie, Verzeichnungseinheit, Vorgang)
+    # object_type: findbuch | tektonik
+    # object_parent_id: Identifier des Parent-Objekts, zur hierarchischen Verknüpfung
+    # object_rights: aus DPT übernehmen oder aus Source-Daten (z.B. EAD3, EAD2002 (?))
+    # object_binaries: [{"image_full"="", "external_viewer"="", "mets"="", "mediatype"="", "subtitle"=""}]
+
+    # 1. Gruppierungselement erstellen
+    new_group_element, new_group_did_element = create_group_element(object_id, object_level)
+
+    # Übergabe der Parent-ID
+    append_node_to_hierarchy(xml_base, object_level, object_id, object_parent_id, new_group_element)
+
+    insert_administrative_metadata(object_level, xml_base, administrative_data, object_id, object_type, object_metadata, new_group_element)
+
+    # Erstellung und Befüllung der EAD(DDB)-Zielfelder
+
+    map_metadata_fields(object_metadata, object_binaries, new_group_element, new_group_did_element, object_id, object_level, xml_base, object_type, administrative_data)
 
 
     return xml_base

@@ -5,6 +5,7 @@ from loguru import logger
 import webbrowser
 import atexit
 import os
+import platform
 import shutil
 import errno
 import datetime
@@ -75,6 +76,9 @@ from modules.common.oai import fetch_oai_records
 
 # Import des Validierungsmoduls:
 from modules.analysis.validation import handle_validify_validation
+
+# Import der Cloud-Prozessierung:
+from modules.common.cloud import handle_cloud_processing
 
 # Logging einrichten:
 root_path = os.path.abspath(".")
@@ -294,6 +298,7 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.menuInfoIntroscreen.triggered.connect(self.open_intro_dialog)
         self.menuInfoDDBpro.triggered.connect(lambda: self.open_in_browser("https://pro.deutsche-digitale-bibliothek.de/fachstelle-archiv"))
         self.action_fetch_from_oai.triggered.connect(lambda: self.oaiInputDialog.show())
+        self.action_submit_cloud_transformation_job.triggered.connect(lambda: self.handle_cloud_transformation())
         self.actionData_Preparation_Tool_beenden.triggered.connect(lambda: sys.exit())
         self.actionLoadStandards.triggered.connect(self.session_load_defaults)
         self.menuEnrichIDs.triggered.connect(lambda: self.idEnrichmentDialog.show())
@@ -505,6 +510,33 @@ class MappingLibraryMainGui(Ui_MainWindow):
     def bootstrap_p2_after_p1(self):
         self.transformationStatusDialog.close()
         self.handle_transformation_p2()
+
+    def handle_cloud_transformation(self):
+        """Aufruf der Methode modules.common.cloud.handle_cloud_processing -> submit_transformation_job
+
+        Analog zu handle_transformation_p1 und handle_transformation_p2 wird die Methode über einen Worker-Thread ausgeführt.
+        In der GUI wird der Fortschritt über die Statusleiste sowie die Logmeldungen in der Konsole kommuniziert.
+        Nach Beendigung des Worker-Threads wird die Methode finished_cloud_transformation() aufgerufen.
+        """
+        logger.info("Cloud-Transformation wurde durch GUI aufgerufen.")
+        self.disable_processing_controls()
+
+        self.statusbar.showMessage("Datenlieferung für Cloud-Transformation vorbereiten...")
+        worker_prepare_cloud_dataset = Worker(lambda: handle_cloud_processing.submit_transformation_job(root_path=self.root_path, session_data=self.session_data))
+        worker_prepare_cloud_dataset.signals.destroyed.connect(lambda: finished_cloud_transformation())
+
+        self.worker_start = datetime.datetime.now()
+        self.threadpool.start(worker_prepare_cloud_dataset)
+
+        def finished_cloud_transformation():
+            """Aufgerufen nach Beendigung des Worker-Threads 'worker_prepare_cloud_dataset'.
+
+            Die Prozesssteuerungsschaltflächen der GUI werden wieder aktiviert.
+            """
+            result_message = "Abgeschlossen: Datenlieferung auf FTP-Server abgelegt."
+            logger.info(result_message)
+            self.statusbar.showMessage(result_message)
+            self.enable_processing_controls()
 
     def handle_validation(self, input_files: list, rule_definition: str):
         logger.info("Validierung wurde durch GUI aufgerufen.")
@@ -1408,6 +1440,7 @@ class MappingLibraryMainGui(Ui_MainWindow):
         if not is_first_launch:
             self.menuValidierung.setEnabled(False)
         self.action_fetch_from_oai.setEnabled(False)
+        self.action_submit_cloud_transformation_job.setEnabled(False)
 
     def enable_processing_controls(self, is_first_launch=False):
         """GUI-Elemente zur Steuerung von Prozessierungen aktivieren, nachdem eine Prozessierung abgeschlossen wurde."""
@@ -1418,6 +1451,8 @@ class MappingLibraryMainGui(Ui_MainWindow):
             self.menuTools.setEnabled(True)
             self.action_fetch_from_oai.setEnabled(True)
             self.menuValidierung.setEnabled(True)
+            self.action_submit_cloud_transformation_job.setEnabled(True)
+
         else:
             self.menuValidierung.setEnabled(True)
 
@@ -1433,6 +1468,8 @@ class MappingLibraryMainGui(Ui_MainWindow):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon("gui_components/ui_templates/resources/list.png"))
+    if platform.system() == "Windows":
+        app.setStyle("Fusion")
     main_window = QtWidgets.QMainWindow()
 
     run_app = MappingLibraryMainGui(main_window)

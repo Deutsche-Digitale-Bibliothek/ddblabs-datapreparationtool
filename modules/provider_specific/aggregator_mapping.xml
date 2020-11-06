@@ -15,4 +15,9 @@
         <id>00000751</id>
         <ddbid>QUSSOOQ7T3T3VRBPPFQB5X7Y3A5K54R6</ddbid>
     </aggregator>
+    <aggregator>
+        <label>Digitales Deutsches Frauenarchiv</label>
+        <id>oid1548151570592</id>
+        <ddbid>FHZCLODDFCOYDEINFEQLO46VBH2YCYB5</ddbid>
+    </aggregator>
 </aggregator_mapping>

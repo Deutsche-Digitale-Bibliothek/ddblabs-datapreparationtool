@@ -1,6 +1,7 @@
 import os
 import datetime
 import traceback
+import sys
 from lxml import etree
 from loguru import logger
 
@@ -24,7 +25,14 @@ from gui_session.handle_session_data import synchronize_with_gui
 from gui_session.handle_session_data import write_processing_status
 from gui_session import handle_thread_actions
 
-def run_transformation_p1(root_path, session_data=None, is_gui_session=False):
+
+def run_transformation_p1(root_path, session_data=None, is_gui_session=False, propagate_logging=False):
+    """Aufruf der Transformationsmodule.
+
+    Wird propagate_logging=True übergeben, so werden die durch Loguru erfassten Logmeldungen auch an stdout übergeben.
+    """
+    if propagate_logging:
+        logger.add(sys.stdout)
 
     # Prozessierungs-Metadaten angeben:
 
@@ -68,35 +76,19 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False):
 
     input_folder_name = provider_isil.replace("-", "_")
     current_date = datetime.datetime.now().strftime("%Y%m%d")
-    input_path = "data_input/" + input_folder_name + "/"
-    output_path = "data_output/" + input_folder_name + "/" + current_date + "/"
+    input_path = "{}/data_input/{}/".format(root_path, input_folder_name)
+    output_path = "{}/data_output/{}/{}/".format(root_path, input_folder_name, current_date)
+    output_path_findbuch = "{}/findbuch".format(output_path)
+    output_path_tektonik = "{}/tektonik".format(output_path)
 
-    if not os.path.isdir('./data_input'):
-        os.mkdir('data_input')
-    os.chdir('data_input')
+    if not os.path.isdir(input_path):
+        os.makedirs(input_path)
+    if not os.path.isdir(output_path_findbuch):
+        os.makedirs(output_path_findbuch)
+    if not os.path.isdir(output_path_tektonik):
+        os.makedirs(output_path_tektonik)
 
-    if not os.path.isdir('./' + input_folder_name):
-        os.mkdir(input_folder_name)
-    os.chdir("..")
-
-    if not os.path.isdir('./data_output'):
-        os.mkdir('data_output')
-    os.chdir("data_output")
-
-    if not os.path.isdir('./' + input_folder_name):
-        os.mkdir(input_folder_name)
-    os.chdir(input_folder_name)
-
-    if not os.path.isdir('./' + current_date):
-        os.mkdir(current_date)
-    os.chdir(current_date)
-
-    if not os.path.isdir('./findbuch'):
-        os.mkdir('findbuch')
-    if not os.path.isdir('./tektonik'):
-        os.mkdir('tektonik')
-
-    os.chdir('../../../data_input/' + input_folder_name)
+    os.chdir(input_path)
 
 
     # Erstellen einer provider.xml-Datei, falls noch nicht vorhanden:
@@ -159,7 +151,7 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False):
         result_format = "xml"  # Wert wird angepasst, sobald durch Anwenden der Mappingdefinition aus der XML-Ursprungsdatei ein anderes Format entsteht, etwa JSON oder eine Liste mehrerer Dictionaries. Ist is_xml_result ungleich "xml", so werden nachfolgende Prozessierungen (Providerskripte, Binaries, METS, Rechte/Aggregatoren-Anreicherung und Vorprozessierung) übersprungen.
 
         mapping_definition_args = [xml_findbuch_in, input_type, input_file,
-                                error_status]  # Parameter zur Übergabe an die Mapping-Definition
+                                error_status, propagate_logging]  # Parameter zur Übergabe an die Mapping-Definition
         administrative_data = {"provider_isil": provider_isil, "provider_id": provider_id, "provider_name": provider_name, "provider_archivtyp": provider_archivtyp, "provider_state": provider_state, "provider_addressline_strasse": provider_addressline_strasse, "provider_addressline_ort": provider_addressline_ort, "provider_addressline_mail": provider_addressline_mail, "provider_website": provider_website, "provider_tektonik_url": provider_tektonik_url}
         if apply_mapping_definition:
             write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anwenden der Mapping-Definition für {}: {} (Datei {}/{})".format(
@@ -237,7 +229,7 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False):
         os.chdir('data_input/' + input_folder_name)  # Zurücksetzen des CWD (current working directory) für das Einlesen der nächsten Datei
 
     write_processing_status(root_path=root_path, processing_step=100, status_message="Transformation abgeschlossen.", error_status=error_status)
-    os.chdir("../..")
+    os.chdir(root_path)
 
 
 if __name__ == '__main__':

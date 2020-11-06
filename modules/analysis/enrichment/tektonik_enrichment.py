@@ -246,9 +246,13 @@ def enrich_tektonik(isil, website, name, state, archivtyp, provider_id, addressl
                                 collection_element.append(source_value_accessrestrict)
 
                             # Übertragen des index-Elements aus dem Findbuch-Bestandsdatensatz
-                            index_exists = collection_element.findall("{urn:isbn:1-931666-22-9}index")
-                            if len(index_exists) == 0 and source_value_index is not None:
-                                collection_element.append(source_value_index)
+                            index_exists = collection_element.find("{urn:isbn:1-931666-22-9}index")
+                            if source_value_index is not None:
+                                if index_exists is None:
+                                    collection_element.append(source_value_index)
+                                elif len(index_exists) == 0:  # Workaround: bei leerem index-Element (ohne indexentry-Subelemente) trotzdem anreichern
+                                    index_exists.getparent().remove(index_exists)
+                                    collection_element.append(source_value_index)
 
                             # Übertragen des otherfindaid-Elements aus dem Findbuch-Bestandsdatensatz
                             otherfindaid_exists = collection_element.findall("{urn:isbn:1-931666-22-9}otherfindaid")
