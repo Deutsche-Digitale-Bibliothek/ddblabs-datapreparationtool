@@ -131,8 +131,20 @@ def write_provider_modules(module_list):
     # Verwendet zum Zurückschreiben der im GUI-Dialog ausgewählten Anpassungen.
     provider_xml_in = etree.parse("provider.xml")
 
-    providerspecific_modules_source = provider_xml_in.findall("//providerspecific_modules")
-    providerspecific_modules_source[0].text = str(module_list)
+    providerspecific_modules_source = provider_xml_in.find("//providerspecific_modules")
+    providerspecific_modules_source.clear()
+    for module_item in module_list:
+        module_element = etree.SubElement(providerspecific_modules_source, "module")
+
+        module_provider_element = etree.SubElement(module_element, "module_provider")
+        module_provider_element.text = module_item["ISIL"]
+
+        module_name_element = etree.SubElement(module_element, "module_name")
+        module_name_element.text = module_item["Modulname"]
+
+        module_config_element = etree.SubElement(module_element, "module_config")
+        if module_item["Konfiguration"] is not None:
+            module_config_element.text = str(module_item["Konfiguration"])
 
     # Ausgabe der modifizierten provider.xml:
     serialize_provider_xml(provider_xml_in)
@@ -144,24 +156,43 @@ def load_provider_modules():
 
     providerspecific_modules = []
 
-    providerspecific_modules_source = provider_xml_in.findall("//providerspecific_modules")
-    if len(providerspecific_modules_source) == 0:
+    providerspecific_modules_source = provider_xml_in.find("//providerspecific_modules")
+    if providerspecific_modules_source is None:
         archiv_element = provider_xml_in.xpath("/archiv")
-        add_element = etree.SubElement(archiv_element[0], "providerspecific_modules")
+        etree.SubElement(archiv_element[0], "providerspecific_modules")
 
         # Ausgabe der modifizierten provider.xml:
         serialize_provider_xml(provider_xml_in)
 
     else:
-        providerspecific_modules_string = providerspecific_modules_source[0].text
-        if providerspecific_modules_string is not None:
-            providerspecific_modules_string = ast.literal_eval(providerspecific_modules_string)
-            for script in providerspecific_modules_string:
-                single_module = {}
-                script = script.split(",")
-                single_module["ISIL"] = script[0]
-                single_module["Modulname"] = script[1]
-                providerspecific_modules.append(single_module)
+        if len(providerspecific_modules_source) == 0:
+            # Migration für bestehende provider.xml-Dateien
+            providerspecific_modules_string = providerspecific_modules_source.text
+            if providerspecific_modules_string is not None:
+                providerspecific_modules_list = ast.literal_eval(providerspecific_modules_string)
+                for module_item in providerspecific_modules_list:
+                    module_item_split = module_item.split(",")
+                    single_module = {}
+                    single_module["ISIL"] = module_item_split[0]
+                    single_module["Modulname"] = module_item_split[1]
+                    single_module["Konfiguration"] = None
+
+                    providerspecific_modules.append(single_module)
+
+
+        for module_item in providerspecific_modules_source:
+            single_module = {}
+            module_provider = module_item.find("module_provider").text
+            module_name = module_item.find("module_name").text
+            module_config = module_item.find("module_config").text
+
+            if module_config is not None:
+                module_config = ast.literal_eval(module_config)
+
+            single_module["ISIL"] = module_provider
+            single_module["Modulname"] = module_name
+            single_module["Konfiguration"] = module_config
+            providerspecific_modules.append(single_module)
 
     return providerspecific_modules
 

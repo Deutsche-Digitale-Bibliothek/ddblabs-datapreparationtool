@@ -132,13 +132,15 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
 
             # Umfang in objekt/extent einfügen
             if "extent" in object_metadata:
-                extent_element = etree.SubElement(new_group_element, "extent")
-                extent_element.text = object_metadata["extent"]
+                for extent_item in object_metadata["extent"]:
+                    extent_element = etree.SubElement(new_group_element, "extent")
+                    extent_element.text = extent_item
 
             # Maße in objekt/dimensions einfügen
             if "dimensions" in object_metadata:
-                dimensions_element = etree.SubElement(new_group_element, "dimensions")
-                dimensions_element.text = object_metadata["dimensions"]
+                for dimensions_item in object_metadata["dimensions"]:
+                    dimensions_element = etree.SubElement(new_group_element, "dimensions")
+                    dimensions_element.text = dimensions_item
 
             # Material in objekt/materialspec einfügen
             if "materialspec" in object_metadata:

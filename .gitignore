@@ -142,3 +142,4 @@ data_output/
 utils/validation_results/
 utils/xml_enriched_with_uuids/
 utils/ddb_id_lists
+modules/provider_specific/.provider_script_sets/.deleted_sets

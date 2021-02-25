@@ -208,15 +208,17 @@ def map_metadata_fields(object_metadata, object_binaries, new_group_element, new
     if "extent" in object_metadata:
         if not "genreform" in object_metadata:
             new_physdesc_element = etree.SubElement(new_group_did_element, "{urn:isbn:1-931666-22-9}physdesc")
-        new_physdesc_extent_element = etree.SubElement(new_physdesc_element, "{urn:isbn:1-931666-22-9}extent")
-        new_physdesc_extent_element.text = object_metadata["extent"]
+        for extent_item in object_metadata["extent"]:
+            new_physdesc_extent_element = etree.SubElement(new_physdesc_element, "{urn:isbn:1-931666-22-9}extent")
+            new_physdesc_extent_element.text = extent_item
 
     # physdesc/dimensions
     if "dimensions" in object_metadata:
         if not ("genreform" or "extent") in object_metadata:
             new_physdesc_element = etree.SubElement(new_group_did_element, "{urn:isbn:1-931666-22-9}physdesc")
-        new_physdesc_dimensions_element = etree.SubElement(new_physdesc_element, "{urn:isbn:1-931666-22-9}dimensions")
-        new_physdesc_dimensions_element.text = object_metadata["dimensions"]
+        for dimensions_item in object_metadata["dimensions"]:
+            new_physdesc_dimensions_element = etree.SubElement(new_physdesc_element, "{urn:isbn:1-931666-22-9}dimensions")
+            new_physdesc_dimensions_element.text = dimensions_item
 
     # materialspec
     if "materialspec" in object_metadata:
@@ -299,17 +301,18 @@ def map_metadata_fields(object_metadata, object_binaries, new_group_element, new
 
     # odd
     if "odd" in object_metadata:
-        for odd_item in object_metadata["odd"]:
-            new_odd_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}odd")
-            if odd_item["head"] != "":
-                new_odd_head_element = etree.SubElement(new_odd_element, "{urn:isbn:1-931666-22-9}head")
-                new_odd_head_element.text = odd_item["head"]
-            if type(odd_item["p"]) is etree._Element:
-                new_odd_p_element = odd_item["p"]
-            else:
-                new_odd_p_element = etree.Element("{urn:isbn:1-931666-22-9}p")
-                new_odd_p_element.text = odd_item["p"]
-            new_odd_element.append(new_odd_p_element)
+        if object_level != "collection":  # odd-Elemente auf Bestandsebene in scopecontent mappen
+            for odd_item in object_metadata["odd"]:
+                new_odd_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}odd")
+                if odd_item["head"] != "":
+                    new_odd_head_element = etree.SubElement(new_odd_element, "{urn:isbn:1-931666-22-9}head")
+                    new_odd_head_element.text = odd_item["head"]
+                if type(odd_item["p"]) is etree._Element:
+                    new_odd_p_element = odd_item["p"]
+                else:
+                    new_odd_p_element = etree.Element("{urn:isbn:1-931666-22-9}p")
+                    new_odd_p_element.text = odd_item["p"]
+                new_odd_element.append(new_odd_p_element)
 
     # index
     if "index" in object_metadata:
@@ -335,6 +338,8 @@ def map_metadata_fields(object_metadata, object_binaries, new_group_element, new
 
     # scopecontent
     if "scopecontent" in object_metadata:
+        if (object_level == "collection") and ("odd" in object_metadata):
+            object_metadata["scopecontent"] += object_metadata["odd"]  # odd-Elemente auf Bestandsebene in scopecontent mappen
         for scopecontent_item in object_metadata["scopecontent"]:
             new_scopecontent_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}scopecontent")
             if "head" in scopecontent_item:

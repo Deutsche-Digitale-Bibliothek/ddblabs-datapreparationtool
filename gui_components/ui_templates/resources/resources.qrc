@@ -4,6 +4,22 @@
     <file>list.png</file>
     <file>ddb-logo.png</file>
   </qresource>
+  <qresource prefix="provider-scripts-dialog">
+    <file>workflow_background.png</file>
+    <file>delete.png</file>
+    <file>workflow.png</file>
+    <file>cancel.png</file>
+    <file>checked.png</file>
+    <file>contract-2.png</file>
+    <file>folder.png</file>
+    <file>user_interaction.png</file>
+    <file>library-plus.png</file>
+    <file>reload.png</file>
+    <file>settings.png</file>
+    <file>transformation_button_icon.png</file>
+    <file>table-row-remove.png</file>
+    <file>provider_modules.png</file>
+  </qresource>
   <qresource prefix="mapping-selection-dialog">
     <file>info_icon.png</file>
   </qresource>
@@ -31,6 +47,9 @@
     <file>contract-2.png</file>
   </qresource>
   <qresource prefix="transformation-status-dialog">
+    <file>transformation_button_icon.png</file>
+    <file>folder.png</file>
+    <file>transformation_user_interaction.png</file>
     <file>ic_info_black_48dp.png</file>
     <file>transformation_finished.png</file>
     <file>transformation_in_progress.png</file>

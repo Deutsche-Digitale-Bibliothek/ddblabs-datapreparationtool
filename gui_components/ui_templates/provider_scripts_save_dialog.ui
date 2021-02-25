@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Neue Zuordnung speichern</string>
+   <string>Workflow speichern</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
@@ -30,16 +30,9 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox_providerscript_set_description">
      <property name="title">
-      <string>Angaben zur Zuordnung</string>
+      <string>Angaben zum Workflow</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Name: </string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="QLineEdit" name="lineEdit_providerscript_set_name">
         <property name="placeholderText">
@@ -50,10 +43,10 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>Beschreibung: </string>
+         <string>Name: </string>
         </property>
        </widget>
       </item>
@@ -61,6 +54,20 @@
        <widget class="QPlainTextEdit" name="plainTextEdit_providerscript_set_description">
         <property name="placeholderText">
          <string>Beschreibung (optional)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Beschreibung: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="checkBox_overwrite_current_workflow">
+        <property name="text">
+         <string>Aktuell ausgewählten Workflow überschreiben</string>
         </property>
        </widget>
       </item>

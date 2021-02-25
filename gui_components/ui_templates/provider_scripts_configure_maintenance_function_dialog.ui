@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>providerScriptsConfigureMaintenanceFunctionDialog</class>
+ <widget class="QDialog" name="providerScriptsConfigureMaintenanceFunctionDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>337</width>
+    <height>177</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Vorprozessierungsschritt konfigurieren</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Art der Vorprozessierung wählen</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QComboBox" name="comboBox_choose_maintenance_function">
+        <item>
+         <property name="text">
+          <string>Rechte/Lizenz-Anreicherung</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>DDB-2017-Vorprozessierung</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Aggregator-Anreicherung</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mapping-Definition anwenden</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QFrame" name="frame">
+        <property name="styleSheet">
+         <string notr="true">background-color: rgba(164, 219, 255, 235);</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_maintenance_function_info">
+           <property name="text">
+            <string>Die gewählte Vorprozessierung kann im Menü &quot;Tools&quot; des Hauptfensters weiter konfiguriert werden.</string>
+           </property>
+           <property name="scaledContents">
+            <bool>true</bool>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox_providerscripts_maintenance_configuration">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox_providerscripts_maintenance_configuration</sender>
+   <signal>accepted()</signal>
+   <receiver>providerScriptsConfigureMaintenanceFunctionDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox_providerscripts_maintenance_configuration</sender>
+   <signal>rejected()</signal>
+   <receiver>providerScriptsConfigureMaintenanceFunctionDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

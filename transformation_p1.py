@@ -5,37 +5,39 @@ import sys
 from lxml import etree
 from loguru import logger
 
-# Import der Software-Module:
-from modules.software.eadddb import eadddb
-
-# Import der Postprocessing-Module:
+# Import der Prozessierungs-Module:
 from modules.provider_specific import handle_provider_scripts
 from modules.provider_specific import handle_provider_rights
 from modules.provider_specific import handle_provider_aggregator_mapping
 from modules.binaries import fetch_and_link_binaries
 from modules.ead2mets import create_mets_files
-from modules.connectors import mapping_definition  # Modul zum Anwenden der GUI-Mapping-Definition
+from modules.connectors import mapping_definition  # Modul zum Anwenden der Mapping-Definition
 
 # Import der Common-Module:
 from modules.common.serialize_output import serialize_xml_result  # Modul zum Serialisieren und Rausschreiben des modifizierten XML-Baums
 from modules.common.serialize_output import serialize_json_result  # Modul zum Serialisieren und Rausschreiben von JSON-Strukturen
 from modules.common.provider_metadata import handle_provider_metadata  # Modul zum Erstellen und Auslesen der provider.xml-Datei
+from modules.common.provider_metadata.handle_provider_metadata import load_provider_modules  # Modul zum Auslesen der Provider- bzw. Workflow-Module
 from modules.common import ddb2017_preprocessing  # Modul zur Vorprozessierung der Daten für die DDB2017-Transformation
+
+# Import der Session-Module:
 from gui_session.handle_session_data import synchronize_with_gui
 from gui_session.handle_session_data import write_processing_status
 from gui_session import handle_thread_actions
 
+# Import der Common-Workflow-Module
+from modules.provider_specific.common import maintenance_function
+from modules.provider_specific.common import user_interaction
+from modules.provider_specific.common import filesystem_operation
 
-def run_transformation_p1(root_path, session_data=None, is_gui_session=False, propagate_logging=False):
+
+def run_transformation_p1(root_path, session_data=None, is_gui_session=False, propagate_logging=False, is_unattended_session=False):
     """Aufruf der Transformationsmodule.
 
-    Wird propagate_logging=True übergeben, so werden die durch Loguru erfassten Logmeldungen auch an stdout übergeben.
+    Wird propagate_logging=True übergeben, so werden die durch Loguru erfassten Logmeldungen auch an stdout übergeben sowie in eine Log-Datei im Output-Verzeichnis geschrieben.
     """
-    if propagate_logging:
-        logger.add(sys.stdout)
 
     # Prozessierungs-Metadaten angeben:
-
     provider_isil = "DE-Pfo2"  # ISIL des Archivs, z.B. "DE-2410"
 
     # Weitere Prozessierungsangaben werden aus der Datei data_input/{ISIL}/provider.xml bezogen.
@@ -73,7 +75,6 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
         apply_mapping_definition = synchronize_with_gui(session_data["apply_mapping_definition"])
 
     # Festlegen des Input-Paths: (data_input/ISIL/findbuch|tektonik; Erstellen fehlender Unterordner
-
     input_folder_name = provider_isil.replace("-", "_")
     current_date = datetime.datetime.now().strftime("%Y%m%d")
     input_path = "{}/data_input/{}/".format(root_path, input_folder_name)
@@ -92,19 +93,27 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
 
 
     # Erstellen einer provider.xml-Datei, falls noch nicht vorhanden:
-
     handle_provider_metadata.create_provider_template(input_folder_name)
 
     # Auslesen der provider.xml-Datei; Zuweisung der belegten Feldinhalte:
-
     provider_name, provider_website, provider_id, provider_tektonik_url, provider_addressline_strasse, provider_addressline_ort, provider_addressline_mail, provider_state, provider_archivtyp, provider_software = handle_provider_metadata.get_provider_metadata(provider_isil)
+    administrative_data = {"provider_isil": provider_isil, "provider_id": provider_id, "provider_name": provider_name,
+                           "provider_archivtyp": provider_archivtyp, "provider_state": provider_state,
+                           "provider_addressline_strasse": provider_addressline_strasse,
+                           "provider_addressline_ort": provider_addressline_ort,
+                           "provider_addressline_mail": provider_addressline_mail, "provider_website": provider_website,
+                           "provider_tektonik_url": provider_tektonik_url}
+
+    if propagate_logging:
+        logger.add(sys.stdout)
+        logfile_path = "{}transformation.log".format(output_path)
+        logger.add(logfile_path, rotation="10 MB")
 
     # Zurücksetzen des Prozessierungs-Status:
     write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=0)
     error_status = 0
 
-    # Aufruf des allg. Software-Skripts
-
+    # Einlesen der Input-Dateien
     ext = [".xml", ".XML"]
     input_files = []
     for input_file_candidate in os.listdir("."):
@@ -133,91 +142,136 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
             if "type" in archdesc_type[0].attrib:
                 input_type = archdesc_type[0].attrib["type"].lower()
 
-        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Softwaremodul für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
+        logger.info("Beginne Prozessierung für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count))
 
-        provider_args = [xml_findbuch_in, input_path, input_file, output_path, provider_isil, provider_id, provider_name, provider_software, provider_archivtyp, provider_state, provider_addressline_strasse, provider_addressline_ort, provider_addressline_mail, provider_website, provider_tektonik_url, input_type, mdb_override]  # Übergabe der Parameter an die Software-Skripte
+        # Wenn die folgenden Maintenance-Funktionen bereits im Workflow vorkommen, sollen diese bei der globalen Prozessierung übersprungen werden.
+        mapping_definition_in_workflow_modules = False
+        ddb2017_preprocessing_in_workflow_modules = False
+        rights_enrichment_in_workflow_modules = False
+        aggregator_enrichment_in_workflow_modules = False
 
-        try:
-            if provider_software == "eadddb":
-                xml_findbuch_in = eadddb.parse_xml_content(*provider_args)
-
-        except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
-            traceback_string = traceback.format_exc()
-            logger.warning("Softwareskript konnte für die Datei {} nicht angewandt werden; Fehlermeldung: {}.\n {}".format(input_file, e, traceback_string))
-            error_status = 1
-            write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
-
-        # Anwenden der Mapping-Definiton:
         result_format = "xml"  # Wert wird angepasst, sobald durch Anwenden der Mappingdefinition aus der XML-Ursprungsdatei ein anderes Format entsteht, etwa JSON oder eine Liste mehrerer Dictionaries. Ist is_xml_result ungleich "xml", so werden nachfolgende Prozessierungen (Providerskripte, Binaries, METS, Rechte/Aggregatoren-Anreicherung und Vorprozessierung) übersprungen.
 
-        mapping_definition_args = [xml_findbuch_in, input_type, input_file,
-                                error_status, propagate_logging]  # Parameter zur Übergabe an die Mapping-Definition
-        administrative_data = {"provider_isil": provider_isil, "provider_id": provider_id, "provider_name": provider_name, "provider_archivtyp": provider_archivtyp, "provider_state": provider_state, "provider_addressline_strasse": provider_addressline_strasse, "provider_addressline_ort": provider_addressline_ort, "provider_addressline_mail": provider_addressline_mail, "provider_website": provider_website, "provider_tektonik_url": provider_tektonik_url}
-        if apply_mapping_definition:
-            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anwenden der Mapping-Definition für {}: {} (Datei {}/{})".format(
-                input_type, input_file, input_file_i, input_files_count), error_status=error_status)
-            try:
-                xml_findbuch_in, result_format = mapping_definition.apply_mapping(session_data, administrative_data, *mapping_definition_args)
-            except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
-                traceback_string = traceback.format_exc()
-                logger.warning("Anwenden der Mapping-Definition für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
-                error_status = 1
-                write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+        # Ermitteln und ausführen der Workflow-Module
+        write_processing_status(root_path=root_path, processing_step=transformation_progress,
+                                status_message="Verarbeite Workflow-Module für {}: {} (Datei {}/{})".format(
+                                    input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+        workflow_modules = load_provider_modules()
+        for workflow_module in workflow_modules:
+            if handle_thread_actions.load_from_xml("stop_thread", root_path) is True:
+                break
+            if workflow_module["ISIL"] == "common":
+                if workflow_module["Modulname"] == "maintenance_function.py":
+                    workflow_module_type = "Anwenden des Workflow-Moduls"
+                    if workflow_module["Konfiguration"] is not None:
+                        if workflow_module["Konfiguration"]["maintenance_type"] == "ddb2017_preprocessing":
+                            workflow_module_type = "DDB2017-Vorprozessierung"
+                            ddb2017_preprocessing_in_workflow_modules = True
+                        elif workflow_module["Konfiguration"]["maintenance_type"] == "rights_info_enrichment":
+                            workflow_module_type = "Anreichern der Rechteinformation"
+                            rights_enrichment_in_workflow_modules = True
+                        elif workflow_module["Konfiguration"]["maintenance_type"] == "aggregator_info_enrichment":
+                            workflow_module_type = "Anreichern der Aggregatorzuordnung"
+                            aggregator_enrichment_in_workflow_modules = True
+                        elif workflow_module["Konfiguration"]["maintenance_type"] == "mapping_definition":
+                            workflow_module_type = "Anwenden der Mapping-Definition"
+                            mapping_definition_in_workflow_modules = True
+
+                    if result_format == "xml":
+                        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul '{}' für {}: {} (Datei {}/{})".format(workflow_module_type, input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, log_status_message=True)
+                        try:
+                            xml_findbuch_in, result_format = maintenance_function.parse_xml_content(xml_findbuch_in, input_type, input_file, provider_id, session_data, administrative_data, error_status, propagate_logging, module_config=workflow_module["Konfiguration"])
+                        except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
+                            traceback_string = traceback.format_exc()
+                            logger.warning("{} für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(workflow_module_type, input_type, input_file, e, traceback_string))
+                            error_status = 1
+                            write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+                elif workflow_module["Modulname"] == "user_interaction.py":
+                    if is_unattended_session:
+                        # bei unbeaufsichtigter Ausführung (etwa in Prefect) Nutzerinteraktions-Module überspringen
+                        logger.info("Unbeaufsichtigte Ausführung: Nutzerinteraktions-Modul wird übersprungen.")
+                    else:
+                        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul (Nutzerinteraktion) für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, log_status_message=True)
+
+                        xml_findbuch_in = user_interaction.parse_xml_content(xml_findbuch_in, input_type, input_file, module_config=workflow_module["Konfiguration"], root_path=root_path)
+                elif workflow_module["Modulname"] == "filesystem_operation.py":
+                    if result_format == "xml":
+                        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul (Dateisystem-Operation) für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, log_status_message=True)
+                        xml_findbuch_in = filesystem_operation.parse_xml_content(xml_findbuch_in, input_type, input_file, module_config=workflow_module["Konfiguration"])
+            else:
+                # für normale Providerskripte handle_provider_scripts aufrufen
+                if result_format == "xml":
+                    write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul (providerspezifische Anpassung '{}' des Providers {}) für {}: {} (Datei {}/{})".format(workflow_module["Modulname"], workflow_module["ISIL"], input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, log_status_message=True)
+
+                    provider_module_args = [root_path, xml_findbuch_in, input_type, input_file, error_status]  # Parameter zur Übergabe an die providerspezifischen Anpassungen
+                    xml_findbuch_in, error_status = handle_provider_scripts.parse_xml_content(*provider_module_args, provider_scripts=[workflow_module])
 
 
-        # Aufruf providerspezifischer Skripte:
-        provider_module_args = [root_path, xml_findbuch_in, input_type, input_file,
-                                error_status]  # Parameter zur Übergabe an die providerspezifischen Anpassungen
-        if is_gui_session is True and result_format == "xml":
-            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite providerspezifische Anpassungen für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
-            xml_findbuch_in, error_status = handle_provider_scripts.parse_xml_content(*provider_module_args)
+        # Anwenden der Mapping-Definiton:
+        if not mapping_definition_in_workflow_modules:
+            mapping_definition_args = [xml_findbuch_in, input_type, input_file,
+                                    error_status, propagate_logging]  # Parameter zur Übergabe an die Mapping-Definition
+            if apply_mapping_definition:
+                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anwenden der Mapping-Definition für {}: {} (Datei {}/{})".format(
+                    input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+                try:
+                    xml_findbuch_in, result_format = mapping_definition.apply_mapping(session_data, administrative_data, *mapping_definition_args)
+                except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
+                    traceback_string = traceback.format_exc()
+                    logger.warning("Anwenden der Mapping-Definition für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
+                    error_status = 1
+                    write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+
 
         # Anziehen der Binaries (falls "fetch_and_link_binaries = True" in transformation_p1)
         if process_binaries and result_format == "xml":
-            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Lade Binaries für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Lade Binaries für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
             xml_findbuch_in = fetch_and_link_binaries.parse_xml_content(xml_findbuch_in, input_file, output_path,
                                                                         input_type, input_path)
 
         # Generierung von METS-Dateien (falls "enable_mets_generation = True" in transformation_p1)
         if enable_mets_generation and result_format == "xml":
-            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Generiere METS-Dateien für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Generiere METS-Dateien für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
             xml_findbuch_in = create_mets_files.parse_xml_content(xml_findbuch_in, input_file, output_path,
                                                                   input_type, input_path, session_data)
 
         # Anreicherung der Rechte- und Lizenzinformation
-        if enrich_rights_info and result_format == "xml":
-            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Rechteinformation für {}: {} (Datei {}/{})".format(input_type, input_file,input_file_i, input_files_count), error_status=error_status)
-            try:
-                xml_findbuch_in = handle_provider_rights.parse_xml_content(xml_findbuch_in, input_file, input_type)
-            except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
-                traceback_string = traceback.format_exc()
-                logger.warning("Anreichern der Rechteinformation für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
-                error_status = 1
-                write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+        if not rights_enrichment_in_workflow_modules:
+            if enrich_rights_info and result_format == "xml":
+                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Rechteinformation für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+                try:
+                    xml_findbuch_in = handle_provider_rights.parse_xml_content(xml_findbuch_in, input_file, input_type)
+                except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
+                    traceback_string = traceback.format_exc()
+                    logger.warning("Anreichern der Rechteinformation für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
+                    error_status = 1
+                    write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
 
         # Anreicherung der Aggregator-Zuordnung
-        if enrich_aggregator_info and result_format == "xml":
-            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Aggregatorinformation für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
-            try:
-                xml_findbuch_in = handle_provider_aggregator_mapping.parse_xml_content(xml_findbuch_in, input_file, input_type)
-            except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
-                traceback_string = traceback.format_exc()
-                logger.warning(
-                    "Anreichern der Aggregator-Zuordnung für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
-                error_status = 1
-                write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+        if not aggregator_enrichment_in_workflow_modules:
+            if enrich_aggregator_info and result_format == "xml":
+                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Aggregatorinformation für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+                try:
+                    xml_findbuch_in = handle_provider_aggregator_mapping.parse_xml_content(xml_findbuch_in, input_file, input_type)
+                except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
+                    traceback_string = traceback.format_exc()
+                    logger.warning(
+                        "Anreichern der Aggregator-Zuordnung für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
+                    error_status = 1
+                    write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
 
 
         # Vorprozessierung für die DDB2017-Transformation
-        if enable_ddb2017_preprocessing and result_format == "xml":
-            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="DDB2017-Vorprozessierung für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i, input_files_count), error_status=error_status)
-            try:
-                xml_findbuch_in = ddb2017_preprocessing.parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil)
-            except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
-                traceback_string = traceback.format_exc()
-                logger.warning("DDB2017-Vorprozessierung für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
-                error_status = 1
-                write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
+        if not ddb2017_preprocessing_in_workflow_modules:
+            if enable_ddb2017_preprocessing and result_format == "xml":
+                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="DDB2017-Vorprozessierung für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+                try:
+                    xml_findbuch_in = ddb2017_preprocessing.parse_xml_content(xml_findbuch_in, input_file, input_type, provider_id)
+                except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
+                    traceback_string = traceback.format_exc()
+                    logger.warning("DDB2017-Vorprozessierung für {} {} fehlgeschlagen; Fehlermeldung: {}.\n {}".format(input_type, input_file, e, traceback_string))
+                    error_status = 1
+                    write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=error_status)
 
 
         if result_format == "xml":

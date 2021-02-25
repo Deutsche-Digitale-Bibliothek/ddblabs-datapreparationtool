@@ -1,6 +1,7 @@
 import requests, os
 from loguru import logger
 from modules.common.helpers.requests_helpers import get_retry_session
+from modules.common.helpers.normalize_filename import process_filenames
 
 def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, input_path):
 
@@ -25,7 +26,7 @@ def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, inpu
             remote_binary_filename = element.attrib["{http://www.w3.org/1999/xlink}href"]  # Ermitteln des Server-Pfads
 
             # Dateiname aus Binary-URL extrahieren, um zu prüfen, ob Binary-Datei lokal bereits vorhanden.
-            binary_target_file_name = remote_binary_filename.split("/")[-1]  # URL-Pfad wegkürzen, um Dateiname für lokale Ablege zu erhalten
+            binary_target_file_name = process_filenames(remote_binary_filename.split("/")[-1])  # URL-Pfad wegkürzen, um Dateiname für lokale Ablege zu erhalten
             binary_target_file_path = "binaries/{}".format(binary_target_file_name)
 
             if not os.path.isfile(binary_target_file_path):
@@ -34,8 +35,9 @@ def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, inpu
                 else:
                     remote_binary_filepath = str(remote_binary_filename)
 
+                session_binary_download = get_retry_session(retries=5)
                 try:
-                    res_binary = requests.get(remote_binary_filepath)
+                    res_binary = session_binary_download.get(remote_binary_filepath)
                 except (requests.exceptions.InvalidURL, requests.exceptions.InvalidSchema, requests.exceptions.MissingSchema) as exc:
                     logger.error("Fehlerhafte Binary-URL, Objekt wird übersprungen: {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}".format(remote_binary_filepath, input_file, object_id, exc))
                     continue
@@ -51,6 +53,15 @@ def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, inpu
                     logger.error('Fehler beim Download des Binaries (ConnectionError): {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
 
                 if res_binary.status_code == 200:
+                    # Sicherstellen, dass die Dateiendung dem Mimetype entspricht
+                    if "Content-Type" in res_binary.headers:
+                        if "image/jpeg" in res_binary.headers["Content-Type"]:
+                            if not binary_target_file_name.endswith(tuple([".jpg", ".jpeg"])):
+                                binary_target_file_name += ".jpg"
+                        elif "application/pdf" in res_binary.headers["Content-Type"]:
+                            if not binary_target_file_name.endswith(".pdf"):
+                                binary_target_file_name += ".pdf"
+
                     binary_file = open(binary_target_file_name, 'wb')
                     for chunk in res_binary.iter_content(100000):
                         binary_file.write(chunk)

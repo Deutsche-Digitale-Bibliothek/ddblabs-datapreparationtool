@@ -14,7 +14,7 @@ from modules.analysis.validation.rule_definitions import eadddb_findbuch
 from modules.analysis.validation.rule_definitions import eadddb_tektonik
 
 
-def merge_paragraphs(element, subelement, attributes = None, structural_subelement_attributes = None):
+def merge_paragraphs(element, subelement, input_file=None, ignore_linebreaks=None, attributes = None, structural_subelement_attributes = None):
     # Flexible Felder mit mehreren p-Subelementen: zu einem p-Subelement zusammenführen
     # Werden im Parameter attributes Elementnamen übergeben, so werden auch die entsprechenden Attributwerte verarbeitet.
     # Werden im Parameter structural_subelement_attributes Elementnamen von Strukturelementen wie <lb/> und <emph/> übergeben, so werden auch die entsprechenden Attributwerte verarbeitet.
@@ -53,6 +53,9 @@ def merge_paragraphs(element, subelement, attributes = None, structural_subeleme
                     structural_element.text += " - "
                     structural_element.text += structural_subelement_attribute_string
 
+                if len(structural_subelement) > 0:
+                    structural_element.text += process_subelements.parse_xml_content(structural_subelement, None, input_file, ignore_linebreaks=ignore_linebreaks)
+
 
 
             p_subelement.getparent().remove(p_subelement)
@@ -73,6 +76,8 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
     # Validieren der Eingabedatei
     validation_rules_findbuch = eadddb_findbuch.compile_validation_rules()
     validation_rules_tektonik = eadddb_tektonik.compile_validation_rules()
+
+    ignore_linebreak_elements = ["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr", "{urn:isbn:1-931666-22-9}span", "{urn:isbn:1-931666-22-9}em"]
 
     validify_log_to_console = True
     if propagate_logging:
@@ -141,15 +146,14 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             title_subelement = first_unittitle_element.find("{urn:isbn:1-931666-22-9}title")
             if title_subelement:
                 object_metadata["unittitle"] = process_subelements.parse_xml_content(
-                    merge_paragraphs(first_unittitle_element, "{urn:isbn:1-931666-22-9}title"), None, input_file,
-                    ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    merge_paragraphs(first_unittitle_element, "{urn:isbn:1-931666-22-9}title", ignore_linebreaks=ignore_linebreak_elements), None, input_file,
+                    ignore_linebreaks=ignore_linebreak_elements)
             else:
                 if first_unittitle_element is None and object_level == "collection" and object_type == "tektonik":
                     object_metadata["unittitle"] = "{} (Archivtektonik)".format(administrative_data["provider_name"])
                 elif first_unittitle_element is not None:
                     object_metadata["unittitle"] = process_subelements.parse_xml_content(first_unittitle_element, None,
-                                                                                         input_file, ignore_linebreaks=[
-                            "{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                                                                                         input_file, ignore_linebreaks=ignore_linebreak_elements)
                     object_metadata["unittitle"] = replace_subelements.parse_xml_content(first_unittitle_element, None,
                                                                                          input_file, seperator=".")
                 else:  # Wenn kein unittitle-Element vorhanden, Platzhaltertitel einfügen
@@ -172,9 +176,9 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if title_subelement is not None:
                 if "type" in title_subelement.attrib:
                     odd_item["head"] = title_subelement.attrib["type"]
-                odd_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(unittitle_element, "{urn:isbn:1-931666-22-9}title"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(unittitle_element, "{urn:isbn:1-931666-22-9}title", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                odd_item["p"] = process_subelements.parse_xml_content(unittitle_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(unittitle_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 odd_item["p"] = replace_subelements.parse_xml_content(unittitle_element, None, input_file, seperator=".")
 
             object_metadata["odd"].append(odd_item)
@@ -189,7 +193,7 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
         for unitdate_element in unitdate_elements:
             append_item = True
             unitdate_single_item = {}
-            unitdate_single_item["content"] = process_subelements.parse_xml_content(unitdate_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+            unitdate_single_item["content"] = process_subelements.parse_xml_content(unitdate_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             if "normal" in unitdate_element.attrib:
                 unitdate_single_item["normal"] = unitdate_element.attrib["normal"]
             if "label" in unitdate_element.attrib:
@@ -215,7 +219,7 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
         for unitid_element in unitid_elements:
             append_item = True
             unitid_single_item = {}
-            unitid_single_item["content"] = process_subelements.parse_xml_content(unitid_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+            unitid_single_item["content"] = process_subelements.parse_xml_content(unitid_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             if unitid_single_item["content"] == "":
                 continue  # leere unitid-Elemente überspringen
             if "type" in unitid_element.attrib:
@@ -239,17 +243,17 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
         for physdesc_element in physdesc_elements:
             head_exists = physdesc_element.find("{urn:isbn:1-931666-22-9}head")
-            extent_exists = physdesc_element.find("{urn:isbn:1-931666-22-9}extent")
-            dimensions_exists = physdesc_element.find("{urn:isbn:1-931666-22-9}dimensions")
+            extent_exists = physdesc_element.findall("{urn:isbn:1-931666-22-9}extent")
+            dimensions_exists = physdesc_element.findall("{urn:isbn:1-931666-22-9}dimensions")
             genreform_exists = physdesc_element.find("{urn:isbn:1-931666-22-9}genreform")
             physfacet_exists = physdesc_element.findall("{urn:isbn:1-931666-22-9}physfacet")
 
-            if extent_exists is None and dimensions_exists is None and genreform_exists is None and len(physfacet_exists) == 0:  # physdesc ohne Subelemente
+            if len(extent_exists) == 0 and len(dimensions_exists) == 0 and genreform_exists is None and len(physfacet_exists) == 0:  # physdesc ohne Subelemente
                 if head_exists is not None:
                     physdesc_prefix = head_exists.text
                 else:
                     physdesc_prefix = None
-                physdesc_content = process_subelements.parse_xml_content(physdesc_element, physdesc_prefix, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                physdesc_content = process_subelements.parse_xml_content(physdesc_element, physdesc_prefix, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 if physdesc_content != "":
                     object_metadata["physdesc"] = physdesc_content
                     if "label" in physdesc_element.attrib:
@@ -257,28 +261,34 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             else:
                 if genreform_exists is not None:
                     genreform_item = {}
-                    genreform_content = process_subelements.parse_xml_content(genreform_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    genreform_content = process_subelements.parse_xml_content(genreform_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                     if genreform_content != "":
                         genreform_item["content"] = genreform_content
                         if "normal" in genreform_exists.attrib:
                             genreform_item["normal"] = genreform_exists.attrib["normal"]
                         object_metadata["genreform"] = genreform_item
 
-                if extent_exists is not None:
-                    if len(extent_exists) > 0 or extent_exists.text is not None:
-                        extent_content = process_subelements.parse_xml_content(extent_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                for extent_item in extent_exists:
+                    if len(extent_item) > 0 or extent_item.text is not None:
+                        extent_content = process_subelements.parse_xml_content(extent_item, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                         if extent_content != "":
-                            object_metadata["extent"] = extent_content
-                            if "label" in extent_exists.attrib:
-                                object_metadata["extent"] = "{}: {}".format(extent_exists.attrib["label"], object_metadata["extent"])
+                            if "extent" not in object_metadata:
+                                object_metadata["extent"] = []
+                            extent_string = extent_content
+                            if "label" in extent_item.attrib:
+                                extent_string = "{}: {}".format(extent_item.attrib["label"], extent_string)
+                            object_metadata["extent"].append(extent_string)
 
-                if dimensions_exists is not None:
-                    if len(dimensions_exists) > 0 or dimensions_exists is not None:
-                        dimensions_content = process_subelements.parse_xml_content(dimensions_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                for dimensions_item in dimensions_exists:
+                    if len(dimensions_item) > 0 or dimensions_item.text is not None:
+                        dimensions_content = process_subelements.parse_xml_content(dimensions_item, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                         if dimensions_content != "":
-                            object_metadata["dimensions"] = dimensions_content
-                            if "label" in dimensions_exists.attrib:
-                                object_metadata["dimensions"] = "{}: {}".format(dimensions_exists.attrib["label"], object_metadata["dimensions"])
+                            if "dimensions" not in object_metadata:
+                                object_metadata["dimensions"] = []
+                            dimensions_string = dimensions_content
+                            if "label" in dimensions_item.attrib:
+                                dimensions_string = "{}: {}".format(dimensions_item.attrib["label"], dimensions_string)
+                            object_metadata["dimensions"].append(dimensions_string)
 
                 if len(physfacet_exists) > 0:
                     if "odd" not in object_metadata:
@@ -289,7 +299,7 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                             odd_item["head"] = physfacet_item.attrib["label"]
                         else:
                             odd_item["head"] = "Spezifische Formalbeschreibung"
-                        odd_item["p"] = process_subelements.parse_xml_content(physfacet_item, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                        odd_item["p"] = process_subelements.parse_xml_content(physfacet_item, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
                         if len(odd_item["p"]) > 0:
                             object_metadata["odd"].append(odd_item)
@@ -308,12 +318,12 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 odd_item["head"] = "Physische Eigenschaften und technische Anforderungen"
             else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
                 odd_item["p"] = process_subelements.parse_xml_content(phystech_element, None, input_file)
             else:
-                odd_item["p"] = merge_paragraphs(phystech_element, "{urn:isbn:1-931666-22-9}p")
+                odd_item["p"] = merge_paragraphs(phystech_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements)
 
             object_metadata["odd"].append(odd_item)
 
@@ -330,10 +340,10 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 langmaterial_single_item["content"] = ""
                 language_exists = langmaterial_element.findall("{urn:isbn:1-931666-22-9}language")
                 if len(language_exists) == 0:
-                    langmaterial_single_item["content"] = process_subelements.parse_xml_content(langmaterial_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    langmaterial_single_item["content"] = process_subelements.parse_xml_content(langmaterial_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 else:
                     for language_element in language_exists:
-                        langmaterial_single_item["content"] += "; {}".format(process_subelements.parse_xml_content(language_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"]))
+                        langmaterial_single_item["content"] += "; {}".format(process_subelements.parse_xml_content(language_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements))
                         if "langcode" in language_element.attrib:
                             langmaterial_single_item["langcode"] = language_element.attrib["langcode"]
                         if "scriptcode" in language_element.attrib:
@@ -358,12 +368,12 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 odd_item["head"] = "Lagerort"
             else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(physloc_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(physloc_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                odd_item["p"] = merge_paragraphs(physloc_element, "{urn:isbn:1-931666-22-9}p")
+                odd_item["p"] = merge_paragraphs(physloc_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements)
 
             if len(odd_item["p"]) > 0:
                 object_metadata["odd"].append(odd_item)
@@ -390,12 +400,12 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             p_exists = scopecontent_element.find("{urn:isbn:1-931666-22-9}p")
 
             if head_exists is not None:
-                scopecontent_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                scopecontent_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                scopecontent_item["p"] = process_subelements.parse_xml_content(scopecontent_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                scopecontent_item["p"] = process_subelements.parse_xml_content(scopecontent_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                scopecontent_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(scopecontent_element, "{urn:isbn:1-931666-22-9}p", structural_subelement_attributes=["{http://www.w3.org/1999/xlink}title", "{http://www.w3.org/1999/xlink}href"]), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                scopecontent_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(scopecontent_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements, structural_subelement_attributes=["{http://www.w3.org/1999/xlink}title", "{http://www.w3.org/1999/xlink}href"]), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if (object_level == "file" or object_level == "item") and object_type == "findbuch":
                 if "odd" not in object_metadata:
@@ -417,12 +427,12 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 odd_item["head"] = "Ordnung"
             else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(arrangement_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(arrangement_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                odd_item["p"] =  merge_paragraphs(arrangement_element, "{urn:isbn:1-931666-22-9}p")
+                odd_item["p"] =  merge_paragraphs(arrangement_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements)
 
 
             object_metadata["odd"].append(odd_item)
@@ -443,30 +453,30 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if len(p_subelements) > 0:
                 head_exists = bibliography_element.find("{urn:isbn:1-931666-22-9}head")
                 if head_exists is not None:
-                    relatedmaterial_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    relatedmaterial_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 else:
                     relatedmaterial_item["head"] = ""
-                relatedmaterial_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(bibliography_element, "{urn:isbn:1-931666-22-9}p"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                relatedmaterial_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(bibliography_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             elif len(bibref_subelements) > 0:
                 head_exists = bibliography_element.find("{urn:isbn:1-931666-22-9}head")
                 if head_exists is not None:
-                    relatedmaterial_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    relatedmaterial_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 else:
                     relatedmaterial_item["head"] = ""
-                relatedmaterial_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(bibliography_element, "{urn:isbn:1-931666-22-9}bibref"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                relatedmaterial_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(bibliography_element, "{urn:isbn:1-931666-22-9}bibref", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             elif len(bibliography_subelements) > 0:
                 for bibliography_subelement in bibliography_subelements:
                     head_exists = bibliography_subelement.find("{urn:isbn:1-931666-22-9}head")
                     if head_exists is not None:
-                        relatedmaterial_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                        relatedmaterial_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                     else:
                         relatedmaterial_item["head"] = ""
-                    relatedmaterial_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(bibliography_subelement, "{urn:isbn:1-931666-22-9}p"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    relatedmaterial_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(bibliography_subelement, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             elif bibliography_element.text is not None:
                 if len(bibliography_element.text) > 0:
                     relatedmaterial_item["head"] = ""
-                    relatedmaterial_item["p"] = process_subelements.parse_xml_content(bibliography_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    relatedmaterial_item["p"] = process_subelements.parse_xml_content(bibliography_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if "p" in relatedmaterial_item:
                 object_metadata["relatedmaterial"].append(relatedmaterial_item)
@@ -484,13 +494,13 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 odd_item["head"] = ""
             else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(odd_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(odd_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                merged_paragraph = merge_paragraphs(odd_element, "{urn:isbn:1-931666-22-9}p")
-                odd_item["p"] = process_subelements.parse_xml_content(merged_paragraph, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                merged_paragraph = merge_paragraphs(odd_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements)
+                odd_item["p"] = process_subelements.parse_xml_content(merged_paragraph, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             object_metadata["odd"].append(odd_item)
 
@@ -505,11 +515,9 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
             note_p_element = note_element.find("{urn:isbn:1-931666-22-9}p")
             if note_p_element is not None:
-                note_item = process_subelements.parse_xml_content(note_p_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                note_item = process_subelements.parse_xml_content(note_p_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                note_item = process_subelements.parse_xml_content(note_element, None, input_file,
-                                                                  ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph",
-                                                                                     "{urn:isbn:1-931666-22-9}abbr"])
+                note_item = process_subelements.parse_xml_content(note_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             if note_item == "":
                 continue  # leere note-Element überspringen
             if "label" in note_element.attrib:
@@ -536,11 +544,11 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 if abstract_element.attrib["label"] != "":
                     abstract_item["type"] = abstract_element.attrib["label"]
             if abstract_element.text is not None:
-                abstract_content += process_subelements.parse_xml_content(abstract_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                abstract_content += process_subelements.parse_xml_content(abstract_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             for abstract_subelement in abstract_element:
                 if abstract_subelement.tag == "{urn:isbn:1-931666-22-9}title" or abstract_subelement.tag == "{urn:isbn:1-931666-22-9}ref":
                     abstract_content += "<br />"
-                    abstract_content += process_subelements.parse_xml_content(abstract_subelement, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    abstract_content += process_subelements.parse_xml_content(abstract_subelement, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if len(abstract_content) > 0:
                 abstract_item["content"] = abstract_content
@@ -563,7 +571,7 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 if origination_element.attrib["label"] != "":
                     origination_item["label"] = origination_element.attrib["label"]
             if origination_element.text is not None and origination_name_exists is None:
-                origination_content += process_subelements.parse_xml_content(origination_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr", "{urn:isbn:1-931666-22-9}name"])
+                origination_content += process_subelements.parse_xml_content(origination_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements + ["{urn:isbn:1-931666-22-9}name"])
                 origination_item["content"] = origination_content
                 object_metadata["origination"].append(origination_item)
             for origination_subelement in origination_element:
@@ -575,7 +583,7 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                         origination_item["source"] = origination_subelement.attrib["source"]
                     if "authfilenumber" in origination_subelement.attrib:
                         origination_item["authfilenumber"] = origination_subelement.attrib["authfilenumber"]
-                    origination_item["name_content"] = process_subelements.parse_xml_content(origination_subelement, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    origination_item["name_content"] = process_subelements.parse_xml_content(origination_subelement, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                     object_metadata["origination"].append(origination_item)
 
 
@@ -591,13 +599,13 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 accessrestrict_item["head"] = "Zugangsbeschränkungen"
             else:
-                accessrestrict_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                accessrestrict_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                accessrestrict_item["p"] = process_subelements.parse_xml_content(accessrestrict_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                accessrestrict_item["p"] = process_subelements.parse_xml_content(accessrestrict_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                merged_paragraph = merge_paragraphs(accessrestrict_element, "{urn:isbn:1-931666-22-9}p")
-                accessrestrict_item["p"] = process_subelements.parse_xml_content(merged_paragraph, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                merged_paragraph = merge_paragraphs(accessrestrict_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements)
+                accessrestrict_item["p"] = process_subelements.parse_xml_content(merged_paragraph, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             accessrestrict_items.append(accessrestrict_item)
 
@@ -616,12 +624,12 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
             userestrict_item["p"] = ""
             if head_exists is not None:
-                userestrict_item["p"] = "{}: ".format(process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"]))
+                userestrict_item["p"] = "{}: ".format(process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements))
             if p_exists is None:
-                userestrict_item["p"] += process_subelements.parse_xml_content(userestrict_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                userestrict_item["p"] += process_subelements.parse_xml_content(userestrict_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                merged_paragraph = merge_paragraphs(userestrict_element, "{urn:isbn:1-931666-22-9}p")
-                userestrict_item["p"] += process_subelements.parse_xml_content(merged_paragraph, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                merged_paragraph = merge_paragraphs(userestrict_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements)
+                userestrict_item["p"] += process_subelements.parse_xml_content(merged_paragraph, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             userestrict_items.append(userestrict_item)
 
@@ -660,16 +668,16 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 if head_exists is None:
                     odd_item["head"] = "Verweis auf andere Findmittel"
                 else:
-                    odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
                 if p_exists is None:
-                    odd_item["p"] = process_subelements.parse_xml_content(otherfindaid_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    odd_item["p"] = process_subelements.parse_xml_content(otherfindaid_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 else:
-                    odd_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(otherfindaid_element, "{urn:isbn:1-931666-22-9}p"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    odd_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(otherfindaid_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
                 if bibref_exists is not None:
                     odd_item["p"] += "<br />"
-                    odd_item["p"] += process_subelements.parse_xml_content(merge_paragraphs(otherfindaid_element, "{urn:isbn:1-931666-22-9}bibref", ["{http://www.w3.org/1999/xlink}href", "{http://www.w3.org/1999/xlink}title"]), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    odd_item["p"] += process_subelements.parse_xml_content(merge_paragraphs(otherfindaid_element, "{urn:isbn:1-931666-22-9}bibref", ignore_linebreaks=ignore_linebreak_elements, attributes=["{http://www.w3.org/1999/xlink}href", "{http://www.w3.org/1999/xlink}title"]), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
                 object_metadata["odd"].append(odd_item)
 
@@ -691,9 +699,9 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 odd_item["head"] = altformavail_element.attrib["type"]
 
             if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(altformavail_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(altformavail_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                odd_item["p"] = merge_paragraphs(altformavail_element, "{urn:isbn:1-931666-22-9}p")
+                odd_item["p"] = merge_paragraphs(altformavail_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements)
 
             object_metadata["odd"].append(odd_item)
 
@@ -714,13 +722,13 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 odd_item["head"] = "Bewertung"
             else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(appraisal_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(appraisal_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
                 odd_item["p"] = process_subelements.parse_xml_content(
-                    merge_paragraphs(appraisal_element, "{urn:isbn:1-931666-22-9}p"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    merge_paragraphs(appraisal_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             object_metadata["odd"].append(odd_item)
 
@@ -741,13 +749,13 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 odd_item["head"] = "Ordnung"
             else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(arrangement_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(arrangement_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
                 odd_item["p"] = process_subelements.parse_xml_content(
-                    merge_paragraphs(arrangement_element, "{urn:isbn:1-931666-22-9}p"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    merge_paragraphs(arrangement_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             object_metadata["odd"].append(odd_item)
 
@@ -768,13 +776,13 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 odd_item["head"] = "Zitierweise"
             else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(prefercite_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(prefercite_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
                 odd_item["p"] = process_subelements.parse_xml_content(
-                    merge_paragraphs(prefercite_element, "{urn:isbn:1-931666-22-9}p"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    merge_paragraphs(prefercite_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             object_metadata["odd"].append(odd_item)
 
@@ -795,13 +803,13 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 odd_item["head"] = "Bearbeitungsinformationen"
             else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(processinfo_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(processinfo_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
                 odd_item["p"] = process_subelements.parse_xml_content(
-                    merge_paragraphs(processinfo_element, "{urn:isbn:1-931666-22-9}p"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    merge_paragraphs(processinfo_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             object_metadata["odd"].append(odd_item)
 
@@ -822,12 +830,9 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 odd_item["head"] = "Entstehungsgeschichte"
             else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
-            if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(bioghist_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
-            else:
-                odd_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(bioghist_element, "{urn:isbn:1-931666-22-9}p"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+            odd_item["p"] = process_subelements.parse_xml_content(bioghist_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             object_metadata["odd"].append(odd_item)
 
@@ -847,12 +852,12 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if head_exists is None:
                 scopecontent_item["head"] = "Bestandsgeschichte"
             else:
-                scopecontent_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                scopecontent_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if p_exists is None:
-                scopecontent_item["p"] = process_subelements.parse_xml_content(custodhist_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                scopecontent_item["p"] = process_subelements.parse_xml_content(custodhist_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
-                scopecontent_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(custodhist_element, "{urn:isbn:1-931666-22-9}p"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                scopecontent_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(custodhist_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if object_level == "file" or object_level == "item":
                 object_metadata["odd"].append(scopecontent_item)
@@ -873,9 +878,9 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
                 scopecontent_item["head"] = "Einleitung"
                 if p_exists is None:
-                    scopecontent_item["p"] = process_subelements.parse_xml_content(titlepage_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    scopecontent_item["p"] = process_subelements.parse_xml_content(titlepage_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 else:
-                    scopecontent_item["p"] = merge_paragraphs(titlepage_element, "{urn:isbn:1-931666-22-9}p")
+                    scopecontent_item["p"] = merge_paragraphs(titlepage_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements)
 
                 object_metadata["scopecontent"].append(scopecontent_item)
 
@@ -891,12 +896,12 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 p_exists = archdesc_scopecontent_element.find("{urn:isbn:1-931666-22-9}p")
 
                 if head_exists is not None:
-                    scopecontent_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    scopecontent_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
                 if p_exists is None:
-                    scopecontent_item["p"] = process_subelements.parse_xml_content(archdesc_scopecontent_element, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    scopecontent_item["p"] = process_subelements.parse_xml_content(archdesc_scopecontent_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 else:
-                    scopecontent_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(archdesc_scopecontent_element, "{urn:isbn:1-931666-22-9}p", structural_subelement_attributes=["{http://www.w3.org/1999/xlink}title", "{http://www.w3.org/1999/xlink}href"]), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    scopecontent_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(archdesc_scopecontent_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements, structural_subelement_attributes=["{http://www.w3.org/1999/xlink}title", "{http://www.w3.org/1999/xlink}href"]), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
                 if len(scopecontent_item["p"]) > 0:
                     object_metadata["scopecontent"].append(scopecontent_item)
@@ -923,11 +928,11 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                     object_metadata["relatedmaterial"] = []
                 relatedmaterial_item = {}
                 if head_exists is not None:
-                    relatedmaterial_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    relatedmaterial_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 else:
                     relatedmaterial_item["head"] = ""
                 relatedmaterial_item["p"] = process_subelements.parse_xml_content(
-                    merge_paragraphs(p_exists, "{urn:isbn:1-931666-22-9}bibref"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    merge_paragraphs(p_exists, "{urn:isbn:1-931666-22-9}bibref", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
                 if len(relatedmaterial_item["p"]) > 0:
                     object_metadata["relatedmaterial"].append(relatedmaterial_item)
@@ -937,16 +942,16 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                     object_metadata["odd"] = []
                 odd_item = {}
                 if head_exists is not None:
-                    odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                    odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 else:
                     odd_item["head"] = "Archivalientyp"
-                odd_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(controlaccess_element, "{urn:isbn:1-931666-22-9}genreform"), None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                odd_item["p"] = process_subelements.parse_xml_content(merge_paragraphs(controlaccess_element, "{urn:isbn:1-931666-22-9}genreform", ignore_linebreaks=ignore_linebreak_elements), None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 object_metadata["odd"].append(odd_item)
 
             for persname_subelement in persname_subelements:
                 index_item = {}
                 index_item["type"] = "persname"
-                index_item["content"] = process_subelements.parse_xml_content(persname_subelement, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                index_item["content"] = process_subelements.parse_xml_content(persname_subelement, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 if "role" in persname_subelement.attrib:
                     index_item["role"] = persname_subelement.attrib["role"]
                 if "source" in persname_subelement.attrib:
@@ -960,7 +965,7 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             for subject_subelement in subject_subelements:
                 index_item = {}
                 index_item["type"] = "subject"
-                index_item["content"] = process_subelements.parse_xml_content(subject_subelement, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                index_item["content"] = process_subelements.parse_xml_content(subject_subelement, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 if "role" in subject_subelement.attrib:
                     index_item["role"] = subject_subelement.attrib["role"]
                 if "source" in subject_subelement.attrib:
@@ -974,7 +979,7 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             for geogname_subelement in geogname_subelements:
                 index_item = {}
                 index_item["type"] = "geogname"
-                index_item["content"] = process_subelements.parse_xml_content(geogname_subelement, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                index_item["content"] = process_subelements.parse_xml_content(geogname_subelement, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 if "role" in geogname_subelement.attrib:
                     index_item["role"] = geogname_subelement.attrib["role"]
                 if "source" in geogname_subelement.attrib:
@@ -988,7 +993,7 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             for corpname_subelement in corpname_subelements:
                 index_item = {}
                 index_item["type"] = "corpname"
-                index_item["content"] = process_subelements.parse_xml_content(corpname_subelement, None, input_file, ignore_linebreaks=["{urn:isbn:1-931666-22-9}emph", "{urn:isbn:1-931666-22-9}abbr"])
+                index_item["content"] = process_subelements.parse_xml_content(corpname_subelement, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 if "role" in corpname_subelement.attrib:
                     index_item["role"] = corpname_subelement.attrib["role"]
                 if "source" in corpname_subelement.attrib:

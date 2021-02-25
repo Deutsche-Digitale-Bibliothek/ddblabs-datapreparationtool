@@ -11,6 +11,24 @@ from modules.common.serialize_output import serialize_xml_result  # Modul zum Se
 from modules.analysis.enrichment.helpers import process_repeatable_elements
 from modules.analysis.enrichment.helpers.cleanup_compare_strings import get_compare_value
 
+
+def enrich_repeatable_elements(base_element, existing_elements, enrichment_source_elements):
+    """Wiederholbare Elemente in die Tektonik übertragen, dabei für jedes Element abprüfen, ob es schon mit identischem Elementinhalt in der Tektonik vorhanden ist."""
+    compare_with_existing_elements = False
+    possible_duplicate_content = False
+
+    if len(existing_elements) > 0:
+        compare_with_existing_elements = True
+
+    for enrichment_source_element in enrichment_source_elements:
+        if compare_with_existing_elements:
+            for existing_element in existing_elements:
+                if get_compare_value(enrichment_source_element) == get_compare_value(existing_element):
+                    possible_duplicate_content = True
+        if not possible_duplicate_content:
+            base_element.append(enrichment_source_element)
+
+
 def enrich_tektonik(isil, website, name, state, archivtyp, provider_id, addressline_strasse, addressline_ort, addressline_mail, provider_tektonik_url):
     # Anreicherung:
     #   Anreichern der Tektonik mit Infos aus den Findbüchern
@@ -36,20 +54,14 @@ def enrich_tektonik(isil, website, name, state, archivtyp, provider_id, addressl
         def process_findbuch(findbuch_file_in, xml_tektonik_in):
 
             # Feldinhalte aus Findbuch-Bestandsdatensätzen auslesen und in Variablen ablegen:
-
-            # //c[@level="collection"]/did/origination
-            source_value_origination = None  # Festlegen eines Standardwerts. So kann im weiteren Verlauf per Boolean-Abfrage überprüft werden, ob die jeweiligen Felder im Ursprungsdokument befüllt sind
-            source_value_origination_pre = None
-
             xml_findbuch_in = etree.parse(findbuch_file_in)
 
-            findlist = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}origination[@label='pre']")
-            if len(findlist) > 0:
-                source_value_origination_pre = findlist[0]
+            # //c[@level="collection"]/did/origination
 
-            findlist = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}origination")
-            if len(findlist) > 0:
-                source_value_origination = findlist[0]
+            source_elements_origination_pre = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}origination[@label='pre']")
+
+            source_elements_origination = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}origination")
+
 
             # //c[@level="collection"]/did/unittitle
             source_value_unittitle = None
@@ -58,10 +70,7 @@ def enrich_tektonik(isil, website, name, state, archivtyp, provider_id, addressl
                 source_value_unittitle = findlist[0]
 
             # //c[@level="collection"]/did/unitid
-            source_value_unitid = None
-            findlist = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}unitid")
-            if len(findlist) > 0:
-                source_value_unitid = findlist[0]
+            source_elements_unitid = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}unitid")
 
             # //c[@level="collection"]/did/unitdate
             source_value_unitdate = None
@@ -73,23 +82,14 @@ def enrich_tektonik(isil, website, name, state, archivtyp, provider_id, addressl
 
             # //c[@level="collection"]/did/physdesc/extent
             #       - nach scopecontent mappen mit Untertitel "Erschließungszustand" (vgl. ../../provider_specific/DE_1985/field_subtitles.py (2))
-            source_value_physdesc_extent = None
-            source_value_physdesc_genreform = None
-            findlist = xml_findbuch_in.findall(
+            source_elements_physdesc_extent = xml_findbuch_in.findall(
                 "//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}physdesc/{urn:isbn:1-931666-22-9}extent")
-            if len(findlist) > 0:
-                source_value_physdesc_extent = findlist[0]
 
-            findlist = xml_findbuch_in.findall(
+            source_elements_physdesc_genreform = xml_findbuch_in.findall(
                 "//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}physdesc/{urn:isbn:1-931666-22-9}genreform")
-            if len(findlist) > 0:
-                source_value_physdesc_genreform = findlist[0]
 
             # //c[@level="collection"]/did/langmaterial
-            source_value_langmaterial = None
-            findlist = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}langmaterial")
-            if len(findlist) > 0:
-                source_value_langmaterial = findlist[0]
+            source_elements_langmaterial = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c[@level='collection']/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}langmaterial")
 
 
             # //c[@level="collection"]/scopecontent + //c[@level="collection"]/did/abstract
@@ -163,8 +163,7 @@ def enrich_tektonik(isil, website, name, state, archivtyp, provider_id, addressl
 
                             # Übertragen des did/unitid-Elements aus dem Findbuch-Bestandsdatensatz:
                             unitid_exists = did_element.findall("{urn:isbn:1-931666-22-9}unitid")
-                            if len(unitid_exists) == 0 and source_value_unitid is not None:
-                                did_element.append(source_value_unitid)
+                            enrich_repeatable_elements(did_element, unitid_exists, source_elements_unitid)
 
                             # Übertragen des did/unitdate-Elements aus dem Findbuch-Bestandsdatensatz:
                             unitdate_exists = did_element.findall("{urn:isbn:1-931666-22-9}unitdate")
@@ -192,33 +191,28 @@ def enrich_tektonik(isil, website, name, state, archivtyp, provider_id, addressl
 
                             # Übertragen des did/physdesc/extent-Elements aus dem Findbuch-Bestandsdatensatz:
                             physdesc_exists = did_element.findall("{urn:isbn:1-931666-22-9}physdesc")
-                            if len(physdesc_exists) == 0 and (source_value_physdesc_extent is not None or source_value_physdesc_genreform is not None):
-                                new_physdesc_element = etree.Element("{urn:isbn:1-931666-22-9}physdesc")
-                                if source_value_physdesc_genreform is not None:
-                                    new_physdesc_element.append(source_value_physdesc_genreform)
+                            physdesc_genreform_exists = did_element.findall("{urn:isbn:1-931666-22-9}physdesc/{urn:isbn:1-931666-22-9}genreform")
+                            physdesc_extent_exists = did_element.findall("{urn:isbn:1-931666-22-9}physdesc/{urn:isbn:1-931666-22-9}extent")
 
-                                # Übertragen des did/physdesc/extent-Elements aus dem Findbuch-Bestandsdatensatz:
-                                if source_value_physdesc_extent is not None:
-                                    new_physdesc_element.append(source_value_physdesc_extent)
-                                did_element.append(new_physdesc_element)
+                            if len(physdesc_exists) == 0 and (source_elements_physdesc_extent is not None or source_elements_physdesc_genreform is not None):
+                                physdesc_exists = etree.SubElement(did_element, "{urn:isbn:1-931666-22-9}physdesc")
 
+                            enrich_repeatable_elements(physdesc_exists, physdesc_genreform_exists, source_elements_physdesc_genreform)
+                            enrich_repeatable_elements(physdesc_exists, physdesc_extent_exists, source_elements_physdesc_extent)
 
 
                             # Übertragen des did/origination-Elements (mit @label="pre") aus dem Findbuch-Bestandsdatensatz:
                             origination_pre_exists = did_element.findall("{urn:isbn:1-931666-22-9}origination[@label='pre']")
-                            if len(origination_pre_exists) == 0 and source_value_origination_pre is not None:
-                                did_element.append(source_value_origination_pre)
+                            enrich_repeatable_elements(did_element, origination_pre_exists, source_elements_origination_pre)
 
 
                             # Übertragen des did/origination-Elements (ohne @label="pre") aus dem Findbuch-Bestandsdatensatz:
                             origination_exists = did_element.findall("{urn:isbn:1-931666-22-9}origination")
-                            if len(origination_exists) == 0 and source_value_origination is not None:
-                                did_element.append(source_value_origination)
+                            enrich_repeatable_elements(did_element, origination_exists, source_elements_origination)
 
                             # Übertragen des did/langmaterial-Elements aus dem Findbuch-Bestandsdatensatz
                             langmaterial_exists = did_element.findall("{urn:isbn:1-931666-22-9}langmaterial")
-                            if len(langmaterial_exists) == 0 and source_value_langmaterial is not None:
-                                did_element.append(source_value_langmaterial)
+                            enrich_repeatable_elements(did_element, langmaterial_exists, source_elements_langmaterial)
 
 
                             # Übertragen der relatedmaterial/p-Elemente aus dem Findbuch-Bestandsdatensatz:

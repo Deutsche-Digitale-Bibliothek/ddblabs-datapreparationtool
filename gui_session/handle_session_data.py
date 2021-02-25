@@ -215,10 +215,8 @@ def write_gui_change_to_session_data(session_data, new_session_value, value_name
 
     return session_data
 
-def load_defaults():
+def load_defaults(session_data):
     # Laden und setzen der Default-Session-Werte aus dem Attribut @default
-
-    session_data = collections.OrderedDict()  # Erstellen eines Dicts zum Speichern und Übergeben der Sitzungsvariablen
 
     session_file = "gui_session/session.xml"
     session_input = etree.parse(session_file)
@@ -226,10 +224,6 @@ def load_defaults():
     # GUI - Firstun
     findlist = session_input.findall("//gui/firstrun")
     session_data["firstrun"] = findlist[0].attrib["default"]
-
-    # Processing -- Provider
-    findlist = session_input.findall("//processing/provider")
-    session_data["provider"] = findlist[0].attrib["default"]
 
     # Processing -- Binaries prozessieren
     findlist = session_input.findall("//processing/process_binaries")
@@ -317,8 +311,12 @@ def prepare_first_run(root_path="."):
     """
 
     if not os.path.isdir("{}/data_input".format(root_path)):
-        logger.debug("data_input-Ordner wurde angelegt")
+        logger.debug("data_input-Ordner wurde angelegt.")
         os.makedirs("{}/data_input".format(root_path))
+
+    if not os.path.isdir("{}/modules/provider_specific/.provider_script_sets".format(root_path)):
+        logger.debug("Providerskript-Set-Ordner wurde angelegt.")
+        os.makedirs("{}/modules/provider_specific/.provider_script_sets".format(root_path))
 
     if not os.path.isfile("{}/gui_session/processing_status.xml".format(root_path)):
         logger.debug("Session-Datei vorbereitet: gui_session/processing_status.xml")
@@ -332,44 +330,72 @@ def prepare_first_run(root_path="."):
         logger.debug("Session-Datei vorbereitet: gui_session/thread_actions.xml")
         copyfile("{}/gui_session/templates/thread_actions.xml".format(root_path), "{}/gui_session/thread_actions.xml".format(root_path))
 
-def get_processing_status():
+def get_processing_status(root_path):
     # Status von Prozessierungen, die in separaten Threads laufen, ermitteln (transformation_p1, transformation_p2)
 
     processing_status = collections.OrderedDict()  # Erstellen eines Dicts zum Speichern und Übergeben der Sitzungsvariablen
 
-    status_file = "gui_session/processing_status.xml"
-    status_input = etree.parse(status_file)
+    status_file = "{}/gui_session/processing_status.xml".format(root_path)
+    try:
+        status_input = etree.parse(status_file)
+    except etree.XMLSyntaxError:
+        logger.debug("Aktualisierung der Status-Information übersprungen.")
+        return None
 
     # Fortschritt der Prozessierung
-    findlist = status_input.findall("//processing_step")
-    processing_status["processing_step"] = findlist[0].text
+    processing_status["processing_step"] = status_input.find("//processing_step").text
 
     # Statusnachricht
-    findlist = status_input.findall("//status_message")
-    processing_status["status_message"] = findlist[0].text
+    processing_status["status_message"] = status_input.find("//status_message").text
 
     # Fehlerstatus
-    findlist = status_input.findall("//error_status")
-    processing_status["error_status"] = findlist[0].text
+    processing_status["error_status"] = status_input.find("//error_status").text
+
+    # Status der Nutzerinteraktion
+    processing_status["raise_user_interaction"] = status_input.find("//raise_user_interaction").text
+
+    # Nachricht zur Nutzerinteraktion
+    processing_status["user_interaction_message"] = status_input.find("//user_interaction_message").text
+
+    # Name der Input-Datei
+    processing_status["user_interaction_input_files"] = status_input.find("//user_interaction_input_files").text
 
     return processing_status
 
-def write_processing_status(root_path, processing_step=None, status_message=None, error_status=None):
+def write_processing_status(root_path, processing_step=None, status_message=None, error_status=None, raise_user_interaction=None, user_interaction_message=None, user_interaction_input_files=None, log_status_message=False):
     # Speichern des Status aus den Prozessierungsskripten, um diese über get_processing_status() in der GUI anzeigen zu können.
 
     status_file = "{}/gui_session/processing_status.xml".format(root_path)
     status_input = etree.parse(status_file)
 
     if processing_step is not None:
-        findlist = status_input.findall("//processing_step")
-        findlist[0].text = str(processing_step)
+        status_input_element = status_input.find("//processing_step")
+        status_input_element.text = str(processing_step)
 
     if status_message is not None:
-        findlist = status_input.findall("//status_message")
-        findlist[0].text = str(status_message)
+        status_input_element = status_input.find("//status_message")
+        status_input_element.text = str(status_message)
+
+        if log_status_message:
+            logger.info(status_message)
 
     if error_status is not None:
-        findlist = status_input.findall("//error_status")
-        findlist[0].text = str(error_status)
+        status_input_element = status_input.find("//error_status")
+        status_input_element.text = str(error_status)
+
+    # Status der Nutzerinteraktion
+    if raise_user_interaction is not None:
+        status_input_element = status_input.find("//raise_user_interaction")
+        status_input_element.text = str(raise_user_interaction)
+
+    # Nachricht zur Nutzerinteraktion
+    if user_interaction_message is not None:
+        status_input_element = status_input.find("//user_interaction_message")
+        status_input_element.text = str(user_interaction_message)
+
+    # Name der Input-Datei
+    if user_interaction_input_files is not None:
+        status_input_element = status_input.find("//user_interaction_input_files")
+        status_input_element.text = str(user_interaction_input_files)
 
     serialize_session_xml(status_input, status_file)

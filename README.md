@@ -1,7 +1,5 @@
 ![Data Preparation Tool](https://github.com/Deutsche-Digitale-Bibliothek/ddblabs-datapreparationtool/raw/master/dpt_screenshot.png "Data Preparation Tool")
 
-![Data Preparation Tool](https://github.com/Deutsche-Digitale-Bibliothek/ddblabs-datapreparationtool/raw/master/dpt_screenshot_02.png "Data Preparation Tool")
-
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/validify) 
 
 Das DDB Data Preparation Tool ist eine Open-Source-Anwendung zur Aufbereitung von Daten im [EAD(DDB)-Format](https://wiki.deutsche-digitale-bibliothek.de/pages/viewpage.action?pageId=19010180) für den Ingest in die Deutsche Digitale Bibliothek und das Archivportal-D. Es wird vornehmlich zur Datenanalyse und -anpassung in der Fachstelle Archiv verwendet, soll aber auch der Validierung von Exportdateien durch Datengeber, Schnittstellenentwickler und Softwarehersteller dienen.
@@ -28,6 +26,6 @@ python3 main_gui.py
 
 
 ### Weiterführende Informationen ...
-... finden Sie in der [Dokumentation zum Lieferformat EAD(DDB)](https://wiki.deutsche-digitale-bibliothek.de/display/DFD/DDB+Data+Preparation+Tool).
+... finden Sie [hier](https://wiki.deutsche-digitale-bibliothek.de/display/DFD/DDB+Data+Preparation+Tool).
 
 Bei Fragen können Sie sich gerne an die [Fachstelle Archiv der Deutschen Digitalen Bibliothek](https://pro.deutsche-digitale-bibliothek.de/fachstelle-archiv) wenden

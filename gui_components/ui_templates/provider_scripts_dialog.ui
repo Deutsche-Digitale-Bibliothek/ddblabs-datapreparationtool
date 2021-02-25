@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>771</width>
+    <width>1046</width>
     <height>821</height>
    </rect>
   </property>
@@ -16,8 +16,8 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout_4">
+   <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_saved_providerspecific_modules">
      <property name="maximumSize">
       <size>
@@ -26,13 +26,29 @@
       </size>
      </property>
      <property name="title">
-      <string>Zuvor gespeicherte Zuordnungen</string>
+      <string>Zuvor gespeicherte Workflow-Konfigurationen</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" colspan="4">
+      <item row="1" column="0">
+       <widget class="QComboBox" name="comboBox_select_saved_providerscript_definition">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Für jeden Datengeber können mehrere Zuordnungen providerspezifischer Anpassungen gespeichert werden. Dabei können ein Titel sowie eine Beschreibung ergänzt werden.&lt;/p&gt;&lt;p&gt;Bei Klick auf &amp;quot;Anwenden&amp;quot; wird die Selektion im Auswahlbaum unten entsprechend aktualisiert.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Für jeden Datengeber können mehrere Zuordnungen providerspezifischer Anpassungen als Workflow gespeichert werden. Dabei können ein Titel sowie eine Beschreibung ergänzt werden.&lt;/p&gt;&lt;p&gt;Bei Klick auf &amp;quot;Laden&amp;quot; werden die Zuordnungen angezeigt und können als aktive Konfiguration festgelegt werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -45,20 +61,43 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QComboBox" name="comboBox_select_saved_providerscript_definition"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="pushButton_apply_definition">
+      <item row="1" column="2">
+       <widget class="QToolButton" name="toolButton_delete_definition">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Workflow löschen&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Gelöschte Workflows werden in folgendem Ordner gesichert und können von dort wiederhergestellt werden: &lt;span style=&quot; font-style:italic;&quot;&gt;modules/provider_specific/.provider_script_sets&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
-         <string>Anwenden</string>
+         <string>Löschen</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources/resources.qrc">
+          <normaloff>:/provider-scripts-dialog/delete.png</normaloff>:/provider-scripts-dialog/delete.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
-       <widget class="QPushButton" name="pushButton_delete_definition">
+      <item row="1" column="1">
+       <widget class="QToolButton" name="toolButton_apply_definition">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Workflow auswählen&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Das im Dropdown-Menü ausgewählte Set wird ausgewählt. Die gespeicherten Workflow-Module werden in der Baumansicht &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;Verfügbare Anpassungen aller Datengeber&amp;quot;&lt;/span&gt; sowie in der Listenansicht &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;Workflow-Konfiguration&amp;quot;&lt;/span&gt; selektiert.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
-         <string>Löschen</string>
+         <string>Auswählen</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources/resources.qrc">
+          <normaloff>:/provider-scripts-dialog/checked.png</normaloff>:/provider-scripts-dialog/checked.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -75,7 +114,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0">
     <spacer name="verticalSpacer_3">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -91,7 +130,7 @@
      </property>
     </spacer>
    </item>
-   <item>
+   <item row="2" column="0">
     <widget class="QGroupBox" name="groupBox_providerspecific_modules">
      <property name="minimumSize">
       <size>
@@ -103,29 +142,6 @@
       <string>Verfügbare Anpassungen aller Datengeber</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="0">
-       <widget class="QTreeWidget" name="treeWidget">
-        <property name="uniformRowHeights">
-         <bool>false</bool>
-        </property>
-        <property name="animated">
-         <bool>true</bool>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <column>
-         <property name="text">
-          <string>Anpassung</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Beschreibung</string>
-         </property>
-        </column>
-       </widget>
-      </item>
       <item row="3" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -145,9 +161,19 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_save_definition">
+         <widget class="QPushButton" name="pushButton_add_to_workflow">
           <property name="text">
-           <string>Aktuelle Zuordnung speichern</string>
+           <string>Auswahl zum Workflow hinzufügen</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resources/resources.qrc">
+            <normaloff>:/provider-scripts-dialog/library-plus.png</normaloff>:/provider-scripts-dialog/library-plus.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -185,10 +211,176 @@
         </property>
        </spacer>
       </item>
+      <item row="2" column="0">
+       <widget class="QTreeWidget" name="treeWidget">
+        <property name="uniformRowHeights">
+         <bool>false</bool>
+        </property>
+        <property name="animated">
+         <bool>true</bool>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <column>
+         <property name="text">
+          <string>Anpassung</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Beschreibung</string>
+         </property>
+        </column>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="2" column="1">
+    <widget class="QGroupBox" name="groupBox_providerspecific_modules_workflow">
+     <property name="title">
+      <string>Workflow-Konfiguration</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QListWidget" name="listWidget_providerscript_workflow">
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);
+background-image: url(:/provider-scripts-dialog/workflow_background.png);</string>
+        </property>
+        <property name="dragEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="dragDropMode">
+         <enum>QAbstractItemView::InternalMove</enum>
+        </property>
+        <property name="defaultDropAction">
+         <enum>Qt::MoveAction</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="pushButton_save_definition">
+          <property name="text">
+           <string>Workflow speichern</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resources/resources.qrc">
+            <normaloff>:/provider-scripts-dialog/workflow.png</normaloff>:/provider-scripts-dialog/workflow.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_remove_item_from_workflow">
+          <property name="text">
+           <string>Element aus Workflow entfernen</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resources/resources.qrc">
+            <normaloff>:/provider-scripts-dialog/table-row-remove.png</normaloff>:/provider-scripts-dialog/table-row-remove.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="toolButton_add_file_operation_to_workflow">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Datei-Operation hinzufügen&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Diese Funktion wird in einer späteren Version des Tools ergänzt.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Datei-Operation</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resources/resources.qrc">
+            <normaloff>:/provider-scripts-dialog/folder.png</normaloff>:/provider-scripts-dialog/folder.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="toolButton_add_pause_to_workflow">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Unterbrechung der Prozessierung hinzufügen (Nutzerinteraktion notwendig)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Für den Nutzer kann ein Hinweis eingeblendet werden, etwa mit manuellen Anweisungen.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Pause</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resources/resources.qrc">
+            <normaloff>:/provider-scripts-dialog/user_interaction.png</normaloff>:/provider-scripts-dialog/user_interaction.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="toolButton_add_transformation_settings_change">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Vorprozessierungs-Schritt hinzufügen&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Hinzufügen der DDB2017-Vorprozessierung, Rechte- und Aggregatoranreicherung oder Mapping-Definition.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Parameter</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resources/resources.qrc">
+            <normaloff>:/provider-scripts-dialog/transformation_button_icon.png</normaloff>:/provider-scripts-dialog/transformation_button_icon.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="toolButton_configure_workflow_element">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ausgewähltes Workflow-Element konfigurieren&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Konfigurieren</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resources/resources.qrc">
+            <normaloff>:/provider-scripts-dialog/settings.png</normaloff>:/provider-scripts-dialog/settings.png</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="1">
     <widget class="QDialogButtonBox" name="buttonBox_providerspecific_modules">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -200,7 +392,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources/resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox_providerspecific_modules</sender>

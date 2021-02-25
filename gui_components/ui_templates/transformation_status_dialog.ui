@@ -285,6 +285,101 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="transformation_user_interaction">
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="maximumSize">
+          <size>
+           <width>131</width>
+           <height>131</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="resources/resources.qrc">:/transformation-status-dialog/transformation_user_interaction.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QFrame" name="frame_user_interaction">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgba(164, 219, 255, 235);</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_user_interaction_info">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;An dieser Stelle ist eine manuelle Anpassung notwendig.&lt;/p&gt;&lt;p&gt;Klicken Sie auf &lt;span style=&quot; font-style:italic;&quot;&gt;Dateien anzeigen&lt;/span&gt;, um die zu bearbeitenden Dateien anzuzeigen.&lt;/p&gt;&lt;p&gt;Sobald Sie die Änderungen vorgenommen haben, klicken Sie auf &lt;span style=&quot; font-style:italic;&quot;&gt;Fortfahren&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_user_interaction">
+         <property name="title">
+          <string>Aktion auswählen</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="pushButton_user_interaction_open_files">
+            <property name="text">
+             <string>Dateien anzeigen</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resources/resources.qrc">
+              <normaloff>:/transformation-status-dialog/folder.png</normaloff>:/transformation-status-dialog/folder.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="pushButton_user_interaction_continue">
+            <property name="text">
+             <string>Fortfahren</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resources/resources.qrc">
+              <normaloff>:/transformation-status-dialog/transformation_button_icon.png</normaloff>:/transformation-status-dialog/transformation_button_icon.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPlainTextEdit" name="plainTextEdit_user_interaction_description">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="placeholderText">
+          <string>kein Hinweis angegeben</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>

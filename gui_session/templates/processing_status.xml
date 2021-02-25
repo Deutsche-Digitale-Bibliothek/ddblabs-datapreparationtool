@@ -3,4 +3,7 @@
     <processing_step>0</processing_step>
     <status_message/>
     <error_status>0</error_status>
+    <raise_user_interaction>0</raise_user_interaction>
+    <user_interaction_message/>
+    <user_interaction_input_files/>
 </processing_status>

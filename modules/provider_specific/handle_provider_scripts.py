@@ -5,17 +5,17 @@ import traceback
 from modules.common.provider_metadata.handle_provider_metadata import load_provider_modules
 from gui_session.handle_session_data import write_processing_status
 
-def parse_xml_content(root_path, xml_findbuch_in, input_type, input_file, error_status):
+def parse_xml_content(root_path, xml_findbuch_in, input_type, input_file, error_status, provider_scripts=None):
 
     # provider_scripts sollte wie folgt als List übergeben werden, welche wiederum die einzelnen Anpassungen als dict-Objekt (ISIL, Modulname) enthält:
     # [{"ISIL": "DE-2088", "Modulname": "module_name"}, {.., ..}]
 
-    provider_scripts = load_provider_modules()
+    if provider_scripts is None:
+        provider_scripts = load_provider_modules()
 
     for script in provider_scripts:
         isil = script["ISIL"]
         module_name = script["Modulname"]
-        logger.info("Providerspezifische Anpassung wird geladen und ausgeführt: Modul {}, Provider {}.".format(module_name, isil))
         module_path = "../../modules/provider_specific/{}/{}".format(isil.replace("-", "_"), module_name)
         spec = importlib.util.spec_from_file_location("parse_xml_content", module_path)
         provider_module = importlib.util.module_from_spec(spec)

@@ -9,6 +9,7 @@ import platform
 import shutil
 import errno
 import datetime
+import pprint
 
 # High DPI Scaling aktivieren (Windows-spezifisch)
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -62,6 +63,8 @@ from gui_components.ui_templates.mapping_definition_dialog import Ui_mappingDefi
 from gui_components.ui_templates.mapping_selection_dialog import Ui_mappingSelectionDialog
 from gui_components.ui_templates.validation_dialog import Ui_validationDialog
 from gui_components.ui_templates.validation_status_dialog import Ui_validationStatusDialog
+from gui_components.ui_templates.provider_scripts_configure_user_interaction_dialog import Ui_providerScriptsConfigureUserInteractionDialog
+from gui_components.ui_templates.provider_scripts_configure_maintenance_function_dialog import Ui_providerScriptsConfigureMaintenanceFunctionDialog
 
 # Import der Haupt-Prozesssteuerungsmodule:
 import transformation_p1
@@ -141,19 +144,18 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.currentWebViewUrl = "about:blank"
         self.provider_script_sets = []
         self.provider_script_set_assignment = {}
+        self.edit_existing_provider_script_list_item = None
+
+        # Initialisierung Qt Custom Data Rules zur MVC-Umsetzung des Providerskript-Dialogs
+        #   Vgl. https://stackoverflow.com/a/40021010/6703963
+        self.provider_script_isil_role = QtCore.Qt.UserRole + 2
+        self.provider_script_id_role = QtCore.Qt.UserRole + 3
+        self.provider_script_name_role = QtCore.Qt.UserRole + 4
+        self.provider_script_description_role = QtCore.Qt.UserRole + 5
+        self.provider_script_config_role = QtCore.Qt.UserRole + 6
 
         # Synchronisierung der Sitzungsvariablen mit der UI:
-        self.checkBox_binaries.setChecked(handle_session_data.synchronize_with_gui(self.session_data["process_binaries"]))
-        self.checkBox_metsmods.setChecked(handle_session_data.synchronize_with_gui(self.session_data["enable_mets_generation"]))
-
-        self.checkBox_tektonik_enrichment.setChecked(handle_session_data.synchronize_with_gui(self.session_data["enable_tektonik_enrichment"]))
-        self.checkBox_analysis.setChecked(handle_session_data.synchronize_with_gui(self.session_data["enable_metadata_analysis"]))
-        self.checkBox_metadata_previews.setChecked(handle_session_data.synchronize_with_gui(self.session_data["enable_metadata_preview"]))
-        self.menuToggleRightsInfo.setChecked(handle_session_data.synchronize_with_gui(self.session_data["enrich_rights_info"]))
-        self.menuToggleDdb2017Preprocessing.setChecked(handle_session_data.synchronize_with_gui(self.session_data["enable_ddb2017_preprocessing"]))
-        self.menuToggleAggregatorInfo.setChecked(handle_session_data.synchronize_with_gui(self.session_data["enrich_aggregator_info"]))
-        self.menuToggleObsoleteObjects.setChecked(handle_session_data.synchronize_with_gui(self.session_data["handle_obsolete_objects"]))
-        self.menuToggleMappingDefinition.setChecked(handle_session_data.synchronize_with_gui(self.session_data["apply_mapping_definition"]))
+        self.session_synchronize_with_gui()
 
         # Befüllen der Provider-Liste:
         self.provider_list = []
@@ -200,6 +202,14 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.providerScriptSaveDialog = QtWidgets.QDialog()
         self.providerScriptSaveDialog_ui = Ui_providerScriptsSaveDialog()
         self.providerScriptSaveDialog_ui.setupUi(self.providerScriptSaveDialog)
+
+        self.providerScriptsConfigureUserInteractionDialog = QtWidgets.QDialog()
+        self.providerScriptsConfigureUserInteractionDialog_ui = Ui_providerScriptsConfigureUserInteractionDialog()
+        self.providerScriptsConfigureUserInteractionDialog_ui.setupUi(self.providerScriptsConfigureUserInteractionDialog)
+
+        self.providerScriptsConfigureMaintenanceFunctionDialog = QtWidgets.QDialog()
+        self.providerScriptsConfigureMaintenanceFunctionDialog_ui = Ui_providerScriptsConfigureMaintenanceFunctionDialog()
+        self.providerScriptsConfigureMaintenanceFunctionDialog_ui.setupUi(self.providerScriptsConfigureMaintenanceFunctionDialog)
 
         self.newProviderDialog = QtWidgets.QDialog()
         self.newProviderDialog_ui = Ui_newProviderDialog()
@@ -322,12 +332,24 @@ class MappingLibraryMainGui(Ui_MainWindow):
         # Menüpunkte im Dialog "Providerspezifische Anpassungen":
         self.providerScriptsDialog_ui.buttonBox_providerspecific_modules.accepted.connect(self.save_provider_modules)
         self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.currentIndexChanged.connect(self.update_provider_script_set_description)
-        self.providerScriptsDialog_ui.pushButton_apply_definition.clicked.connect(self.apply_provider_script_set)
-        self.providerScriptsDialog_ui.pushButton_delete_definition.clicked.connect(self.delete_provider_script_set)
+        self.providerScriptsDialog_ui.toolButton_apply_definition.clicked.connect(self.apply_provider_script_set)
+        self.providerScriptsDialog_ui.toolButton_delete_definition.clicked.connect(self.delete_provider_script_set)
         self.providerScriptsDialog_ui.pushButton_save_definition.clicked.connect(lambda: self.providerScriptSaveDialog.show())
+        self.providerScriptsDialog_ui.pushButton_add_to_workflow.clicked.connect(self.add_provider_script_selection_to_workflow)
+        self.providerScriptsDialog_ui.pushButton_remove_item_from_workflow.clicked.connect(self.remove_provider_script_from_workflow)
+        self.providerScriptsDialog_ui.toolButton_add_pause_to_workflow.clicked.connect(self.open_provider_scripts_configure_user_interaction_dialog)
+        self.providerScriptsDialog_ui.toolButton_add_transformation_settings_change.clicked.connect(self.open_provider_scripts_configure_maintenance_dialog)
+        self.providerScriptsDialog_ui.toolButton_configure_workflow_element.clicked.connect(self.trigger_provider_scripts_configuration_dialog)
+        self.providerScriptsDialog_ui.listWidget_providerscript_workflow.itemSelectionChanged.connect(self.toggle_workflow_element_configurability)
 
         # Menüpunkte im Dialog "Providerspezifische Anpassungen" --> "Neue Zuordnung speichern":
         self.providerScriptSaveDialog_ui.buttonBox_save_providerscript_set.accepted.connect(self.create_provider_script_set)
+
+        # Menüpunkte im Dialog "Providerspezifische Anpassungen" --> "Vorprozessierungsschritt konfigurieren":
+        self.providerScriptsConfigureMaintenanceFunctionDialog_ui.buttonBox_providerscripts_maintenance_configuration.accepted.connect(self.save_provider_scripts_maintenance_config)
+
+        # Menüpunkte im Dialog "Providerspezifische Anpassungen" --> "Nutzerinteraktion konfigurieren":
+        self.providerScriptsConfigureUserInteractionDialog_ui.buttonBox_providerscripts_user_interaction_configuration.accepted.connect(self.save_provider_script_user_interaction_config)
 
         # Menüpunkte im Dialog "Einstellungen zur METS/MODS-Generierung":
         self.metsSettingsDialog_ui.buttonBox_mets_settings.accepted.connect(self.save_mets_settings)
@@ -410,6 +432,9 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.processing_status_updater.timeout.connect(lambda: update_status_p1())
         self.processing_status_updater.start(1000)
 
+        # Zurücksetzen des Thread-Status
+        handle_thread_actions.save_to_xml("reset_actions", self.root_path)
+
         # Initialisieren des Workers, um die Transformation in einem separaten Thread zu starten
         worker_p1 = Worker(lambda: transformation_p1.run_transformation_p1(root_path=self.root_path, session_data=self.session_data, is_gui_session=True))
         worker_p1.signals.destroyed.connect(lambda: finished_p1())
@@ -418,16 +443,36 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.threadpool.start(worker_p1)
 
         def update_status_p1():
-            try:
-                status_input = etree.parse(self.processing_status_path)
-                processing_step = status_input.findall("//processing_step")[0].text
-                status_message = status_input.findall("//status_message")[0].text
+            processing_status = handle_session_data.get_processing_status(self.root_path)
+            if processing_status is not None:
+                processing_step = processing_status["processing_step"]
+                status_message = processing_status["status_message"]
+                raise_user_interaction = processing_status["raise_user_interaction"]
+                user_interaction_message = processing_status["user_interaction_message"]
+                user_interaction_input_files = processing_status["user_interaction_input_files"]
 
                 self.transformationStatusDialog_ui.progressBar.setValue(int(processing_step))
                 self.transformationStatusDialog_ui.label_transformation_status.setText(status_message)
-            except etree.XMLSyntaxError:
-                logger.debug("Aktualisierung der Status-Information übersprungen.")
-                pass
+
+                if raise_user_interaction != "0":
+                    # Pausieren der Prozessierung für Workflow-Modul "Nutzerinteraktion"
+                    self.processing_status_updater.stop()
+
+                    if user_interaction_message is not None:
+                        self.transformationStatusDialog_ui.plainTextEdit_user_interaction_description.setPlainText(user_interaction_message)
+                    self.transformationStatusDialog_ui.stackedWidget.setCurrentIndex(2)
+
+                    self.transformationStatusDialog_ui.pushButton_user_interaction_open_files.disconnect()
+                    self.transformationStatusDialog_ui.pushButton_user_interaction_continue.disconnect()
+
+                    self.transformationStatusDialog_ui.pushButton_user_interaction_open_files.clicked.connect(lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(user_interaction_input_files)))
+                    self.transformationStatusDialog_ui.pushButton_user_interaction_continue.clicked.connect(lambda: continue_after_user_interaction_p1())
+
+        def continue_after_user_interaction_p1():
+            # Fortsetzen der Prozessierung nach Abschluss der Nutzerinteraktion
+            handle_session_data.write_processing_status(root_path, raise_user_interaction="0")
+            self.transformationStatusDialog_ui.stackedWidget.setCurrentIndex(0)
+            self.processing_status_updater.start(1000)
 
         def finished_p1():
             # Reaktivieren der Eingabemöglichkeiten nach Abschluss der Prozessierung:
@@ -437,9 +482,10 @@ class MappingLibraryMainGui(Ui_MainWindow):
             logger.info("Prozessierungsdauer: {}".format(self.worker_duration))
             self.transformationStatusDialog_ui.label_transformation_duration.setText(self.worker_duration)
 
-            processing_status = handle_session_data.get_processing_status()
-            if processing_status["error_status"] != "0":
-                self.transformationStatusDialog_ui.frame_transformation_error.setVisible(True)
+            processing_status = handle_session_data.get_processing_status(self.root_path)
+            if processing_status is not None:
+                if processing_status["error_status"] != "0":
+                    self.transformationStatusDialog_ui.frame_transformation_error.setVisible(True)
 
             self.statusbar.showMessage("Transformation abgeschlossen.")
             self.enable_processing_controls()
@@ -466,6 +512,9 @@ class MappingLibraryMainGui(Ui_MainWindow):
             self.processing_status_updater.timeout.connect(lambda: update_status_p2())
             self.processing_status_updater.start(1000)
 
+            # Zurücksetzen des Thread-Status
+            handle_thread_actions.save_to_xml("reset_actions", self.root_path)
+
             # Initialisieren des Workers, um die Analyse in einem separaten Thread zu starten
             worker_p2 = Worker(lambda: transformation_p2.run_transformation_p2(root_path=self.root_path, session_data=self.session_data, is_gui_session=True))
             worker_p2.signals.destroyed.connect(lambda: finished_p2())
@@ -478,17 +527,13 @@ class MappingLibraryMainGui(Ui_MainWindow):
             self.statusbar.showMessage("Keine Ausgabe-Dateien zur Analyse verfügbar.")
 
         def update_status_p2():
-            try:
-                status_input = etree.parse(self.processing_status_path)
-                processing_step = status_input.findall("//processing_step")[0].text
-                status_message = status_input.findall("//status_message")[0].text
+            processing_status = handle_session_data.get_processing_status(self.root_path)
+            if processing_status is not None:
+                processing_step = processing_status["processing_step"]
+                status_message = processing_status["status_message"]
 
                 self.analysisStatusDialog_ui.progressBar.setValue(int(processing_step))
                 self.analysisStatusDialog_ui.label_analysis_status.setText(status_message)
-            except etree.XMLSyntaxError:
-                logger.debug("Aktualisierung der Status-Information übersprungen.")
-                pass
-
 
         def finished_p2():
             # Reaktivieren der Eingabemöglichkeiten nach Abschluss der Prozessierung:
@@ -498,9 +543,10 @@ class MappingLibraryMainGui(Ui_MainWindow):
             logger.info("Prozessierungsdauer: {}".format(self.worker_duration))
             self.analysisStatusDialog_ui.label_analysis_duration.setText(self.worker_duration)
 
-            processing_status = handle_session_data.get_processing_status()
-            if processing_status["error_status"] != "0":
-                self.analysisStatusDialog_ui.frame_analysis_error.setVisible(True)
+            processing_status = handle_session_data.get_processing_status(self.root_path)
+            if processing_status is not None:
+                if processing_status["error_status"] != "0":
+                    self.analysisStatusDialog_ui.frame_analysis_error.setVisible(True)
 
             self.statusbar.showMessage("Analyse abgeschlossen.")
             self.enable_processing_controls()
@@ -553,6 +599,9 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.processing_status_updater.timeout.connect(lambda: update_status_validation())
         self.processing_status_updater.start(1000)
 
+        # Zurücksetzen des Thread-Status
+        handle_thread_actions.save_to_xml("reset_actions", self.root_path)
+
         # Initialisieren des Workers, um die Validierung in einem separaten Thread zu starten
         worker_validation = Worker(lambda: handle_validify_validation.handle_validation(root_path=self.root_path, input_files=input_files, rule_definition=rule_definition))
         worker_validation.signals.destroyed.connect(lambda: finished_validation())
@@ -561,16 +610,13 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.threadpool.start(worker_validation)
 
         def update_status_validation():
-            try:
-                status_input = etree.parse(self.processing_status_path)
-                processing_step = status_input.findall("//processing_step")[0].text
-                status_message = status_input.findall("//status_message")[0].text
+            processing_status = handle_session_data.get_processing_status(self.root_path)
+            if processing_status is not None:
+                processing_step = processing_status["processing_step"]
+                status_message = processing_status["status_message"]
 
                 self.validationStatusDialog_ui.progressBar.setValue(int(processing_step))
                 self.validationStatusDialog_ui.label_validation_status.setText(status_message)
-            except etree.XMLSyntaxError:
-                logger.debug("Aktualisierung der Status-Information übersprungen.")
-                pass
 
         def finished_validation():
             # Reaktivieren der Eingabemöglichkeiten nach Abschluss der Prozessierung:
@@ -580,9 +626,10 @@ class MappingLibraryMainGui(Ui_MainWindow):
             logger.info("Prozessierungsdauer: {}".format(self.worker_duration))
             self.validationStatusDialog_ui.label_validation_duration.setText(self.worker_duration)
 
-            processing_status = handle_session_data.get_processing_status()
-            if processing_status["error_status"] != "0":
-                self.validationStatusDialog_ui.frame_validation_error.setVisible(True)
+            processing_status = handle_session_data.get_processing_status(self.root_path)
+            if processing_status is not None:
+                if processing_status["error_status"] != "0":
+                    self.validationStatusDialog_ui.frame_validation_error.setVisible(True)
 
             self.statusbar.showMessage("Validierung abgeschlossen.")
             if len(self.comboBox_provider.currentText()) == 0:
@@ -902,7 +949,32 @@ class MappingLibraryMainGui(Ui_MainWindow):
 
     def session_load_defaults(self):
         logger.debug("Zurücksetzen der Session-Daten durch GUI angefordert.")
-        self.session_data = handle_session_data.load_defaults()
+        self.session_data = handle_session_data.load_defaults(self.session_data)
+        self.session_synchronize_with_gui()
+
+    def session_synchronize_with_gui(self):
+        # Synchronisierung der Sitzungsvariablen mit der UI:
+        self.checkBox_binaries.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["process_binaries"]))
+        self.checkBox_metsmods.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["enable_mets_generation"]))
+
+        self.checkBox_tektonik_enrichment.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["enable_tektonik_enrichment"]))
+        self.checkBox_analysis.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["enable_metadata_analysis"]))
+        self.checkBox_metadata_previews.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["enable_metadata_preview"]))
+        self.menuToggleRightsInfo.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["enrich_rights_info"]))
+        self.menuToggleDdb2017Preprocessing.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["enable_ddb2017_preprocessing"]))
+        self.menuToggleAggregatorInfo.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["enrich_aggregator_info"]))
+        self.menuToggleObsoleteObjects.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["handle_obsolete_objects"]))
+        self.menuToggleMappingDefinition.setChecked(
+            handle_session_data.synchronize_with_gui(self.session_data["apply_mapping_definition"]))
 
     def get_provider_list(self):
         logger.debug("Liste der Provider wurde aktualisiert.")
@@ -1069,27 +1141,39 @@ class MappingLibraryMainGui(Ui_MainWindow):
         self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.clear()
         self.sync_provider_script_sets()
 
+        ignore_providers = ["common", ".provider-script-sets"]  # Common-Module nicht in Provider-Skript-TreeWidget anzeigen
         module_metadata = get_module_metadata.fetch_providerspecific_modules()
 
-        for provider_dict in module_metadata:  # Befüllen des Tree-View mit den bestehenden Provider-Skripten (ermittelt durch Modul gui_components.get_module_metadata
+        for provider_dict in module_metadata:  # Befüllen des Tree-View mit den bestehenden Provider-Skripten (ermittelt durch Modul gui_components.get_module_metadata)
             for providerscript_isil, providerscript_list in provider_dict.items():
-                parent_item = QtWidgets.QTreeWidgetItem(self.providerScriptsDialog_ui.treeWidget)
-                parent_item_string = str(providerscript_isil)
-                parent_item.setText(0, parent_item_string)
-                parent_item.setFlags(parent_item.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
-                parent_item.setCheckState(0, QtCore.Qt.Unchecked)
-                parent_item.setExpanded(True)
-                for providerscript_item in providerscript_list:
-                    child_item = QtWidgets.QTreeWidgetItem(parent_item)
-                    child_item_string = str(providerscript_item[0])
-                    child_item_description_string = str(providerscript_item[1])
-                    child_item.setText(0, child_item_string)
-                    child_item.setText(1, child_item_description_string)
-                    child_item.setFlags(child_item.flags() | QtCore.Qt.ItemIsUserCheckable)
-                    if self.sync_provider_modules(parent_item_string, child_item_string) is True:
-                        child_item.setCheckState(0, QtCore.Qt.Checked)
-                    else:
-                        child_item.setCheckState(0, QtCore.Qt.Unchecked)
+                if providerscript_isil not in ignore_providers:
+                    parent_item = QtWidgets.QTreeWidgetItem(self.providerScriptsDialog_ui.treeWidget)
+                    parent_item_string = str(providerscript_isil)
+                    parent_item.setText(0, parent_item_string)
+                    parent_item.setFlags(parent_item.flags() | QtCore.Qt.ItemIsTristate | QtCore.Qt.ItemIsUserCheckable)
+                    parent_item.setCheckState(0, QtCore.Qt.Unchecked)
+                    parent_item.setExpanded(True)
+                    for providerscript_item in providerscript_list:
+                        child_item = QtWidgets.QTreeWidgetItem(parent_item)
+                        child_item_string = str(providerscript_item[0])
+                        child_item_description_string = str(providerscript_item[1])
+                        child_item.setText(0, child_item_string)
+                        child_item.setText(1, child_item_description_string)
+                        child_item.setFlags(child_item.flags() | QtCore.Qt.ItemIsUserCheckable)
+
+                        # Zuweisung von Qt Custom Data Rules
+                        child_item.setData(0, self.provider_script_id_role, "{},{}".format(parent_item_string, child_item_string))
+                        child_item.setData(0, self.provider_script_isil_role, parent_item_string)
+                        child_item.setData(0, self.provider_script_name_role, child_item_string)
+                        child_item.setData(0, self.provider_script_description_role, child_item_description_string)
+                        child_item.setData(0, self.provider_script_config_role, None)
+
+                        # print(child_item.data(0, self.provider_isil_role))
+
+                        if self.sync_provider_modules(parent_item_string, child_item_string) is True:
+                            child_item.setCheckState(0, QtCore.Qt.Checked)
+                        else:
+                            child_item.setCheckState(0, QtCore.Qt.Unchecked)
 
         self.providerScriptsDialog_ui.treeWidget.resizeColumnToContents(0)  # Spaltenbreite an Inhalt anpassen
 
@@ -1112,18 +1196,18 @@ class MappingLibraryMainGui(Ui_MainWindow):
             return False
 
     def save_provider_modules(self, return_as_list=False):
-        module_tree_root = self.providerScriptsDialog_ui.treeWidget.invisibleRootItem()
+        """Angepasst zum Speichern der Providerskript-Workflows.
+
+        Die Module werden jetzt aus dem Workflow-ListWidget bezogen, statt aus dem TreeWidget.
+        """
+        provider_script_list_widget = self.providerScriptsDialog_ui.listWidget_providerscript_workflow
         module_list = []
-        for index in range(module_tree_root.childCount()):
-            parent = module_tree_root.child(index)
-            if parent.checkState(0) == QtCore.Qt.PartiallyChecked or parent.checkState(0) == QtCore.Qt.Checked:
-                providerscript_isil = parent.text(0)
-                for row in range(parent.childCount()):
-                    child = parent.child(row)
-                    if child.checkState(0) == QtCore.Qt.Checked:
-                        provider_module_name = child.text(0)
-                        single_module = "{},{}".format(providerscript_isil, provider_module_name)
-                        module_list.append(single_module)
+        for item_i in range(provider_script_list_widget.count()):
+            single_module = {}
+            single_module["ISIL"] = provider_script_list_widget.item(item_i).data(self.provider_script_isil_role)
+            single_module["Modulname"] = provider_script_list_widget.item(item_i).data(self.provider_script_name_role)
+            single_module["Konfiguration"] = provider_script_list_widget.item(item_i).data(self.provider_script_config_role)
+            module_list.append(single_module)
 
         if return_as_list:
             return module_list
@@ -1149,6 +1233,11 @@ class MappingLibraryMainGui(Ui_MainWindow):
             self.provider_script_set_assignment[item_i] = item["id"]
             self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.addItem(item["name"])
 
+            provider_script_set_item_icon = QtGui.QIcon()
+            provider_script_set_item_icon.addPixmap(QtGui.QPixmap(":/provider-scripts-dialog/workflow.png"),
+                                                    QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.setItemIcon(item_i, provider_script_set_item_icon)
+
         self.update_provider_script_set_description()
 
     def update_provider_script_set_description(self):
@@ -1173,7 +1262,7 @@ class MappingLibraryMainGui(Ui_MainWindow):
     def apply_provider_script_set(self):
         """Anwenden des Providerskript-Sets.
 
-        Das im Dropdown 'comboBox_select_saved_providerscript_definition' ausgewählte Set wird bei Aufruf dieser Funktion auf den TreeView angewandt.
+        Das im Dropdown 'comboBox_select_saved_providerscript_definition' ausgewählte Set wird bei Aufruf dieser Funktion auf den TreeView und das Workflow-ListWidget angewandt.
         """
         combobox_index = self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.currentIndex()
         if combobox_index >= 0:
@@ -1196,15 +1285,30 @@ class MappingLibraryMainGui(Ui_MainWindow):
                         if single_module["ISIL"] == parent_item_string and single_module["Modulname"] == child_item_string:
                             child_item.setCheckState(0, QtCore.Qt.Checked)
 
+
+            provider_script_list_widget = self.providerScriptsDialog_ui.listWidget_providerscript_workflow
+            provider_script_list_widget.clear()
+
+            for single_module in provider_script_set_modules:
+                providerscript_list_item = self.create_provider_script_list_item(single_module)
+                provider_script_list_widget.addItem(providerscript_list_item)
+
     def create_provider_script_set(self):
         """Schreiben des Providerskript-Sets, welches im providerscriptSaveDialog angelegt wurde.
 
-        Übergeben wird die Auswahl aus der TreeView.
+        Übergeben wird die Auswahl aus dem Workflow-ListWidget.
         """
         set_name = self.providerScriptSaveDialog_ui.lineEdit_providerscript_set_name.text()
         set_description = self.providerScriptSaveDialog_ui.plainTextEdit_providerscript_set_description.toPlainText()
         module_list = self.save_provider_modules(return_as_list=True)
-        save_provider_set(provider_id=self.session_data["provider"], module_list=module_list, set_name=set_name, set_description=set_description)
+
+        overwrite_set_id = None
+        if self.providerScriptSaveDialog_ui.checkBox_overwrite_current_workflow.isChecked():
+            # Bestehendes Set überschreiben
+            combobox_index = self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.currentIndex()
+            if combobox_index >= 0:
+                overwrite_set_id = self.provider_script_set_assignment[combobox_index]
+        save_provider_set(provider_id=self.session_data["provider"], module_list=module_list, set_name=set_name, set_description=set_description, overwrite_set_id=overwrite_set_id)
 
         self.sync_provider_script_sets()
 
@@ -1223,6 +1327,234 @@ class MappingLibraryMainGui(Ui_MainWindow):
                     delete_provider_set(provider_set_id=current_selection_id)
 
             self.sync_provider_script_sets()
+
+    def create_provider_script_list_item(self, single_module):
+        """Providerskript-List-Item für Commmon-Workflow-Module erzeugen, welches dann dem Workflow-ListWidget (self.providerScriptsDialog_ui.listWidget_providerscript_workflow) hinzugefügt werden kann.
+
+        Aufgerufen in self.apply_provider_script_set().
+        Zudem benötigt zum Hinzufügen über die Buttons toolButton_add_file_operation_to_workflow, toolButton_add_pause_to_workflow und toolButton_add_transformation_settings_change (noch nicht umgesetzt).
+        """
+        providerscript_list_item = QtWidgets.QListWidgetItem()
+        providerscript_list_item.setData(self.provider_script_id_role, "{},{}".format(single_module["ISIL"], single_module["Modulname"]))
+        providerscript_list_item.setData(self.provider_script_isil_role, single_module["ISIL"])
+        providerscript_list_item.setData(self.provider_script_name_role, single_module["Modulname"])
+        if single_module["ISIL"] == "common":
+            providerscript_list_item.setData(self.provider_script_description_role, "\n".join([self.map_maintenance_type(item) for item in list(single_module["Konfiguration"].values())]))
+        else:
+            providerscript_list_item.setData(self.provider_script_description_role,
+                                             get_module_metadata.get_module_description(single_module["Modulname"], single_module["ISIL"]))
+        providerscript_list_item.setData(self.provider_script_config_role, single_module["Konfiguration"])
+
+        providerscript_list_item.setText("{}: {}".format(providerscript_list_item.data(self.provider_script_isil_role), providerscript_list_item.data(self.provider_script_name_role)))
+        providerscript_list_item.setToolTip(providerscript_list_item.data(self.provider_script_description_role))
+
+        providerscript_list_item_icon = QtGui.QIcon()
+        if single_module["Modulname"] == "filesystem_operation.py":
+            providerscript_list_item_icon.addPixmap(QtGui.QPixmap(":/provider-scripts-dialog/folder.png"),
+                                                    QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            providerscript_list_item.setText("Datei-Operation")
+        elif single_module["Modulname"] == "user_interaction.py":
+            providerscript_list_item_icon.addPixmap(QtGui.QPixmap(":/provider-scripts-dialog/user_interaction.png"),
+                                                    QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            providerscript_list_item.setText("Nutzer-Interaktion")
+        elif single_module["Modulname"] == "maintenance_function.py":
+            providerscript_list_item_icon.addPixmap(QtGui.QPixmap(":/provider-scripts-dialog/transformation_button_icon.png"),
+                                                    QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            providerscript_list_item.setText("Vorprozessierungs-Schritt")
+        else:
+            providerscript_list_item_icon.addPixmap(QtGui.QPixmap(":/provider-scripts-dialog/provider_modules.png"),
+                QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+        providerscript_list_item.setIcon(providerscript_list_item_icon)
+
+        return providerscript_list_item
+
+    def edit_provider_script_list_item(self, single_module):
+        """Bestehendes Providerskript-List-Item (Common-Workflow-Modul) editieren.
+
+        Aufgerufen in self.save_provider_scripts_maintenance_config() und save_provider_script_user_interaction_config().
+        """
+        self.edit_existing_provider_script_list_item.setData(self.provider_script_config_role, single_module["Konfiguration"])
+        self.edit_existing_provider_script_list_item.setData(self.provider_script_description_role, "\n".join([self.map_maintenance_type(item) for item in list(single_module["Konfiguration"].values())]))
+        self.edit_existing_provider_script_list_item.setToolTip(self.edit_existing_provider_script_list_item.data(self.provider_script_description_role))
+
+        self.edit_existing_provider_script_list_item = None  # Zurücksetzen des zu editierenden List-Items
+
+    def add_provider_script_selection_to_workflow(self):
+        """Funktionalität des Buttons 'Auswahl zum Workflow hinzufügen' (pushButton_add_to_workflow) im Providerksript-Dialog (self.providerScriptsDialog_ui)
+
+        Bei Klick auf "Auswahl zum Workflow hinzufügen":
+            - werden die ausgewählten Anpassungen aus dem Provider-Baum mit der Workflow-Liste synchronisiert, d.h. ...
+            - in der Workflow-Liste noch nicht vorhandene ausgewählte Anpassungen werden in der Reihenfolge, wie sie im Baum vorkommen, ans Ende der Workflow-Liste hinzugefügt
+            - in der Workflow-Liste bereits vorhandene Anpassungen werden übersprungen
+        """
+        provider_script_list_widget = self.providerScriptsDialog_ui.listWidget_providerscript_workflow
+        module_tree_root = self.providerScriptsDialog_ui.treeWidget.invisibleRootItem()
+        providerscript_list_item_icon = QtGui.QIcon()
+        providerscript_list_item_icon.addPixmap(QtGui.QPixmap(":/provider-scripts-dialog/provider_modules.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+        for index in range(module_tree_root.childCount()):
+            parent = module_tree_root.child(index)
+            if parent.checkState(0) == QtCore.Qt.PartiallyChecked or parent.checkState(0) == QtCore.Qt.Checked:
+                for row in range(parent.childCount()):
+                    providerscript_tree_item = parent.child(row)
+                    if providerscript_tree_item.checkState(0) == QtCore.Qt.Checked:
+                        providerscript_list_item = QtWidgets.QListWidgetItem()
+                        providerscript_list_item.setData(self.provider_script_id_role, providerscript_tree_item.data(0, self.provider_script_id_role))
+                        providerscript_list_item.setData(self.provider_script_isil_role, providerscript_tree_item.data(0, self.provider_script_isil_role))
+                        providerscript_list_item.setData(self.provider_script_name_role, providerscript_tree_item.data(0, self.provider_script_name_role))
+                        providerscript_list_item.setData(self.provider_script_description_role, providerscript_tree_item.data(0, self.provider_script_description_role))
+
+                        # Prüfen, ob Item bereits in Workflow enthalten
+                        compare_ids = []
+                        for item_i in range(provider_script_list_widget.count()):
+                            compare_id = provider_script_list_widget.item(item_i).data(self.provider_script_id_role)
+                            compare_ids.append(compare_id)
+
+                        if providerscript_list_item.data(self.provider_script_id_role) in compare_ids:
+                            continue
+
+                        providerscript_list_item.setText("{}: {}".format(providerscript_list_item.data(self.provider_script_isil_role), providerscript_list_item.data(self.provider_script_name_role)))
+                        providerscript_list_item.setToolTip(providerscript_list_item.data(self.provider_script_description_role))
+                        providerscript_list_item.setIcon(providerscript_list_item_icon)
+                        provider_script_list_widget.addItem(providerscript_list_item)
+
+    def remove_provider_script_from_workflow(self):
+        """Funktionalität des Buttons 'Element aus Workflow entfernen' (pushButton_remove_item_from_workflow) im Providerskript-Dialog (self.providerScriptsDialog_ui)
+
+        Das momentan selektierte Element wird aus dem ListWidget entfernt.
+        Wird eine Anpassung aus der Workflow-Liste entfernt, so wird sie auch im Baum deselektiert.
+        """
+        provider_script_list_widget = self.providerScriptsDialog_ui.listWidget_providerscript_workflow
+        selected_list_item = provider_script_list_widget.currentItem()
+        if selected_list_item is not None:
+            selected_list_item_id = selected_list_item.data(self.provider_script_id_role)
+            provider_script_list_widget.takeItem(provider_script_list_widget.row(selected_list_item))
+
+            # Aus dem ListWidget entferntes Element: Gegenstück im TreeWidget ermitteln und dort deselektieren
+            root_item = self.providerScriptsDialog_ui.treeWidget.invisibleRootItem()
+            parent_item_count = root_item.childCount()
+            check_state_synchronized = False
+            for parent_item_i in range(parent_item_count):
+                if check_state_synchronized:
+                    break
+                parent_item = root_item.child(parent_item_i)
+                child_item_count = parent_item.childCount()
+                for child_item_i in range(child_item_count):
+                    child_item = parent_item.child(child_item_i)
+                    child_item_id = child_item.data(0, self.provider_script_id_role)
+                    if child_item_id == selected_list_item_id:
+                        child_item.setCheckState(0, QtCore.Qt.Unchecked)
+                        check_state_synchronized = True
+                        break
+
+    def toggle_workflow_element_configurability(self):
+        self.providerScriptsDialog_ui.toolButton_configure_workflow_element.setEnabled(False)
+        selected_provider_script_list_item = self.providerScriptsDialog_ui.listWidget_providerscript_workflow.currentItem()
+        if selected_provider_script_list_item is not None:
+            selected_provider_script_list_item_provider = selected_provider_script_list_item.data(
+                self.provider_script_isil_role)
+            selected_provider_script_list_item_name = selected_provider_script_list_item.data(
+                self.provider_script_name_role)
+
+            if selected_provider_script_list_item_provider == "common":
+                if selected_provider_script_list_item_name in tuple(["maintenance_function.py", "user_interaction.py", "filesystem_operation.py"]):
+                    self.providerScriptsDialog_ui.toolButton_configure_workflow_element.setEnabled(True)
+
+    def map_maintenance_type(self, maintenance_type):
+        if maintenance_type == "rights_info_enrichment":
+            return "Rechte/Lizenz-Anreicherung"
+        elif maintenance_type == "ddb2017_preprocessing":
+            return "DDB-2017-Vorprozessierung"
+        elif maintenance_type == "aggregator_info_enrichment":
+            return "Aggregator-Anreicherung"
+        elif maintenance_type == "mapping_definition":
+            return "Mapping-Definition anwenden"
+
+        elif maintenance_type == "Rechte/Lizenz-Anreicherung":
+            return "rights_info_enrichment"
+        elif maintenance_type == "DDB-2017-Vorprozessierung":
+            return "ddb2017_preprocessing"
+        elif maintenance_type == "Aggregator-Anreicherung":
+            return "aggregator_info_enrichment"
+        elif maintenance_type == "Mapping-Definition anwenden":
+            return "mapping_definition"
+
+        else:
+            return maintenance_type
+
+    def trigger_provider_scripts_configuration_dialog(self):
+        # Weichenfunktion, die je nach momentan selektierem Workflowmodul entweder open_provider_scripts_configure_maintenance_dialog() oder open_provider_scripts_configure_user_interaction_dialog() aufruft.
+        selected_provider_script_list_item = self.providerScriptsDialog_ui.listWidget_providerscript_workflow.currentItem()
+        if selected_provider_script_list_item is not None:
+            selected_provider_script_list_item_provider = selected_provider_script_list_item.data(self.provider_script_isil_role)
+            selected_provider_script_list_item_name = selected_provider_script_list_item.data(self.provider_script_name_role)
+            selected_provider_script_list_item_config = selected_provider_script_list_item.data(self.provider_script_config_role)
+
+            self.edit_existing_provider_script_list_item = selected_provider_script_list_item
+
+            if selected_provider_script_list_item_provider == "common":
+                if selected_provider_script_list_item_name == "maintenance_function.py":
+                    self.open_provider_scripts_configure_maintenance_dialog(edit_existing_list_entry=True, provider_script_config=selected_provider_script_list_item_config)
+                elif selected_provider_script_list_item_name == "user_interaction.py":
+                    self.open_provider_scripts_configure_user_interaction_dialog(edit_existing_list_entry=True, provider_script_config=selected_provider_script_list_item_config)
+                elif selected_provider_script_list_item_name == "filesystem_operation.py":
+                    pass  # FÜRSPÄTER: Umsetzung für Dateisystem-Operationen
+
+    def open_provider_scripts_configure_maintenance_dialog(self, edit_existing_list_entry=False, provider_script_config=None):
+        if edit_existing_list_entry:
+             dropdown_index_match_string = self.map_maintenance_type(provider_script_config["maintenance_type"])
+             dropdown_index = self.providerScriptsConfigureMaintenanceFunctionDialog_ui.comboBox_choose_maintenance_function.findText(dropdown_index_match_string, QtCore.Qt.MatchFixedString)
+             if dropdown_index >= 0:
+                self.providerScriptsConfigureMaintenanceFunctionDialog_ui.comboBox_choose_maintenance_function.setCurrentIndex(dropdown_index)
+
+        self.providerScriptsConfigureMaintenanceFunctionDialog.show()
+
+    def open_provider_scripts_configure_user_interaction_dialog(self, edit_existing_list_entry=False, provider_script_config=None):
+        if edit_existing_list_entry:
+            self.providerScriptsConfigureUserInteractionDialog_ui.lineEdit_providerscript_user_interaction_filename.setText(provider_script_config["input_file"])
+            self.providerScriptsConfigureUserInteractionDialog_ui.plainTextEdit_providerscript_user_interaction_description.setPlainText(provider_script_config["message"])
+
+        self.providerScriptsConfigureUserInteractionDialog.show()
+
+    def save_provider_scripts_maintenance_config(self, edit_existing_item=False):
+        single_module = {}
+        single_module["ISIL"] = "common"
+        single_module["Modulname"] = "maintenance_function.py"
+
+        if self.edit_existing_provider_script_list_item is not None:
+            edit_existing_item = True
+
+        maintenance_type = self.map_maintenance_type(maintenance_type=self.providerScriptsConfigureMaintenanceFunctionDialog_ui.comboBox_choose_maintenance_function.currentText())
+        single_module["Konfiguration"] = {}
+        single_module["Konfiguration"]["maintenance_type"] = maintenance_type
+
+        provider_script_list_widget = self.providerScriptsDialog_ui.listWidget_providerscript_workflow
+
+        if edit_existing_item:
+            self.edit_provider_script_list_item(single_module)
+        else:
+            provider_script_list_item = self.create_provider_script_list_item(single_module)
+            provider_script_list_widget.addItem(provider_script_list_item)
+
+    def save_provider_script_user_interaction_config(self, edit_existing_item=False):
+        single_module = {}
+        single_module["ISIL"] = "common"
+        single_module["Modulname"] = "user_interaction.py"
+        single_module["Konfiguration"] = {}
+        single_module["Konfiguration"]["input_file"] = self.providerScriptsConfigureUserInteractionDialog_ui.lineEdit_providerscript_user_interaction_filename.text()
+        single_module["Konfiguration"]["message"] = self.providerScriptsConfigureUserInteractionDialog_ui.plainTextEdit_providerscript_user_interaction_description.toPlainText()
+
+        if self.edit_existing_provider_script_list_item is not None:
+            edit_existing_item = True
+
+        provider_script_list_widget = self.providerScriptsDialog_ui.listWidget_providerscript_workflow
+
+        if edit_existing_item:
+            self.edit_provider_script_list_item(single_module)
+        else:
+            provider_script_list_item = self.create_provider_script_list_item(single_module)
+            provider_script_list_widget.addItem(provider_script_list_item)
 
     def open_mapping_selection_dialog(self):
         provider_data_input_path = "./data_input/{}".format(self.session_data["provider"].replace("-", "_"))
@@ -1471,6 +1803,10 @@ if __name__ == '__main__':
     if platform.system() == "Windows":
         app.setStyle("Fusion")
     main_window = QtWidgets.QMainWindow()
+
+    translator_qt = QtCore.QTranslator()
+    translator_qt.load("gui_components/ui_templates/resources/i18n/qtbase_de.qm")
+    app.installTranslator(translator_qt)
 
     run_app = MappingLibraryMainGui(main_window)
 

@@ -104,7 +104,7 @@ def remove_empty_elements(parent_element, sub_element_name, log_messages):
                     else:
                         log_messages.append("Abprüfung auf leere Elemente: Sub-Element {} aus Parent-Element {} nicht entfernt, da es nicht eindeutig als leer identifiziert wurde (evtl. beginnt der Elementinhalt mit einem lb-Tag).".format(sub_element.tag, parent_element.tag))
 
-def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil):
+def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_id):
     # Verarbeitung von Absätzen v.a. in Titelfeldern (unittitle auf allen Ebenen): Umwandeln von <lb/> in ". ", von <p> und anderen HTNL-Tags in " - " (Ersatz für Template delete_html):
 
     log_messages = []
@@ -248,9 +248,9 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil):
         # note, note_europeana
         note_elements = c_element.findall("{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}note")
         for note_element in note_elements:
-            note_p_element = note_element.find("{urn:isbn:1-931666-22-9}p")
+            note_p_elements = note_element.findall("{urn:isbn:1-931666-22-9}p")
             note_head = None
-            if note_p_element is not None:
+            for note_p_element in note_p_elements:
                 note_string = process_subelements.parse_xml_content(note_p_element, note_head, input_file)
                 if len(note_string) > 0:
                     # map_to_odd("ddbmapping_note", note_string, c_element, did_element)
@@ -286,8 +286,12 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_isil):
             corpname_element = element
 
     if corpname_element is not None:
-        if "id" not in corpname_element.attrib or corpname_element.attrib["id"] == "" or not corpname_element.attrib["id"].startswith("DE-"):
-            corpname_element.attrib["id"] = provider_isil
+        if "id" in corpname_element.attrib:
+            logger.info("(DDB-2017-Vorprozessierung, corpname/@id befüllen): Bestehender Attributwert wird durch Provider-ID überschrieben.")
+        if provider_id is not None:
+            corpname_element.attrib["id"] = provider_id
+        else:
+            logger.warning("(DDB-2017-Vorprozessierung, corpname/@id befüllen): Die Provider-ID ist nicht in den Provider-Metadaten hinterlegt.")
     else:
         logger.warning("(DDB-2017-Vorprozessierung, corpname/@id befüllen) Das Element corpname existiert in {} {} nicht.".format(input_type, input_file))
 

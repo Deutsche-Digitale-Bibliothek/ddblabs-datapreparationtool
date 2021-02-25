@@ -12,7 +12,7 @@ timer_start = datetime.datetime.now()
 # Variablen für den Build-Prozess (64 bit Python-Umgebung):
 include_providerspecific_modules = False
 qt_lib_path = "C:\\Users\\OGoetze\\venv\\build\\ddbmappings_build\\Lib\\site-packages\\PyQt5\\Qt\\bin"
-msvc_path = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\x64"
+msvc_path = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\10.0.19041.0\\ucrt\\DLLs\\x64"
 icon_path = "gui_components/ui_templates/resources/datapreparationtool.ico"
 data_files = []
 
@@ -20,7 +20,7 @@ data_files = []
 python_arch = struct.calcsize("P") * 8
 if python_arch == 32:  # 32 bit Python
     qt_lib_path = "C:\\Users\\OGoetze\\venv\\build\\ddbmappings_build_32bit\\Lib\\site-packages\\PyQt5\\Qt\\bin"
-    msvc_path = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\x86"
+    msvc_path = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\10.0.19041.0\\ucrt\\DLLs\\x86"
 logger.info("Baue stand-alone Distribution für Windows ({architecture} bit).", architecture=str(python_arch))
 
 # Aufräumen:
@@ -41,7 +41,6 @@ logger.info("Kopiere benötigte Data-Files ...")
 logger.info("Erstellen von Unterzeichnissen ...")
 os.makedirs("dist/gui_session/templates")
 os.makedirs("dist/utils/xml_enriched_with_uuids")
-os.makedirs("dist/modules/xsl_transform")
 os.makedirs("dist/modules/ead2mets")
 os.makedirs("dist/modules/common/provider_metadata")
 os.makedirs("dist/modules/analysis/enrichment")
@@ -57,6 +56,7 @@ copyfile("gui_session/version.xml", "dist/gui_session/version.xml")
 logger.info("Kopieren der UI-Ressourcen ...")
 copytree("gui_components/ui_templates/resources/html", "dist/gui_components/ui_templates/resources/html")
 copyfile("gui_components/ui_templates/resources/list.png", "dist/gui_components/ui_templates/resources/list.png")
+copytree("gui_components/ui_templates/resources/i18n", "dist/gui_components/ui_templates/resources/i18n")
 
 logger.info("Kopieren der providerspezifischen Anpassungen, inkl. modules/provider_specific/aggregator_mapping.xml ...")
 if include_providerspecific_modules:
@@ -67,9 +67,10 @@ if include_providerspecific_modules:
     if os.path.isdir("dist/modules/provider_specific/__pycache__"):
         rmtree("dist/modules/provider_specific/__pycache__")
 else:
-    copyfile("modules/provider_specific/aggregator_mapping.xml",
-             "dist/modules/provider_specific/aggregator_mapping.xml")
+    copyfile("modules/provider_specific/aggregator_mapping.xml", "dist/modules/provider_specific/aggregator_mapping.xml")
     copyfile("modules/provider_specific/provider_script_sets_mapping.xml", "dist/modules/provider_specific/provider_script_sets_mapping.xml")
+    copyfile("modules/provider_specific/provider_script_template.py", "dist/modules/provider_specific/provider_script_template.py")
+    copytree("modules/provider_specific/common", "dist/modules/provider_specific/common")
 
 logger.info("Kopieren des Templates zur METS/MODS-Generierung ...")
 copyfile("modules/ead2mets/mets_template.xml", "dist/modules/ead2mets/mets_template.xml")
