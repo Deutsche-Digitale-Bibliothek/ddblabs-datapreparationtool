@@ -4,12 +4,22 @@ Data Preparation Tool Changes Log   (siehe für spezifische Änderungen: https:/
 
 Release-Übersicht:
 
+3.4.0, 25.02.2021:
+     Neues Feature: Verwaltung der providerspezifischen Anpassungen durch flexibleren Workflow-Builder abgelöst.
+     Verbesserung: Erweiterung des generischen EAD-Mappings.
+     Verbesserung: Funktion "Binaries anziehen" - bei Fehlern wird die Anfrage bis zu fünf mal wiederholt. Die Dateinamen der heruntergeladenen Binaries werden nun normalisiert.
+     Verbesserung: Beispiel für eine providerspezifische Anpassung hinzugefügt (modules/provider_specific/provider_script_template.py).
+     Bugfix: Version 3.3.0 ließ sich unter Windows 10 Version 2004 und neuer nicht ausführen, dies wurde durch Aktualisierung von numpy behoben.
+     Bugfix: Thread-Status bei Start einer Prozessierung zurücksetzen, um Probleme bei abgebrochenen Prozessen zu vermeiden.
+     Bugfix: Der Menüpunkt "Bearbeiten -> Standardeinstellungen laden" funktioniert nun korrekt.
+     Sonstiges: Python-Libraries für Windows-Build auf neueste Version (PyQt 5.15.2, lxml 4.6.2, numpy 1.20.1, pandas 1.2.2) aktualisiert.
+
 3.3.0, 06.11.2020:
      Neues Feature: Cloud-Prozessierung durch Anbindung an die Open-Source Workflow-Engine Prefect Core umgesetzt. (momentan zur DDB-internen Verwendung)
-     Verbesserung: Allgemeine Verbesserungen an Vorprozessierung und Workflow-Engine
-     Verbesserung: Performance-Optimierung für tief geschachtelte XML-Dateien
-     Bugfix: Korrekturen am generischen EAD-Mapping
-     Sonstiges: Ergänzung des Aggregator-Mappings
+     Verbesserung: Allgemeine Verbesserungen an Vorprozessierung und Workflow-Engine.
+     Verbesserung: Performance-Optimierung für tief geschachtelte XML-Dateien.
+     Bugfix: Korrekturen am generischen EAD-Mapping.
+     Sonstiges: Ergänzung des Aggregator-Mappings.
      Sonstiges: Python-Libraries für Windows-Build auf neueste Version (Python 3.8.6, PyQt 5.15.1, lxml 4.6.1) aktualisiert.
 
 3.2.1, 17.06.2020:
