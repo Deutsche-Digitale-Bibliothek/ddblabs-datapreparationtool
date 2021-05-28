@@ -4,6 +4,11 @@ Data Preparation Tool Changes Log   (siehe für spezifische Änderungen: https:/
 
 Release-Übersicht:
 
+3.4.1, 28.05.2021:
+     Diverse Bugfixes und Verbesserungen.
+     Fehlende Module hinzugefügt, damit der Source Code wieder direkt ausgeführt werden kann.
+     Sonstiges: Python-Libraries für Windows-Build auf neueste Version (PyQt 5.15.4, lxml 4.6.3, numpy 1.20.3, pandas 1.2.4) aktualisiert.
+
 3.4.0, 25.02.2021:
      Neues Feature: Verwaltung der providerspezifischen Anpassungen durch flexibleren Workflow-Builder abgelöst.
      Verbesserung: Erweiterung des generischen EAD-Mappings.
