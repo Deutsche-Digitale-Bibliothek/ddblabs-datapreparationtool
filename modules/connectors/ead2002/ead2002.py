@@ -118,13 +118,20 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
     source_objects = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}c")
     for source_object in source_objects:
-
+        object_level = source_object.attrib["level"]
+        object_id = None
         if "id" in source_object.attrib:
             object_id = source_object.attrib["id"]
         else:
-            object_id = "{}_{}".format(session_data["provider"].replace("_", "-"), str(uuid4()))
+            if object_level == "collection":
+                if "id" not in source_object.attrib:
+                    eadid_element = xml_findbuch_in.find("//{urn:isbn:1-931666-22-9}eadheader/{urn:isbn:1-931666-22-9}eadid")
+                    if eadid_element is not None:
+                        if eadid_element.text is not None:
+                            object_id = eadid_element.text
+            if object_id is None:
+                object_id = "{}_{}".format(session_data["provider"].replace("_", "-"), str(uuid4()))
             source_object.attrib["id"] = object_id
-        object_level = source_object.attrib["level"]
         object_type = input_type
         if object_level == "collection":
             object_parent_id = None
@@ -356,6 +363,8 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
         # c/did/physloc
         physloc_elements = source_object.findall("{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}physloc")
+        if object_level == "collection":
+            physloc_elements += xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}physloc")
         for physloc_element in physloc_elements:
             if "odd" not in object_metadata:
                 object_metadata["odd"] = []
@@ -365,7 +374,10 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             head_exists = physloc_element.find("{urn:isbn:1-931666-22-9}head")
             p_exists = physloc_element.find("{urn:isbn:1-931666-22-9}p")
 
-            if head_exists is None:
+            if "label" in physloc_element.attrib:
+                if physloc_element.attrib["label"] != "":
+                    odd_item["head"] = physloc_element.attrib["label"]
+            elif head_exists is None:
                 odd_item["head"] = "Lagerort"
             else:
                 odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
@@ -401,6 +413,8 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
             if head_exists is not None:
                 scopecontent_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
+            else:
+                scopecontent_item["head"] = "Form und Inhalt"
 
             if p_exists is None:
                 scopecontent_item["p"] = process_subelements.parse_xml_content(scopecontent_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
@@ -413,29 +427,6 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 object_metadata["odd"].append(scopecontent_item)
             else:
                 object_metadata["scopecontent"].append(scopecontent_item)
-
-        # c/arrangement
-        arrangement_elements = source_object.findall("{urn:isbn:1-931666-22-9}arrangement")
-        for arrangement_element in arrangement_elements:
-            if "odd" not in object_metadata:
-                object_metadata["odd"] = []
-            odd_item = {}
-
-            head_exists = arrangement_element.find("{urn:isbn:1-931666-22-9}head")
-            p_exists = arrangement_element.find("{urn:isbn:1-931666-22-9}p")
-
-            if head_exists is None:
-                odd_item["head"] = "Ordnung"
-            else:
-                odd_item["head"] = process_subelements.parse_xml_content(head_exists, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
-
-            if p_exists is None:
-                odd_item["p"] = process_subelements.parse_xml_content(arrangement_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
-            else:
-                odd_item["p"] =  merge_paragraphs(arrangement_element, "{urn:isbn:1-931666-22-9}p", ignore_linebreaks=ignore_linebreak_elements)
-
-
-            object_metadata["odd"].append(odd_item)
 
         # c/bibliography
         bibliography_elements = source_object.findall("{urn:isbn:1-931666-22-9}bibliography") + source_object.findall("{urn:isbn:1-931666-22-9}relatedmaterial")
@@ -483,6 +474,9 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
         # c/odd
         odd_elements = source_object.findall("{urn:isbn:1-931666-22-9}odd")
+        if object_level == "collection":
+            odd_elements += xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}odd")
+
         for odd_element in odd_elements:
             if "odd" not in object_metadata:
                 object_metadata["odd"] = []
@@ -506,6 +500,8 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
         # c/did/note
         note_elements = source_object.findall("{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}note")
+        if object_level == "collection":
+            note_elements += xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}note")
         for note_element in note_elements:
             if "audience" in note_element.attrib:
                 if note_element.attrib["audience"] == "internal":  # bei @audience="internal" nicht mappen
@@ -513,8 +509,9 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
             if "note" not in object_metadata:
                 object_metadata["note"] = []
 
-            note_p_element = note_element.find("{urn:isbn:1-931666-22-9}p")
-            if note_p_element is not None:
+            note_p_elements = note_element.findall("{urn:isbn:1-931666-22-9}p")
+            if len(note_p_elements) == 1:
+                note_p_element = note_p_elements[0]
                 note_item = process_subelements.parse_xml_content(note_p_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
             else:
                 note_item = process_subelements.parse_xml_content(note_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
@@ -589,6 +586,8 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
 
         # c/accessrestrict
         accessrestrict_elements = source_object.findall("{urn:isbn:1-931666-22-9}accessrestrict")
+        if object_level == "collection":
+            accessrestrict_elements += xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}accessrestrict")
         accessrestrict_items = []
         for accessrestrict_element in accessrestrict_elements:
             accessrestrict_item = {}
@@ -649,8 +648,10 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 if "{http://www.w3.org/1999/xlink}href" in extref_element.attrib:
                     if "otherfindaid" not in object_metadata:
                         object_metadata["otherfindaid"] = {}
-                    if object_level == "collection":
+                    if object_level == "collection" and input_type != "tektonik":
                         object_metadata["otherfindaid"]["role"] = "url_findbuch"
+                    elif object_level == "collection" and input_type == "tektonik":
+                        object_metadata["otherfindaid"]["role"] = "url_tektonik"
                     elif object_level == "file" and input_type == "tektonik":
                         object_metadata["otherfindaid"]["role"] = "url_bestand"
                     else:
@@ -910,6 +911,9 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
         # c/controlaccess; c/index
         controlaccess_elements = source_object.findall("{urn:isbn:1-931666-22-9}controlaccess")
         indexentry_elements = source_object.findall("{urn:isbn:1-931666-22-9}index/{urn:isbn:1-931666-22-9}indexentry")
+        if object_level == "collection":
+            controlaccess_elements += xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}controlaccess")
+            indexentry_elements += xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}index/{urn:isbn:1-931666-22-9}indexentry")
         controlaccess_elements_combined = controlaccess_elements + indexentry_elements
         for controlaccess_element in controlaccess_elements_combined:
             if "index" not in object_metadata:

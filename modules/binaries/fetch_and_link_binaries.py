@@ -44,6 +44,12 @@ def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, inpu
                 except requests.ConnectionError as exc:
                     logger.error('Fehler beim Download des Binaries (ConnectionError), Objekt wird übersprungen: {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
                     continue
+                except ConnectionResetError as exc:
+                    logger.error('Fehler beim Download des Binaries (ConnectionResetError), Objekt wird übersprungen: {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
+                    continue
+                except requests.exceptions.ChunkedEncodingError as exc:
+                    logger.error('Fehler beim Download des Binaries (ChunkedEncodingError), Objekt wird übersprungen: {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
+                    continue
 
                 try:
                     res_binary.raise_for_status()
@@ -51,6 +57,11 @@ def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, inpu
                     logger.error('Fehler beim Download des Binaries (HTTPError): {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
                 except requests.ConnectionError as exc:
                     logger.error('Fehler beim Download des Binaries (ConnectionError): {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
+                except ConnectionResetError as exc:
+                    logger.error('Fehler beim Download des Binaries (ConnectionResetError): {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
+                except requests.exceptions.ChunkedEncodingError as exc:
+                    logger.error('Fehler beim Download des Binaries (ChunkedEncodingError), Objekt wird übersprungen: {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
+                    continue
 
                 if res_binary.status_code == 200:
                     # Sicherstellen, dass die Dateiendung dem Mimetype entspricht
@@ -63,8 +74,12 @@ def parse_xml_content(xml_findbuch_in, input_file, output_path, input_type, inpu
                                 binary_target_file_name += ".pdf"
 
                     binary_file = open(binary_target_file_name, 'wb')
-                    for chunk in res_binary.iter_content(100000):
-                        binary_file.write(chunk)
+                    try:
+                        for chunk in res_binary.iter_content(100000):
+                            binary_file.write(chunk)
+                    except ConnectionResetError as exc:
+                        logger.error('Fehler beim Download des Binaries (ConnectionResetError): {}.\n Datei: {}\n Objekt-ID: {}\n Fehlermeldung: {}'.format(remote_binary_filepath, input_file, object_id, exc))
+
                     binary_file.close()
 
             element.attrib["{http://www.w3.org/1999/xlink}href"] = "binaries/%s" % binary_target_file_name

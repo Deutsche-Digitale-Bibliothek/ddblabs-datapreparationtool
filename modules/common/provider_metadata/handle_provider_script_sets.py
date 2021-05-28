@@ -16,12 +16,17 @@ def get_provider_sets(provider_id: str) -> list:
     for provider_script_sets_mapping_file in provider_script_sets_mapping_files:
         if provider_script_sets_mapping_file.endswith(tuple([".xml", ".XML"])):
             provider_script_sets_mapping_file_in = etree.parse("{}/{}".format(provider_script_sets_mapping_dir, provider_script_sets_mapping_file))
+            is_global_set = False
+            provider_element = provider_script_sets_mapping_file_in.find("//provider")
+            if "range" in provider_element.attrib:
+                if provider_element.attrib["range"] == "global":
+                    is_global_set = True
 
             provider_id_xpath = "//provider[@id='%s']" % provider_id
             provider_in_mapping = provider_script_sets_mapping_file_in.find(provider_id_xpath)
 
-            if provider_in_mapping is not None:
-                provider_sets_in_mapping = provider_in_mapping.findall("set")
+            if provider_in_mapping is not None or is_global_set:
+                provider_sets_in_mapping = provider_element.findall("set")
                 for provider_set in provider_sets_in_mapping:
                     provider_set_id = provider_set.attrib["id"]
                     provider_set_name = provider_set.find("name").text
@@ -43,7 +48,7 @@ def get_provider_sets(provider_id: str) -> list:
                         single_module["Konfiguration"] = module_config
                         provider_set_modules.append(single_module)
 
-                    single_provider_set = {"id": provider_set_id, "name": provider_set_name, "modules": provider_set_modules, "description": provider_set_description}
+                    single_provider_set = {"id": provider_set_id, "name": provider_set_name, "modules": provider_set_modules, "description": provider_set_description, "is_global_set": is_global_set}
                     provider_sets.append(single_provider_set)
 
     return provider_sets
@@ -78,7 +83,7 @@ def read_provider_set(provider_set_id: str) -> list:
 
     return provider_set_modules
 
-def save_provider_set(provider_id: str, module_list: list, set_name: str, set_description: str, overwrite_set_id=None):
+def save_provider_set(provider_id: str, module_list: list, set_name: str, set_description: str, overwrite_set_id=None, is_global_set=False):
     """Schreiben des übergebenen Providerskript-Sets."""
     provider_script_sets_mapping_dir = "modules/provider_specific/.provider_script_sets"
     if overwrite_set_id is not None:
@@ -93,6 +98,8 @@ def save_provider_set(provider_id: str, module_list: list, set_name: str, set_de
 
     provider_element = etree.SubElement(provider_script_set_root, "provider")
     provider_element.attrib["id"] = provider_id
+    if is_global_set:
+        provider_element.attrib["range"] = "global"
 
     # Neues Providerskript-Set anlegen
     provider_script_set_element = etree.SubElement(provider_element, "set")

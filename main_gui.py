@@ -1234,7 +1234,11 @@ class MappingLibraryMainGui(Ui_MainWindow):
             self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.addItem(item["name"])
 
             provider_script_set_item_icon = QtGui.QIcon()
-            provider_script_set_item_icon.addPixmap(QtGui.QPixmap(":/provider-scripts-dialog/workflow.png"),
+            if item["is_global_set"] is True:
+                provider_script_set_item_icon_path = ":/provider-scripts-dialog/workflow_global.png"
+            else:
+                provider_script_set_item_icon_path = ":/provider-scripts-dialog/workflow.png"
+            provider_script_set_item_icon.addPixmap(QtGui.QPixmap(provider_script_set_item_icon_path),
                                                     QtGui.QIcon.Normal, QtGui.QIcon.Off)
             self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.setItemIcon(item_i, provider_script_set_item_icon)
 
@@ -1303,12 +1307,15 @@ class MappingLibraryMainGui(Ui_MainWindow):
         module_list = self.save_provider_modules(return_as_list=True)
 
         overwrite_set_id = None
+        is_global_set = False
         if self.providerScriptSaveDialog_ui.checkBox_overwrite_current_workflow.isChecked():
             # Bestehendes Set überschreiben
             combobox_index = self.providerScriptsDialog_ui.comboBox_select_saved_providerscript_definition.currentIndex()
             if combobox_index >= 0:
                 overwrite_set_id = self.provider_script_set_assignment[combobox_index]
-        save_provider_set(provider_id=self.session_data["provider"], module_list=module_list, set_name=set_name, set_description=set_description, overwrite_set_id=overwrite_set_id)
+        if self.providerScriptSaveDialog_ui.checkBox_providerscript_set_is_global.isChecked():
+            is_global_set=True
+        save_provider_set(provider_id=self.session_data["provider"], module_list=module_list, set_name=set_name, set_description=set_description, overwrite_set_id=overwrite_set_id, is_global_set=is_global_set)
 
         self.sync_provider_script_sets()
 

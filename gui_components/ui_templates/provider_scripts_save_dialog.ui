@@ -50,13 +50,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QPlainTextEdit" name="plainTextEdit_providerscript_set_description">
-        <property name="placeholderText">
-         <string>Beschreibung (optional)</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
@@ -68,6 +61,20 @@
        <widget class="QCheckBox" name="checkBox_overwrite_current_workflow">
         <property name="text">
          <string>Aktuell ausgewählten Workflow überschreiben</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QPlainTextEdit" name="plainTextEdit_providerscript_set_description">
+        <property name="placeholderText">
+         <string>Beschreibung (optional)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="checkBox_providerscript_set_is_global">
+        <property name="text">
+         <string>Diesen Workflow für alle Provider verfügbar machen</string>
         </property>
        </widget>
       </item>

@@ -135,9 +135,11 @@ def append_node_to_hierarchy(xml_base, object_level, object_id, object_parent_id
         logger.warning("Objekt mit ID {} konnte nicht eingehängt werden: Parent-ID {} nicht gefunden.".format(object_id,
                                                                                                               object_parent_id))
     elif len(parent_group_element) > 1:
-        logger.warning(
-            "Objekt mit ID {} konnte nicht eingehängt werden: Parent-ID {} ist nicht eindeutig.".format(object_id,
-                                                                                                        object_parent_id))
+        if object_level in tuple(["class", "series"]):
+            parent_group_element[0].append(new_group_element)
+            logger.warning("Parent-ID {} für Objekt {} ist nicht eindeutig. \nDas Objekt wurde beim ersten Parent mit übereinstimmender ID eingehängt. \nDa es sich beim Parent um ein class/series-Element handelt, sollte es unproblematisch sein. \nBitte prüfen, ob korrekt zugeordnet.".format(object_parent_id, object_id))
+        else:
+            logger.warning("Objekt mit ID {} konnte nicht eingehängt werden: Parent-ID {} ist nicht eindeutig.".format(object_id, object_parent_id))
 
 def map_metadata_fields(object_metadata, object_binaries, new_group_element, new_group_did_element, object_id, object_level, xml_base, object_type, administrative_data):
     # 1.1 Metadatenfelder
@@ -252,10 +254,13 @@ def map_metadata_fields(object_metadata, object_binaries, new_group_element, new
 
     # otherfindaid
     if "otherfindaid" in object_metadata:
-        if object_level == "collection":
+        if object_level == "collection" and object_type != "tektonik":
             archdesc_did_element = xml_base.find("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}did")
             new_otherfindaid_element = etree.Element("{urn:isbn:1-931666-22-9}otherfindaid")
             archdesc_did_element.addnext(new_otherfindaid_element)
+        elif object_level == "collection" and object_type == "tektonik":
+            new_otherfindaid_element = etree.Element("{urn:isbn:1-931666-22-9}otherfindaid")
+            new_group_did_element.addnext(new_otherfindaid_element)
         else:
             new_otherfindaid_element = etree.SubElement(new_group_element, "{urn:isbn:1-931666-22-9}otherfindaid")
         new_otherfindaid_extref_element = etree.SubElement(new_otherfindaid_element, "{urn:isbn:1-931666-22-9}extref")

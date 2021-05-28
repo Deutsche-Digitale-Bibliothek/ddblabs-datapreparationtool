@@ -28,4 +28,7 @@ def get_compare_value(compare_element, strip_whitespace=True):
                 compare_string += lb_element.tail
 
     compare_string = " ".join(compare_string.split())
+    if "\x7F" in compare_string:
+        compare_string = compare_string.replace("\x7F", "")
+
     return compare_string

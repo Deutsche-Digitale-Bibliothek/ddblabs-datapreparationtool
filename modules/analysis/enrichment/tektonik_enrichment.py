@@ -137,6 +137,9 @@ def enrich_tektonik(isil, website, name, state, archivtyp, provider_id, addressl
             findlist = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}otherfindaid")
             if len(findlist) > 0:
                 source_value_otherfindaid = findlist[0]
+                extref_source_element = source_value_otherfindaid.find("{urn:isbn:1-931666-22-9}extref")
+                if extref_source_element is not None:
+                    extref_source_element.attrib["{http://www.w3.org/1999/xlink}role"] = "url_bestand"
 
             # Auslesen der ID aus //c[@level='collection']
             collection_source_element = xml_findbuch_in.find("//{urn:isbn:1-931666-22-9}c[@level='collection']")
@@ -190,11 +193,11 @@ def enrich_tektonik(isil, website, name, state, archivtyp, provider_id, addressl
 
 
                             # Übertragen des did/physdesc/extent-Elements aus dem Findbuch-Bestandsdatensatz:
-                            physdesc_exists = did_element.findall("{urn:isbn:1-931666-22-9}physdesc")
+                            physdesc_exists = did_element.find("{urn:isbn:1-931666-22-9}physdesc")
                             physdesc_genreform_exists = did_element.findall("{urn:isbn:1-931666-22-9}physdesc/{urn:isbn:1-931666-22-9}genreform")
                             physdesc_extent_exists = did_element.findall("{urn:isbn:1-931666-22-9}physdesc/{urn:isbn:1-931666-22-9}extent")
 
-                            if len(physdesc_exists) == 0 and (source_elements_physdesc_extent is not None or source_elements_physdesc_genreform is not None):
+                            if physdesc_exists is None and (len(source_elements_physdesc_extent) > 0 or len(source_elements_physdesc_genreform) > 0):
                                 physdesc_exists = etree.SubElement(did_element, "{urn:isbn:1-931666-22-9}physdesc")
 
                             enrich_repeatable_elements(physdesc_exists, physdesc_genreform_exists, source_elements_physdesc_genreform)

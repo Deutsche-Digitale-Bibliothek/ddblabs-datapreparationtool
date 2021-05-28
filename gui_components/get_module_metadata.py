@@ -43,6 +43,8 @@ def get_module_description(provider_module, provider_isil):
         logger.debug("Beschreibung für Modul {} konnte nicht ausgelesen werden, da die dort verwendete Bibliothek '{}' nicht installiert ist.".format(module_path, e.name))
     except ImportError as e:
         logger.debug("Beschreibung für Modul {} konnte nicht ausgelesen werden, da das Python-Modul '{}' nicht importiert werden kann.".format(module_path, e.name))
+    except SyntaxError as e:
+        logger.debug("Beschreibung für Modul {} konnte nicht ausgelesen werden, da es Syntaxfehler enthält: {}".format(module_path, e))
 
     return module_desc
 

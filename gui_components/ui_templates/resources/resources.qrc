@@ -5,6 +5,7 @@
     <file>ddb-logo.png</file>
   </qresource>
   <qresource prefix="provider-scripts-dialog">
+    <file>workflow_global.png</file>
     <file>workflow_background.png</file>
     <file>delete.png</file>
     <file>workflow.png</file>
