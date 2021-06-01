@@ -4,6 +4,9 @@ Data Preparation Tool Changes Log   (siehe für spezifische Änderungen: https:/
 
 Release-Übersicht:
 
+3.4.2, 01.06.2021:
+     Korrektur der EAD(DDB)-Validierung: <lb/> nun auch als Subelement erlaubt in physdesc, physdesc/extent, physdesc/dimensions, unitid, origination, origination/name, langmaterial/language und indexentry/* (Angleichung an XSD-Schema)
+
 3.4.1, 28.05.2021:
      Diverse Bugfixes und Verbesserungen.
      Fehlende Module hinzugefügt, damit der Source Code wieder direkt ausgeführt werden kann.

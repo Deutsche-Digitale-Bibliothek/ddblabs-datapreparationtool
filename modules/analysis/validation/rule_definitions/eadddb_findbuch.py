@@ -357,7 +357,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = []
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = 1
     ruleset["text_character_content_allowed"] = True
@@ -1020,7 +1020,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = ["type"]
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = None
     ruleset["text_character_content_allowed"] = True
@@ -1113,7 +1113,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = []
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}genreform", "{urn:isbn:1-931666-22-9}dimensions", "{urn:isbn:1-931666-22-9}extent"]
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}genreform", "{urn:isbn:1-931666-22-9}dimensions", "{urn:isbn:1-931666-22-9}extent", "{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = None
     ruleset["text_character_content_allowed"] = True
@@ -1176,7 +1176,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = []
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = None
     ruleset["text_character_content_allowed"] = True
@@ -1206,7 +1206,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = []
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = None
     ruleset["text_character_content_allowed"] = True
@@ -1296,7 +1296,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = ["langcode", "scriptcode"]
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = None
     ruleset["text_character_content_allowed"] = True
@@ -1396,7 +1396,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = ["label"]
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}name"]
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}name", "{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = None
     ruleset["text_character_content_allowed"] = True
@@ -1426,7 +1426,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = ["source", "authfilenumber"]
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = 1
     ruleset["text_character_content_allowed"] = True
@@ -1958,7 +1958,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = ["role", "source", "authfilenumber"]
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = 1
     ruleset["text_character_content_allowed"] = True
@@ -1996,7 +1996,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = ["role", "source", "authfilenumber"]
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = 1
     ruleset["text_character_content_allowed"] = True
@@ -2034,7 +2034,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = ["role", "source", "authfilenumber"]
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = 1
     ruleset["text_character_content_allowed"] = True
@@ -2071,7 +2071,7 @@ def compile_validation_rules() -> dict:
     ruleset["element_children_optional"] = True
     ruleset["optional_attributes"] = ["role", "source", "authfilenumber"]
     ruleset["obligatory_attributes"] = []
-    ruleset["optional_subelements"] = []
+    ruleset["optional_subelements"] = ["{urn:isbn:1-931666-22-9}lb"]
     ruleset["obligatory_subelements"] = []
     ruleset["max_occurence"] = 1
     ruleset["text_character_content_allowed"] = True
