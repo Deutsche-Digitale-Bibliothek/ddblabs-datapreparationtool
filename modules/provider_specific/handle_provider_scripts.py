@@ -17,6 +17,10 @@ def parse_xml_content(root_path, xml_findbuch_in, input_type, input_file, error_
         isil = script["ISIL"]
         module_name = script["Modulname"]
         module_path = "../../modules/provider_specific/{}/{}".format(isil.replace("-", "_"), module_name)
+        if script["Konfiguration"] is not None:
+            if "repository_prefix" in script["Konfiguration"]:
+                module_path = "../../../{}/modules/provider_specific/{}/{}".format(script["Konfiguration"]["repository_prefix"].replace("-", "_"), isil.replace("-", "_"), module_name)
+
         spec = importlib.util.spec_from_file_location("parse_xml_content", module_path)
         provider_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(provider_module)
@@ -24,7 +28,7 @@ def parse_xml_content(root_path, xml_findbuch_in, input_type, input_file, error_
         try:
             xml_findbuch_in = provider_module.parse_xml_content(xml_findbuch_in, input_type, input_file)
 
-        except (IndexError, TypeError, AttributeError, KeyError, SyntaxError, OSError, etree.XPathEvalError) as e:
+        except (IndexError, TypeError, AttributeError, KeyError, SyntaxError, OSError, ValueError, etree.XPathEvalError) as e:
             traceback_string = traceback.format_exc()
             logger.warning("Providerspezifische Anpassung {} konnte für die Datei {} nicht angewandt werden; Fehlermeldung: {}. Vermutlich wurde die Anpassung nicht für das vorliegende Exportformat angepasst.\n {}".format(module_name, input_file, e, traceback_string))
             error_status = 1

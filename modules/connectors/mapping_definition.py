@@ -2,6 +2,7 @@ from lxml import etree
 import os
 
 from modules.connectors.ead2002 import ead2002
+from modules.connectors.gnd4c_nds import gnd4c_nds
 from modules.common.provider_metadata import handle_provider_metadata
 
 def apply_mapping(session_data, administrative_data, xml_findbuch_in, input_type, input_file, error_status, propagate_logging):
@@ -26,6 +27,8 @@ def apply_mapping(session_data, administrative_data, xml_findbuch_in, input_type
         elif mapping_def == "ead_iiif-json":
             xml_findbuch_in = ead2002.parse_xml_content(*mapping_args, administrative_data, provider_rights, serializer="iiif_json")
             result_format = "json_multiple"
+        elif mapping_def == "gnd4c-nds_marcxml":
+            xml_findbuch_in = gnd4c_nds.parse_xml_content(*mapping_args, administrative_data, provider_rights, serializer="marcxml")
 
     return xml_findbuch_in, result_format
 

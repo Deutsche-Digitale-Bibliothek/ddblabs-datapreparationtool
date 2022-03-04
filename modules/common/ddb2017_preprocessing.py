@@ -4,6 +4,7 @@ from loguru import logger
 import collections
 from modules.common.helpers import process_subelements
 from modules.common.helpers import normalize_space
+from modules.analysis.enrichment.helpers.cleanup_compare_strings import get_compare_value
 
 def map_to_odd(head, p, c_element, did_element):
     odd_element = etree.Element("{urn:isbn:1-931666-22-9}odd")
@@ -28,7 +29,7 @@ def map_to_abstract(head, p, c_element, did_element):
     append_element = did_element
     append_element.append(abstract_element)
 
-def map_binary_mimetype(binary_path: str, object_id: str, input_file: str):
+def map_binary_mimetype(binary_path: str, object_id: str, input_file: str, log_messages: list):
     binary_ext_mapping = {}
     binary_ext_mapping["image/jpeg"] = ["jpg", "jpeg"]
     binary_ext_mapping["application/pdf"] = ["pdf"]
@@ -55,12 +56,12 @@ def map_binary_mimetype(binary_path: str, object_id: str, input_file: str):
             else:
                 mimetype = "image/jpeg"
                 recommended_genreform = None
-                logger.warning("Binary-Mimetype-Anreicherung: der Mimetype konnte für den Pfad {} nicht eindeutig an der Dateiendung ermittelt werden. Es wird der Default-Mimetype 'image/jpeg' übergeben. (Objekt-ID {}, Datei {})".format(binary_path, object_id, input_file))
+                log_messages.append("Binary-Mimetype-Anreicherung: der Mimetype eines Objekts konnte nicht eindeutig an der Dateiendung ermittelt werden. Es wird der Default-Mimetype 'image/jpeg' übergeben.")
 
             return mimetype, recommended_genreform
 
     else:
-        logger.warning("Binary-Mimetype-Anreicherung: Die Pfadangabe des Objekts {} in Datei {} ist leer.".format(object_id, input_file))
+        log_messages.append("Binary-Mimetype-Anreicherung: Die Pfadangabe eines Objekts ist leer.")
         return None, None
 
 def remove_empty_elements(parent_element, sub_element_name, log_messages):
@@ -103,6 +104,37 @@ def remove_empty_elements(parent_element, sub_element_name, log_messages):
                                     "Abprüfung auf leere Elemente: Sub-Element {} entfernt, da leer. Parent-Element {} nicht entfernt, da sich darunter weitere Subelemente befinden.".format(sub_element.tag, parent_element.tag))
                     else:
                         log_messages.append("Abprüfung auf leere Elemente: Sub-Element {} aus Parent-Element {} nicht entfernt, da es nicht eindeutig als leer identifiziert wurde (evtl. beginnt der Elementinhalt mit einem lb-Tag).".format(sub_element.tag, parent_element.tag))
+
+def create_genreform_element(c_element, input_type):
+    c_element_level = c_element.attrib["level"]
+    if input_type in tuple(["findbuch", "bestandsfindbuch"]):
+        genreform_value = "Archivale"
+        if c_element_level == "file":
+            genreform_value = "Archivale"
+        elif c_element_level == "item":
+            genreform_value = "Dokument"
+        elif c_element_level == "class":
+            genreform_value = "Gliederung"
+        elif c_element_level == "series":
+            genreform_value = "Serie"
+        elif c_element_level == "collection":
+            genreform_value = "Bestand"
+    else:
+        genreform_value = "Bestand"
+        if c_element_level == "file":
+            genreform_value = "Bestand"
+        elif c_element_level == "class":
+            genreform_value = "Tektonik"
+        elif c_element_level == "series":
+            genreform_value = "Bestandsserie"
+        elif c_element_level == "collection":
+            genreform_value = "Archivtektonik"
+
+    did_element = c_element.find("{urn:isbn:1-931666-22-9}did")
+    physdesc_element = etree.SubElement(did_element, "{urn:isbn:1-931666-22-9}physdesc")
+    physdesc_genreform_element = etree.SubElement(physdesc_element, "{urn:isbn:1-931666-22-9}genreform")
+    physdesc_genreform_element.text = genreform_value
+
 
 def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_id):
     # Verarbeitung von Absätzen v.a. in Titelfeldern (unittitle auf allen Ebenen): Umwandeln von <lb/> in ". ", von <p> und anderen HTNL-Tags in " - " (Ersatz für Template delete_html):
@@ -273,6 +305,14 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_id):
                 # map_to_odd("ddbmapping_accessrestrict", accessrestrict_string, c_element, did_element)
                 map_to_abstract("ddbmapping_accessrestrict", accessrestrict_string, c_element, did_element)
 
+        # physdesc/genreform anreichern (= Objekttyp)
+        physdesc_genreform_exists = c_element.find("{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}physdesc/{urn:isbn:1-931666-22-9}genreform")
+        if physdesc_genreform_exists is None:
+            create_genreform_element(c_element, input_type)
+        elif get_compare_value(physdesc_genreform_exists) == "":
+            physdesc_genreform_exists.getparent().remove(physdesc_genreform_exists)
+            create_genreform_element(c_element, input_type)
+
     # Sicherstellen, dass corpname/@id immer geliefert wird
     if input_type == "findbuch" or input_type == "bestandsfindbuch":
         corpname_elements = xml_findbuch_in.findall("//{urn:isbn:1-931666-22-9}archdesc/{urn:isbn:1-931666-22-9}did/{urn:isbn:1-931666-22-9}repository/{urn:isbn:1-931666-22-9}corpname")
@@ -287,13 +327,13 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_id):
 
     if corpname_element is not None:
         if "id" in corpname_element.attrib:
-            logger.info("(DDB-2017-Vorprozessierung, corpname/@id befüllen): Bestehender Attributwert wird durch Provider-ID überschrieben.")
+            log_messages.append("(DDB-2017-Vorprozessierung, corpname/@id befüllen): Bestehender Attributwert wird durch Provider-ID überschrieben.")
         if provider_id is not None:
             corpname_element.attrib["id"] = provider_id
         else:
-            logger.warning("(DDB-2017-Vorprozessierung, corpname/@id befüllen): Die Provider-ID ist nicht in den Provider-Metadaten hinterlegt.")
+            log_messages.append("(DDB-2017-Vorprozessierung, corpname/@id befüllen): Die Provider-ID ist nicht in den Provider-Metadaten hinterlegt.")
     else:
-        logger.warning("(DDB-2017-Vorprozessierung, corpname/@id befüllen) Das Element corpname existiert in {} {} nicht.".format(input_type, input_file))
+        log_messages.append("(DDB-2017-Vorprozessierung, corpname/@id befüllen) Das Element corpname existiert in {} {} nicht.".format(input_type, input_file))
 
 
     # "http://" vor URLs voranstellen
@@ -336,7 +376,7 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_id):
                     url_exists = True
                     url_value = daoloc_element.attrib["{http://www.w3.org/1999/xlink}href"]
 
-        binary_mimetype, recommended_genreform = map_binary_mimetype(url_value, c_parent_id, input_file)
+        binary_mimetype, recommended_genreform = map_binary_mimetype(url_value, c_parent_id, input_file, log_messages)
         if binary_mimetype is not None:
             if "localtype" not in daoloc_element.attrib:
                 # binary_mimetype nur schreiben, wenn noch nicht vorhanden.
@@ -422,9 +462,13 @@ def parse_xml_content(xml_findbuch_in, input_file, input_type, provider_id):
     if len(log_messages) > 0:
         logger.info("Meldungen zur DDB2017-Vorprozessierung bei {}-Datei '{}':".format(input_type, input_file))
         aggregated_log_messages = collections.Counter(log_messages)
+        # aggregated_log_string = ""
         for validation_message in aggregated_log_messages:
             logger.info(
                 "{} ({} mal)".format(validation_message, aggregated_log_messages[validation_message]))
+            # aggregated_log_string += "{} ({} mal)\n".format(validation_message, aggregated_log_messages[validation_message])
+        # logger.info(aggregated_log_string)
+            
 
 
     return xml_findbuch_in

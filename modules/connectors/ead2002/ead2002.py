@@ -262,9 +262,13 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                     physdesc_prefix = None
                 physdesc_content = process_subelements.parse_xml_content(physdesc_element, physdesc_prefix, input_file, ignore_linebreaks=ignore_linebreak_elements)
                 if physdesc_content != "":
-                    object_metadata["physdesc"] = physdesc_content
+                    if "physdesc" not in object_metadata:
+                        object_metadata["physdesc"] = []
+                    physdesc_string = physdesc_content
                     if "label" in physdesc_element.attrib:
-                        object_metadata["physdesc"] = "{}: {}".format(physdesc_element.attrib["label"], object_metadata["physdesc"])
+                        physdesc_string = "{}: {}".format(physdesc_element.attrib["label"], physdesc_string)
+                    object_metadata["physdesc"].append(physdesc_string)
+
             else:
                 if genreform_exists is not None:
                     genreform_item = {}
@@ -470,7 +474,8 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                     relatedmaterial_item["p"] = process_subelements.parse_xml_content(bibliography_element, None, input_file, ignore_linebreaks=ignore_linebreak_elements)
 
             if "p" in relatedmaterial_item:
-                object_metadata["relatedmaterial"].append(relatedmaterial_item)
+                if relatedmaterial_item["p"] != "":
+                    object_metadata["relatedmaterial"].append(relatedmaterial_item)
 
         # c/odd
         odd_elements = source_object.findall("{urn:isbn:1-931666-22-9}odd")

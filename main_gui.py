@@ -451,7 +451,8 @@ class MappingLibraryMainGui(Ui_MainWindow):
                 user_interaction_message = processing_status["user_interaction_message"]
                 user_interaction_input_files = processing_status["user_interaction_input_files"]
 
-                self.transformationStatusDialog_ui.progressBar.setValue(int(processing_step))
+                if processing_step is not None:
+                    self.transformationStatusDialog_ui.progressBar.setValue(int(processing_step))
                 self.transformationStatusDialog_ui.label_transformation_status.setText(status_message)
 
                 if raise_user_interaction != "0":

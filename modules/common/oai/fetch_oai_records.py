@@ -4,6 +4,7 @@ import copy
 from loguru import logger
 from modules.common.helpers import normalize_filename
 from modules.common.helpers import namespaces
+from modules.common.helpers.requests_helpers import get_retry_session
 
 
 def transform_ead_tree(target_record_metadata_tree):
@@ -149,7 +150,8 @@ def get_single_record(provider_input_path, oai_url, oai_metadata_prefix, oai_ver
     oai_parameters = {'verb': oai_verb, 'metadataPrefix': oai_metadata_prefix, 'identifier': oai_identifier.rstrip()}
 
     try:
-        oai_request = requests.get(oai_url, params=oai_parameters, headers=http_headers)
+        session_oai_download = get_retry_session(retries=10, backoff_factor=5)
+        oai_request = session_oai_download.get(oai_url, params=oai_parameters, headers=http_headers)
 
         logger.debug("OAI-Server HTTP-Headers: {}".format(oai_request.headers))
         logger.info("OAI-Server Status: {}".format(oai_request.status_code))

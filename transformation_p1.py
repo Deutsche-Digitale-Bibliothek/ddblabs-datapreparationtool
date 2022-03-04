@@ -110,7 +110,7 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
         logger.add(logfile_path, rotation="10 MB")
 
     # Zurücksetzen des Prozessierungs-Status:
-    write_processing_status(root_path=root_path, processing_step=None, status_message=None, error_status=0)
+    write_processing_status(root_path=root_path, processing_step="", status_message="", error_status=0, workflow_module="", workflow_module_type="", current_input_file="", current_input_type="", input_file_progress="", input_file_count="", raise_user_interaction="0", user_interaction_message="", user_interaction_input_files="")
     error_status = 0
 
     # Einlesen der Input-Dateien
@@ -155,7 +155,7 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
         # Ermitteln und ausführen der Workflow-Module
         write_processing_status(root_path=root_path, processing_step=transformation_progress,
                                 status_message="Verarbeite Workflow-Module für {}: {} (Datei {}/{})".format(
-                                    input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+                                    input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count)
         workflow_modules = load_provider_modules()
         for workflow_module in workflow_modules:
             if handle_thread_actions.load_from_xml("stop_thread", root_path) is True:
@@ -178,7 +178,7 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
                             mapping_definition_in_workflow_modules = True
 
                     if result_format == "xml":
-                        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul '{}' für {}: {} (Datei {}/{})".format(workflow_module_type, input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, log_status_message=True)
+                        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul '{}' für {}: {} (Datei {}/{})".format(workflow_module_type, input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="maintenance_function.py", workflow_module_type=workflow_module_type, current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count, log_status_message=True)
                         try:
                             xml_findbuch_in, result_format = maintenance_function.parse_xml_content(xml_findbuch_in, input_type, input_file, provider_id, session_data, administrative_data, error_status, propagate_logging, module_config=workflow_module["Konfiguration"])
                         except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
@@ -191,17 +191,17 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
                         # bei unbeaufsichtigter Ausführung (etwa in Prefect) Nutzerinteraktions-Module überspringen
                         logger.info("Unbeaufsichtigte Ausführung: Nutzerinteraktions-Modul wird übersprungen.")
                     else:
-                        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul (Nutzerinteraktion) für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, log_status_message=True)
+                        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul (Nutzerinteraktion) für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="user_interaction.py", workflow_module_type="Nutzerinteraktion", current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count, log_status_message=True)
 
                         xml_findbuch_in = user_interaction.parse_xml_content(xml_findbuch_in, input_type, input_file, module_config=workflow_module["Konfiguration"], root_path=root_path)
                 elif workflow_module["Modulname"] == "filesystem_operation.py":
                     if result_format == "xml":
-                        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul (Dateisystem-Operation) für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, log_status_message=True)
+                        write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul (Dateisystem-Operation) für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="filesystem_operation.py", workflow_module_type="Dateisystem-Operation", current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count, log_status_message=True)
                         xml_findbuch_in = filesystem_operation.parse_xml_content(xml_findbuch_in, input_type, input_file, module_config=workflow_module["Konfiguration"])
             else:
                 # für normale Providerskripte handle_provider_scripts aufrufen
                 if result_format == "xml":
-                    write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul (providerspezifische Anpassung '{}' des Providers {}) für {}: {} (Datei {}/{})".format(workflow_module["Modulname"], workflow_module["ISIL"], input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, log_status_message=True)
+                    write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Verarbeite Workflow-Modul (providerspezifische Anpassung '{}' des Providers {}) für {}: {} (Datei {}/{})".format(workflow_module["Modulname"], workflow_module["ISIL"], input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="{}.{}".format(workflow_module["ISIL"], workflow_module["Modulname"]), workflow_module_type="providerspezifische Anpassung", current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count, log_status_message=True)
 
                     provider_module_args = [root_path, xml_findbuch_in, input_type, input_file, error_status]  # Parameter zur Übergabe an die providerspezifischen Anpassungen
                     xml_findbuch_in, error_status = handle_provider_scripts.parse_xml_content(*provider_module_args, provider_scripts=[workflow_module])
@@ -213,7 +213,7 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
                                     error_status, propagate_logging]  # Parameter zur Übergabe an die Mapping-Definition
             if apply_mapping_definition:
                 write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anwenden der Mapping-Definition für {}: {} (Datei {}/{})".format(
-                    input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+                    input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="mapping_definition.py", workflow_module_type="Anwenden der Mapping-Definition", current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count)
                 try:
                     xml_findbuch_in, result_format = mapping_definition.apply_mapping(session_data, administrative_data, *mapping_definition_args)
                 except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
@@ -225,20 +225,20 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
 
         # Anziehen der Binaries (falls "fetch_and_link_binaries = True" in transformation_p1)
         if process_binaries and result_format == "xml":
-            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Lade Binaries für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Lade Binaries für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="fetch_and_link_binaries.py", workflow_module_type="Laden der Binaries", current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count, )
             xml_findbuch_in = fetch_and_link_binaries.parse_xml_content(xml_findbuch_in, input_file, output_path,
                                                                         input_type, input_path)
 
         # Generierung von METS-Dateien (falls "enable_mets_generation = True" in transformation_p1)
         if enable_mets_generation and result_format == "xml":
-            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Generiere METS-Dateien für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+            write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Generiere METS-Dateien für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="create_mets_files.py", workflow_module_type="Generieren der METS-Dateien", current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count)
             xml_findbuch_in = create_mets_files.parse_xml_content(xml_findbuch_in, input_file, output_path,
                                                                   input_type, input_path, session_data)
 
         # Anreicherung der Rechte- und Lizenzinformation
         if not rights_enrichment_in_workflow_modules:
             if enrich_rights_info and result_format == "xml":
-                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Rechteinformation für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Rechteinformation für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="handle_provider_rights.py", workflow_module_type="Anreichern der Rechteinformation", current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count)
                 try:
                     xml_findbuch_in = handle_provider_rights.parse_xml_content(xml_findbuch_in, input_file, input_type)
                 except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
@@ -250,7 +250,7 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
         # Anreicherung der Aggregator-Zuordnung
         if not aggregator_enrichment_in_workflow_modules:
             if enrich_aggregator_info and result_format == "xml":
-                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Aggregatorinformation für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="Anreichern der Aggregatorinformation für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="handle_provider_aggregator_mapping.py", workflow_module_type="Anreichern der Aggregatorinformation", current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count)
                 try:
                     xml_findbuch_in = handle_provider_aggregator_mapping.parse_xml_content(xml_findbuch_in, input_file, input_type)
                 except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
@@ -264,7 +264,7 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
         # Vorprozessierung für die DDB2017-Transformation
         if not ddb2017_preprocessing_in_workflow_modules:
             if enable_ddb2017_preprocessing and result_format == "xml":
-                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="DDB2017-Vorprozessierung für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status)
+                write_processing_status(root_path=root_path, processing_step=transformation_progress, status_message="DDB2017-Vorprozessierung für {}: {} (Datei {}/{})".format(input_type, input_file, input_file_i+1, input_files_count), error_status=error_status, workflow_module="ddb2017_preprocessing.py", workflow_module_type="DDB2017-Vorprozessierung", current_input_file=input_file, current_input_type=input_type, input_file_progress=input_file_i+1, input_file_count=input_files_count)
                 try:
                     xml_findbuch_in = ddb2017_preprocessing.parse_xml_content(xml_findbuch_in, input_file, input_type, provider_id)
                 except (IndexError, TypeError, AttributeError, KeyError, SyntaxError) as e:
@@ -282,7 +282,7 @@ def run_transformation_p1(root_path, session_data=None, is_gui_session=False, pr
         input_file_i += 1
         os.chdir('data_input/' + input_folder_name)  # Zurücksetzen des CWD (current working directory) für das Einlesen der nächsten Datei
 
-    write_processing_status(root_path=root_path, processing_step=100, status_message="Transformation abgeschlossen.", error_status=error_status)
+    write_processing_status(root_path=root_path, processing_step=100, status_message="Transformation abgeschlossen.", error_status=error_status, workflow_module="", workflow_module_type="", current_input_file="", current_input_type="", input_file_progress=input_files_count, input_file_count=input_files_count)
     os.chdir(root_path)
 
 

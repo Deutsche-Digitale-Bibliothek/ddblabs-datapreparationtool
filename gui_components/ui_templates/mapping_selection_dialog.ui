@@ -36,6 +36,11 @@
        <string>ead_iiif-json</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>gnd4c-nds_marcxml</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item row="0" column="1">

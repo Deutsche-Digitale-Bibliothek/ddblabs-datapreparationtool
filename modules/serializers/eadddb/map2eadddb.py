@@ -195,8 +195,9 @@ def map_metadata_fields(object_metadata, object_binaries, new_group_element, new
 
     # physdesc
     if "physdesc" in object_metadata:
-        new_physdesc_element = etree.SubElement(new_group_did_element, "{urn:isbn:1-931666-22-9}physdesc")
-        new_physdesc_element.text = object_metadata["physdesc"]
+        for physdesc_item in object_metadata["physdesc"]:
+            new_physdesc_element = etree.SubElement(new_group_did_element, "{urn:isbn:1-931666-22-9}physdesc")
+            new_physdesc_element.text = physdesc_item
 
     # physdesc/genreform
     if "genreform" in object_metadata:

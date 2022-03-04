@@ -342,14 +342,32 @@ def get_processing_status(root_path):
         logger.debug("Aktualisierung der Status-Information übersprungen.")
         return None
 
-    # Fortschritt der Prozessierung
+    # Gesamtfortschritt der Prozessierung in Prozent
     processing_status["processing_step"] = status_input.find("//processing_step").text
 
-    # Statusnachricht
+    # Konsolidierte Statusnachricht zum aktuellen Prozessierungsstatus
     processing_status["status_message"] = status_input.find("//status_message").text
 
-    # Fehlerstatus
+    # error_status wird auf "1" gesetzt, sobald bei der Prozessierung ein Fehler auftritt
     processing_status["error_status"] = status_input.find("//error_status").text
+
+    # Name des Worflow-Moduls
+    processing_status["workflow_module"] = status_input.find("//workflow_module").text
+
+    # Typ des Workflow-Moduls
+    processing_status["workflow_module_type"] = status_input.find("//workflow_module_type").text
+
+    # Dateiname der aktuell prozessierten Input-Datei
+    processing_status["current_input_file"] = status_input.find("//current_input_file").text
+
+    # Typ der aktuell prozessierten Input-Datei
+    processing_status["current_input_type"] = status_input.find("//current_input_type").text
+
+    # Anzahl der bereits prozessierten Input-Dateien
+    processing_status["input_file_progress"] = status_input.find("//input_file_progress").text
+
+    # Gesamtzahl der zu prozessierenden Input-Dateien
+    processing_status["input_file_count"] = status_input.find("//input_file_count").text
 
     # Status der Nutzerinteraktion
     processing_status["raise_user_interaction"] = status_input.find("//raise_user_interaction").text
@@ -362,16 +380,18 @@ def get_processing_status(root_path):
 
     return processing_status
 
-def write_processing_status(root_path, processing_step=None, status_message=None, error_status=None, raise_user_interaction=None, user_interaction_message=None, user_interaction_input_files=None, log_status_message=False):
+def write_processing_status(root_path, processing_step=None, status_message=None, error_status=None, workflow_module=None, workflow_module_type=None, current_input_file=None, current_input_type=None, input_file_progress=None, input_file_count=None, raise_user_interaction=None, user_interaction_message=None, user_interaction_input_files=None, log_status_message=False):
     # Speichern des Status aus den Prozessierungsskripten, um diese über get_processing_status() in der GUI anzeigen zu können.
 
     status_file = "{}/gui_session/processing_status.xml".format(root_path)
     status_input = etree.parse(status_file)
 
+    # Gesamtfortschritt der Prozessierung in Prozent
     if processing_step is not None:
         status_input_element = status_input.find("//processing_step")
         status_input_element.text = str(processing_step)
 
+    # Konsolidierte Statusnachricht zum aktuellen Prozessierungsstatus
     if status_message is not None:
         status_input_element = status_input.find("//status_message")
         status_input_element.text = str(status_message)
@@ -379,9 +399,40 @@ def write_processing_status(root_path, processing_step=None, status_message=None
         if log_status_message:
             logger.info(status_message)
 
+    # error_status wird auf "1" gesetzt, sobald bei der Prozessierung ein Fehler auftritt
     if error_status is not None:
         status_input_element = status_input.find("//error_status")
         status_input_element.text = str(error_status)
+
+    # Name des Workflow-Moduls
+    if workflow_module is not None:
+        status_input_element = status_input.find("//workflow_module")
+        status_input_element.text = str(workflow_module)
+
+    # Typ des Workflow-Moduls
+    if workflow_module_type is not None:
+        status_input_element = status_input.find("//workflow_module_type")
+        status_input_element.text = str(workflow_module_type)
+
+    # Dateiname der aktuell prozessierten Input-Datei
+    if current_input_file is not None:
+        status_input_element = status_input.find("//current_input_file")
+        status_input_element.text = str(current_input_file)
+
+    # Typ der aktuell prozessierten Input-Datei
+    if current_input_type is not None:
+        status_input_element = status_input.find("//current_input_type")
+        status_input_element.text = str(current_input_type)
+
+    # Anzahl der bereits prozessierten Input-Dateien
+    if input_file_progress is not None:
+        status_input_element = status_input.find("//input_file_progress")
+        status_input_element.text = str(input_file_progress)
+
+    # Gesamtzahl der zu prozessierenden Input-Dateien
+    if input_file_count is not None:
+        status_input_element = status_input.find("//input_file_count")
+        status_input_element.text = str(input_file_count)
 
     # Status der Nutzerinteraktion
     if raise_user_interaction is not None:
