@@ -34,19 +34,31 @@ def map_to_subfield(datafield_element, code, value):
 def get_date_type(date_string):
     date_pattern_datx = re.compile("^(\d{2})\.(\d{2})\.(\d{4})$")
     date_pattern_datl = re.compile("^(\d{4})$")
+    date_pattern_datx_negative = re.compile("^(\d{2})\.(\d{2})\.(-\d{3,4})$")
+    date_pattern_datl_negative = re.compile("^(-\d{3,4})$")
 
     date_pattern_datx_match_groups = date_pattern_datx.match(date_string)
     date_pattern_datl_match_groups = date_pattern_datl.match(date_string)
+    date_pattern_datx_negative_match_groups = date_pattern_datx_negative.match(date_string)
+    date_pattern_datl_negative_match_groups = date_pattern_datl_negative.match(date_string)
 
     if date_pattern_datx_match_groups:
         return "datx"
     elif date_pattern_datl_match_groups:
         return "datl"
+    elif date_pattern_datx_negative_match_groups:
+        return "datx_negative"
+    elif date_pattern_datl_negative_match_groups:
+        return "datl_negative"
     else:
         return None
 
 
-def serialize_metadata(session_data, object_id, object_level, object_type, object_parent_id, object_metadata, object_rights, object_binaries,administrative_data, xml_base):
+def serialize_metadata(session_data, object_id, object_level, object_type, object_parent_id, object_metadata, object_rights, object_binaries, administrative_data, input_file, xml_base):
+    # Aggregiertes Logging vorbereiten
+    logfile_in_map_item_id_without_source = open("log_map_item_id_without_source.txt", "a", encoding="utf-8")
+    logfile_in_unrecognized_date_pattern = open("log_unrecognized_date_pattern.txt", "a", encoding="utf-8")
+
     namespaces = {"marc": "http://www.loc.gov/MARC21/slim"}
     xml_base = get_xml_base(xml_base)
     collection_element = xml_base.getroot()
@@ -180,17 +192,22 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
         for function_or_role in object_metadata["function_or_role"]:
             datafield_element = create_datafield(record_element, "550")
             for uri_value in function_or_role["uri_values"]:
-                map_to_subfield(datafield_element, "0", uri_value)
+                if uri_value.startswith("https://d-nb.info/gnd/"):
+                    # GND-ID aus URI extrahieren
+                    uri_value = uri_value.split("https://d-nb.info/gnd/")[1]
+                map_to_subfield(datafield_element, "0", "(DE-588){}".format(uri_value))
             if "label_value" in function_or_role:
                 map_to_subfield(datafield_element, "a", function_or_role["label_value"])
-            map_to_subfield(datafield_element, "4", "https://d-nb.info/standards/elementset/gnd#functionOrRole")
+            # map_to_subfield(datafield_element, "4", "https://d-nb.info/standards/elementset/gnd#functionOrRole")
 
     # Beruf oder Beschäftigung (datafield[@tag="550"])
     if "profession_or_occupation" in object_metadata:
         for profession_or_occupation_i, profession_or_occupation in enumerate(object_metadata["profession_or_occupation"]):
             datafield_element = create_datafield(record_element, "550")
             for uri_value in profession_or_occupation["uri_values"]:
-                map_to_subfield(datafield_element, "0", uri_value)
+                if uri_value.startswith("https://d-nb.info/gnd/"):
+                    uri_value = uri_value.split("https://d-nb.info/gnd/")[1]
+                map_to_subfield(datafield_element, "0", "(DE-588){}".format(uri_value))
             if "label_value" in profession_or_occupation:
                 map_to_subfield(datafield_element, "a", profession_or_occupation["label_value"])
             # if "label_role" in profession_or_occupation:
@@ -198,8 +215,8 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
                 map_to_subfield(datafield_element, "4", "berc")
             else:
                 map_to_subfield(datafield_element, "4", "beru")
-            map_to_subfield(datafield_element, "4",
-                            "https://d-nb.info/standards/elementset/gnd#professionOrOccupation")
+            # map_to_subfield(datafield_element, "4",
+            #                 "https://d-nb.info/standards/elementset/gnd#professionOrOccupation")
 
     # mapItem (datafield[@tag="024|035|670"])
     if "map_item" in object_metadata:
@@ -212,19 +229,38 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
                         uri_vocab = "gnd"
                     elif "vocab.getty" in id_value:
                         uri_vocab = "gettyulan"
+                    elif "isni.org" in id_value:
+                        uri_vocab = "isni"
+                    elif "viaf.org" in id_value:
+                        uri_vocab = "viaf"
+                    elif "wikidata.org" in id_value:
+                        uri_vocab = "wikidata"
                     id_value = id_value.split("/")[-1]
                 if map_item["id_type"] == "http://terminology.lido-schema.org/identifier_type/uri":
+                    if uri_vocab == "gnd":
+                        id_value = "(DE-588){}".format(id_value)
                     datafield_element = create_datafield(record_element, "024", ind1="7")
                     map_to_subfield(datafield_element, "a", id_value)
                     map_to_subfield(datafield_element, "2", uri_vocab)
                     if uri_vocab == "":
-                        logger.warning("Objekt {}: mapItemID ohne Source-Angabe (subfield[@code='2']).".format(object_metadata["record_id"]))
+                        log_message = "Objekt {}: mapItemID ohne Source-Angabe (subfield[@code='2']) (Datei: {}).".format(object_metadata["record_id"], input_file)
+                        logger.warning(log_message)
+                        logfile_in_map_item_id_without_source.write("{}\n".format(log_message))
                 elif map_item["id_type"] == "http://terminology.lido-schema.org/identifier_type/local_identifier":
                     if "target" in map_item:
-                        if map_item["target"] in tuple(["PND, SWD", "PND", "SWD", "O-GND"]):
+                        if map_item["target"] in tuple(["PND, SWD", "PND", "SWD", "O-GND", "GKD", "GND"]):
+                            map_item_id_prefix = ""
+                            if map_item["target"] in tuple (["GND", "O-GND"]):  # RÜCKFRAGE: Soll "O-GND" analog zu "GND" behandelt werden?
+                                map_item_id_prefix = "(DE-588)"
+                            elif map_item["target"] == "PND":
+                                map_item_id_prefix = "(DE-588 a)"
+                            elif map_item["target"] == "GKD":
+                                map_item_id_prefix = "(DE-588 b)"
+                            elif map_item["target"] == "SWD":
+                                map_item_id_prefix = "(DE-588 c)"
                             datafield_element = create_datafield(record_element, "035")
-                            map_to_subfield(datafield_element, "z", map_item["id_value"])
-                            map_to_subfield(datafield_element, "9", "v:zg")  # NOTE: Absprache mit DNB ausstehend
+                            map_to_subfield(datafield_element, "z", "{}{}".format(map_item_id_prefix, map_item["id_value"]))
+                            map_to_subfield(datafield_element, "9", "v:zg")  # RÜCKFRAGE: Absprache mit DNB ausstehend
                         elif map_item["target"] == "AKL":
                             datafield_element = create_datafield(record_element, "670")
                             map_to_subfield(datafield_element, "a", "AKL online")
@@ -250,9 +286,16 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
                     if date_type == "datl" or date_type is None:
                         date_of_birth_values["datl"].append(date_string)
                         if date_type is None:
-                            logger.warning(
-                                "Die angegebene Datierung '{}' entspricht nicht dem Muster 'YYYY' bzw. 'DD.MM.YYYY'. Fallback auf Typ 'datl'. (Objekt {})".format(date_string, object_metadata["record_id"]))
+                            log_message = "Die angegebene Datierung '{}' entspricht nicht dem Muster 'YYYY' bzw. 'DD.MM.YYYY'. Fallback auf Typ 'datl'. (Objekt {}, Datei: {})".format(date_string, object_metadata["record_id"], input_file)
+                            logger.warning(log_message)
+                            logfile_in_unrecognized_date_pattern.write("{}\n".format(log_message))
                     elif date_type == "datx":
+                        date_of_birth_values["datx"].append(date_string)
+                    elif date_type == "datl_negative":
+                        date_string = date_string.replace("-", "v")
+                        date_of_birth_values["datl"].append(date_string)
+                    elif date_type == "datx_negative":
+                        date_string = date_string.replace("-", "v")
                         date_of_birth_values["datx"].append(date_string)
 
         if "date_of_death" in object_metadata:
@@ -266,9 +309,16 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
                     if date_type == "datl" or date_type is None:
                         date_of_death_values["datl"].append(date_string)
                         if date_type is None:
-                            logger.warning(
-                                "Die angegebene Datierung '{}' entspricht nicht dem Muster 'YYYY' bzw. 'DD.MM.YYYY'. Fallback auf Typ 'datl'. (Objekt {})".format(date_string, object_metadata["record_id"]))
+                            log_message = "Die angegebene Datierung '{}' entspricht nicht dem Muster 'YYYY' bzw. 'DD.MM.YYYY'. Fallback auf Typ 'datl'. (Objekt {}, Datei {})".format(date_string, object_metadata["record_id"], input_file)
+                            logger.warning(log_message)
+                            logfile_in_unrecognized_date_pattern.write("{}\n".format(log_message))
                     elif date_type == "datx":
+                        date_of_death_values["datx"].append(date_string)
+                    elif date_type == "datl_negative":
+                        date_string = date_string.replace("-", "v")
+                        date_of_death_values["datl"].append(date_string)
+                    elif date_type == "datx_negative":
+                        date_string = date_string.replace("-", "v")
                         date_of_death_values["datx"].append(date_string)
 
         date_value_datl = ""
@@ -280,6 +330,8 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
 
         if len(date_of_death_values["datl"]) > 0:
             single_value = date_of_death_values["datl"][0]
+            if date_value_datl == "":
+                date_value_datl += "-"  # Minuszeichen voranstellen, wenn kein DateOfBirth geliefert.
             date_value_datl  += single_value
 
         if date_value_datl != "":
@@ -297,6 +349,8 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
 
         if len(date_of_death_values["datx"]) > 0:
             single_value = date_of_death_values["datx"][0]
+            if date_value_datx == "":
+                date_value_datx += "-"  # Minuszeichen voranstellen, wenn kein DateOfBirth geliefert.
             date_value_datx += single_value
 
         if date_value_datx != "":
@@ -310,7 +364,7 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
         for date_of_birth in object_metadata["date_of_birth"]:
             if "primitive_value" in date_of_birth:
                 datafield_element = create_datafield(record_element, "548")
-                map_to_subfield(datafield_element, "a", "ca. {}".format(date_of_birth["primitive_value"]))
+                map_to_subfield(datafield_element, "a", date_of_birth["primitive_value"] if date_of_birth["primitive_value"].startswith("ca.") else "ca. {}".format(date_of_birth["primitive_value"]))
                 map_to_subfield(datafield_element, "4", "datw")
                 map_to_subfield(datafield_element, "4", "https://d-nb.info/standards/elementset/gnd#dateOfBirthAndDeath")
 
@@ -319,7 +373,9 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
         for date_of_death in object_metadata["date_of_death"]:
             if "primitive_value" in date_of_death:
                 datafield_element = create_datafield(record_element, "548")
-                map_to_subfield(datafield_element, "a", "ca. {}".format(date_of_death["primitive_value"]))
+                map_to_subfield(datafield_element, "a",
+                                date_of_death["primitive_value"] if date_of_death["primitive_value"].startswith(
+                                    "ca.") else "ca. {}".format(date_of_death["primitive_value"]))
                 map_to_subfield(datafield_element, "4", "datw")
                 map_to_subfield(datafield_element, "4",
                                 "https://d-nb.info/standards/elementset/gnd#dateOfBirthAndDeath")
@@ -335,7 +391,9 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
                                 "https://d-nb.info/standards/elementset/gnd#periodOfActivity")
             if "primitive_value" in period_of_activity:
                 datafield_element = create_datafield(record_element, "548")
-                map_to_subfield(datafield_element, "a", "ca. {}".format(period_of_activity["primitive_value"]))
+                map_to_subfield(datafield_element, "a",
+                                period_of_activity["primitive_value"] if period_of_activity["primitive_value"].startswith(
+                                    "ca.") else "ca. {}".format(period_of_activity["primitive_value"]))
                 map_to_subfield(datafield_element, "4", "datw")
                 map_to_subfield(datafield_element, "4",
                                 "https://d-nb.info/standards/elementset/gnd#periodOfActivity")
@@ -389,5 +447,6 @@ def serialize_metadata(session_data, object_id, object_level, object_type, objec
             datafield_element = create_datafield(record_element, "678")
             map_to_subfield(datafield_element, "b", bioghist_item)
 
-
+    logfile_in_map_item_id_without_source.close()
+    logfile_in_unrecognized_date_pattern.close()
     return xml_base

@@ -6,6 +6,9 @@ from modules.analysis.enrichment.helpers.cleanup_compare_strings import get_comp
 
 
 def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, error_status, propagate_logging, administrative_data, provider_rights, serializer):
+    # Aggregiertes Logging vorbereiten
+    logfile_in_multiple_date_elements = open("log_multiple_date_elements.txt", "a", encoding="utf-8")
+
     namespaces = {"gnd4c": "http://gnd4c.digicult-verbund.de"}
     xml_result = None
 
@@ -207,6 +210,11 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                 if get_compare_value(geographic_area_code_uri_element) != "":
                     object_metadata["geographic_area_code"].append(get_compare_value(geographic_area_code_uri_element))
 
+            geographic_area_code_label_element = geographic_area_code_element.find("gnd4c:label", namespaces)
+            if geographic_area_code_label_element is not None:
+                if get_compare_value(geographic_area_code_label_element) != "":
+                    object_metadata["geographic_area_code"].append(get_compare_value(geographic_area_code_label_element))
+
         # gnd4c:person/gnd4c:placeOfBirth|placeOfDeath|associatedPlace
         object_metadata["place_of_birth"] = []
         object_metadata["place_of_death"] = []
@@ -273,15 +281,20 @@ def parse_xml_content(session_data, xml_findbuch_in, input_type, input_file, err
                     object_metadata["period_of_activity"].append(date_single)
 
         if len(object_metadata["date_of_birth"]) > 1:
-            logger.warning("Für Datensatz-ID {} sind {} dateOfBirth-Elemente vorhanden. Bitte prüfen, ob Geburts- und Sterbedatum korrekt zusammengesetzt wurden.".format(object_metadata["record_id"], len(object_metadata["date_of_birth"])))
-        if len(object_metadata["date_of_death"]) > 1:
-            logger.warning("Für Datensatz-ID {} sind {} dateOfDeath-Elemente vorhanden. Bitte prüfen, ob Geburts- und Sterbedatum korrekt zusammengesetzt wurden.".format(object_metadata["record_id"], len(object_metadata["date_of_death"])))
+            log_message = "Für Datensatz-ID {} sind {} dateOfBirth-Elemente vorhanden. Bitte prüfen, ob Geburts- und Sterbedatum korrekt zusammengesetzt wurden. (Datei: {})".format(object_metadata["record_id"], len(object_metadata["date_of_birth"]), input_file)
+            logger.warning(log_message)
+            logfile_in_multiple_date_elements.write("{}\n".format(log_message))
 
+
+        if len(object_metadata["date_of_death"]) > 1:
+            log_message = "Für Datensatz-ID {} sind {} dateOfDeath-Elemente vorhanden. Bitte prüfen, ob Geburts- und Sterbedatum korrekt zusammengesetzt wurden. (Datei: {})".format(object_metadata["record_id"], len(object_metadata["date_of_death"]), input_file)
+            logger.warning(log_message)
+            logfile_in_multiple_date_elements.write("{}\n".format(log_message))
 
 
         if serializer == "marcxml":
-            xml_result = map2marcxml.serialize_metadata(session_data, object_id, object_level, object_type, object_parent_id, object_metadata, object_rights, object_binaries, administrative_data, xml_base=xml_result)
+            xml_result = map2marcxml.serialize_metadata(session_data, object_id, object_level, object_type, object_parent_id, object_metadata, object_rights, object_binaries, administrative_data, input_file, xml_base=xml_result)
 
-
+    logfile_in_multiple_date_elements.close()
     if xml_result is not None:
         return xml_result
